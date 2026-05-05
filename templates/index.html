@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema DGT / Interior — Educativo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --blue:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;
+  --accent:#1f6feb;--accent2:#388bfd;
+}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:700;letter-spacing:2px;color:#fff}
+.logo span{color:var(--blue)}
+.topnav a{color:var(--text2);padding:4px 10px;border-radius:6px;font-size:12px}
+.topnav a:hover,.topnav a.active{background:var(--bg3);color:var(--text)}
+.topnav{display:flex;gap:4px}
+.ml-auto{margin-left:auto}
+.badge-red{background:#3d1a1a;color:var(--red);border:1px solid #6b2020;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* LAYOUT */
+.container{max-width:1600px;margin:0 auto;padding:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.stat-n{font-size:26px;font-weight:700;font-family:monospace}
+.stat-n.blue{color:var(--blue)}.stat-n.green{color:var(--green)}.stat-n.red{color:var(--red)}.stat-n.orange{color:var(--orange)}
+.stat-l{font-size:10px;color:var(--text2);margin-top:3px;letter-spacing:.5px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:8px 16px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:.15s;font-family:monospace}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* CONTROLS */
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.ctrl input,.ctrl select{background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:6px 10px;height:32px;border-radius:6px;font-family:monospace}
+.ctrl input{flex:1;min-width:180px}
+.ctrl select{min-width:130px}
+.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--accent2)}
+.btn{background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:6px;
+  cursor:pointer;font-size:12px;font-family:monospace;height:32px}
+.btn:hover{background:var(--accent2)}
+.btn-sm{padding:3px 8px;height:24px;font-size:10px}
+.btn-red{background:#6b2020}.btn-red:hover{background:#8b2424}
+.btn-green{background:#1a3d20}.btn-green:hover{background:#2a5c30}
+.btn-orange{background:#3d2a00}.btn-orange:hover{background:#5a3d00}
+
+/* TABLE */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:monospace;table-layout:fixed}
+th{background:var(--bg3);padding:8px 8px;text-align:left;font-weight:600;font-size:10px;
+  color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;
+  cursor:pointer;user-select:none;letter-spacing:.5px}
+th:hover{color:var(--text)}
+td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.alert-row td{background:rgba(248,81,73,.05)!important;color:#ffb3af!important}
+.pag{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)}
+.pag .pi{flex:1;text-align:center}
+
+/* BADGES */
+.bj{display:inline-block;padding:1px 7px;border-radius:99px;font-size:9px;font-weight:700;letter-spacing:.3px}
+.bj-act{background:#1a3d20;color:#3fb950}.bj-sus{background:#3d1a1a;color:#f85149}
+.bj-baj{background:#3d2a00;color:#d29922}.bj-pen{background:#1a2d4d;color:#58a6ff}
+.bj-tra{background:#3d1a3d;color:#bc8cff}
+.al-bc{background:#6b2020;color:#ff6b6b;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-req{background:#4d2800;color:#ffa040;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-vis{background:#2d1a4d;color:#c084fc;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-mul{background:#1a2d4d;color:#60a5fa;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-ok{color:var(--text3);font-size:9px}
+
+/* MATRÍCULA */
+.mat{display:inline-block;background:#fff;border:2px solid #00308F;border-radius:3px;
+  padding:1px 6px;font-weight:700;font-size:12px;color:#00308F;letter-spacing:2px}
+.mat .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:7px;
+  padding:0 2px;border-radius:2px 0 0 2px;margin-right:3px;font-weight:700}
+
+/* MODAL/FICHA */
+.ficha{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:16px;margin-bottom:14px;position:relative}
+.ficha h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
+.ficha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.ficha-row{background:var(--bg3);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
+.ficha-key{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.ficha-val{font-size:12px;color:var(--text);font-weight:500;margin-top:2px;overflow-wrap:anywhere}
+.ficha-sep{grid-column:1/-1;border-top:1px solid var(--border);padding-top:6px;margin-top:2px;
+  font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.close-btn{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:monospace}
+.close-btn:hover{color:var(--text)}
+
+/* SQL SCHEMA */
+.schema-box{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px;
+  font-family:monospace;font-size:11px;white-space:pre;overflow-x:auto;line-height:1.7;
+  color:var(--text2);max-height:600px;overflow-y:auto}
+.kw{color:#ff7b72}.ty{color:#79c0ff}.cm{color:var(--text3)}.str{color:#a5d6ff}.num{color:#ffa657}
+
+/* GRÁFICAS */
+.bar-chart{display:flex;flex-direction:column;gap:5px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:10px}
+.bar-label{min-width:120px;color:var(--text2);text-align:right;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:16px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.bar-val{min-width:30px;color:var(--text);font-weight:600;font-size:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
+
+/* LOADING */
+.loading{color:var(--text3);text-align:center;padding:30px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">⬛ <span>DGT</span>/INTERIOR</div>
+  <nav class="topnav">
+    <a href="/" class="active">Inicio</a>
+    <a href="#" onclick="switchTab('matriculas');return false">Matrículas</a>
+    <a href="#" onclick="switchTab('ciudadanos');return false">Ciudadanos</a>
+    <a href="#" onclick="switchTab('alertas');return false">Alertas</a>
+    <a href="#" onclick="switchTab('schema');return false">SQL</a>
+    <a href="#" onclick="switchTab('graficas');return false">Stats</a>
+  </nav>
+  <div class="ml-auto" style="display:flex;gap:8px;align-items:center">
+    <span class="badge-red" id="bcCount">⚠ ...</span>
+    {% if admin %}
+      <a href="/admin" class="btn btn-sm">🔧 Admin</a>
+      <a href="/logout" class="btn btn-sm btn-red">Salir</a>
+    {% else %}
+      <a href="/login" class="btn btn-sm">🔐 Admin</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  <div style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);
+      border-radius:6px;padding:8px 12px;display:inline-block">
+      📚 <strong style="color:var(--orange)">BASE DE DATOS FICTICIA</strong> — 
+      Uso exclusivo educativo · Aprendizaje de programación y bases de datos · 
+      DNI 00000001A → 99999999Z · Matrículas 0001 BBB → 9999 NZZ
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    {% for label, val, cls in [
+      ('Matrículas',stats.matriculas,'blue'),
+      ('Ciudadanos',stats.ciudadanos,'blue'),
+      ('Alertas activas',stats.alertas,'red'),
+      ('Busca y Captura',stats.bc,'red'),
+      ('Matrículas activas',stats.activas,'green'),
+      ('Eléctricos',stats.electricos,'green'),
+      ('Con antecedentes',stats.antecedentes,'orange'),
+    ] %}
+    <div class="stat">
+      <div class="stat-n {{cls}}">{{val}}</div>
+      <div class="stat-l">{{label}}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('matriculas')">Matrículas</div>
+    <div class="tab" onclick="switchTab('ciudadanos')">Ciudadanos / DNI</div>
+    <div class="tab" onclick="switchTab('alertas')">Alertas Policiales</div>
+    <div class="tab" onclick="switchTab('schema')">Esquema SQL</div>
+    <div class="tab" onclick="switchTab('consultas')">Consultas SQL</div>
+    <div class="tab" onclick="switchTab('graficas')">Estadísticas</div>
+  </div>
+
+  <!-- MATRÍCULAS -->
+  <div id="tab-matriculas">
+    <div class="ctrl">
+      <input id="mQ" placeholder="Matrícula, bastidor, marca, DNI, nombre..." oninput="debounce(loadMat,300)()"/>
+      <select id="mProv" onchange="loadMat()"><option value="">Todas las provincias</option></select>
+      <select id="mEst" onchange="loadMat()">
+        <option value="">Todos los estados</option>
+        <option>Activa</option><option>Suspendida</option><option>Baja</option>
+        <option>Pendiente</option><option>Transferida</option>
+      </select>
+      <select id="mTipo" onchange="loadMat()">
+        <option value="">Todos los tipos</option>
+        <option>Turismo</option><option>Furgoneta</option><option>Motocicleta</option>
+        <option>Camión</option><option>Autobús</option><option>Remolque</option>
+      </select>
+      <select id="mComb" onchange="loadMat()">
+        <option value="">Cualquier combustible</option>
+        <option>Gasolina</option><option>Diésel</option><option>Híbrido</option>
+        <option>Eléctrico</option><option>GLP</option><option>GNC</option>
+      </select>
+      <select id="mAlerta" onchange="loadMat()">
+        <option value="">Cualquier alerta</option>
+        <option value="alert">Con alerta</option>
+        <option value="clean">Sin alerta</option>
+      </select>
+    </div>
+    <div id="mDetail"></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:95px">Matrícula</th>
+        <th style="width:130px">Propietario</th>
+        <th style="width:85px">DNI</th>
+        <th style="width:80px">Provincia</th>
+        <th style="width:72px">Tipo</th>
+        <th style="width:80px">Marca</th>
+        <th style="width:80px">Modelo</th>
+        <th style="width:42px">Año</th>
+        <th style="width:82px">F.Matric.</th>
+        <th style="width:68px">Estado</th>
+        <th style="width:75px">Combustible</th>
+        <th style="width:38px">CV</th>
+        <th style="width:60px">CO₂</th>
+        <th style="width:65px">Color</th>
+        <th style="width:55px">Uso</th>
+        <th style="width:75px">ITV</th>
+        <th style="width:75px">Seguro</th>
+        <th style="width:45px">Multas</th>
+        <th style="width:55px">Alerta</th>
+        <th style="width:45px">Ver</th>
+      </tr></thead>
+      <tbody id="mBody"><tr><td colspan="20" class="loading">Cargando...</td></tr></tbody>
+    </table></div>
+    <div class="pag">
+      <button class="btn btn-sm" onclick="mPage--;loadMat()">← Ant.</button>
+      <div class="pi" id="mPI"></div>
+      <button class="btn btn-sm" onclick="mPage++;loadMat()">Sig. →</button>
+    </div>
+  </div>
+
+  <!-- CIUDADANOS -->
+  <div id="tab-ciudadanos" style="display:none">
+    <div class="ctrl">
+      <input id="cQ" placeholder="DNI, nombre, dirección, teléfono, email..." oninput="debounce(loadCiu,300)()"/>
+      <select id="cProv" onchange="loadCiu()"><option value="">Todas las provincias</option></select>
+      <select id="cAlerta" onchange="loadCiu()">
+        <option value="">Cualquier estado policial</option>
+        <option>Busca y Captura</option>
+        <option>Requisitoria Judicial</option>
+        <option>Vigilancia Especial</option>
+        <option>Multas Pendientes</option>
+        <option>Sin alertas</option>
+      </select>
+      <select id="cSexo" onchange="loadCiu()">
+        <option value="">Todos</option><option>Hombre</option><option>Mujer</option>
+      </select>
+    </div>
+    <div id="cDetail"></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:85px">DNI</th>
+        <th style="width:150px">Nombre completo</th>
+        <th style="width:68px">Nacimiento</th>
+        <th style="width:38px">Edad</th>
+        <th style="width:30px">Sexo</th>
+        <th style="width:85px">Provincia</th>
+        <th style="width:150px">Dirección</th>
+        <th style="width:95px">Teléfono</th>
+        <th style="width:130px">Email</th>
+        <th style="width:70px">Nac.</th>
+        <th style="width:70px">Est.Civil</th>
+        <th style="width:35px">Hijos</th>
+        <th style="width:85px">Profesión</th>
+        <th style="width:35px">Pts</th>
+        <th style="width:35px">Ant.</th>
+        <th style="width:60px">Alerta</th>
+        <th style="width:40px">Vehíc.</th>
+        <th style="width:45px">Ver</th>
+      </tr></thead>
+      <tbody id="cBody"><tr><td colspan="18" class="loading">Cargando...</td></tr></tbody>
+    </table></div>
+    <div class="pag">
+      <button class="btn btn-sm" onclick="cPage--;loadCiu()">← Ant.</button>
+      <div class="pi" id="cPI"></div>
+      <button class="btn btn-sm" onclick="cPage++;loadCiu()">Sig. →</button>
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div id="tab-alertas" style="display:none">
+    <div class="ctrl">
+      <input id="aQ" placeholder="DNI, nombre, motivo..." oninput="debounce(loadAlert,300)()"/>
+      <select id="aTipo" onchange="loadAlert()">
+        <option value="">Todos los tipos</option>
+        <option>Busca y Captura</option>
+        <option>Requisitoria Judicial</option>
+        <option>Vigilancia Especial</option>
+        <option>Multas Pendientes</option>
+      </select>
+    </div>
+    <div id="aDetail"></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:30px">ID</th>
+        <th style="width:85px">DNI</th>
+        <th style="width:140px">Nombre</th>
+        <th style="width:100px">Tipo alerta</th>
+        <th style="width:120px">Motivo</th>
+        <th style="width:85px">Emisor</th>
+        <th style="width:78px">F.Emisión</th>
+        <th style="width:78px">F.Caducidad</th>
+        <th style="width:80px">Juzgado</th>
+        <th style="width:80px">Expediente</th>
+        <th style="width:65px">Peligrosidad</th>
+        <th style="width:45px">Activa</th>
+        <th style="width:45px">Ver</th>
+      </tr></thead>
+      <tbody id="aBody"><tr><td colspan="13" class="loading">Cargando...</td></tr></tbody>
+    </table></div>
+    <div class="pag">
+      <button class="btn btn-sm" onclick="aPage--;loadAlert()">← Ant.</button>
+      <div class="pi" id="aPI"></div>
+      <button class="btn btn-sm" onclick="aPage++;loadAlert()">Sig. →</button>
+    </div>
+  </div>
+
+  <!-- SCHEMA -->
+  <div id="tab-schema" style="display:none">
+    <div class="schema-box"><span class="cm">-- ============================================================</span>
+<span class="cm">-- SISTEMA DGT/INTERIOR — Base de datos ficticia educativa</span>
+<span class="cm">-- Motor: SQLite3 (compatible MySQL/PostgreSQL con mínimos cambios)</span>
+<span class="cm">-- ============================================================</span>
+
+<span class="kw">CREATE TABLE</span> ciudadanos (
+  id                   <span class="ty">INTEGER</span>   <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+  dni                  <span class="ty">TEXT</span>      <span class="kw">NOT NULL UNIQUE</span>,           <span class="cm">-- 8 dígitos + letra (00000001A → 99999999Z)</span>
+  nombre               <span class="ty">TEXT</span>      <span class="kw">NOT NULL</span>,
+  apellido1            <span class="ty">TEXT</span>      <span class="kw">NOT NULL</span>,
+  apellido2            <span class="ty">TEXT</span>,
+  sexo                 <span class="ty">TEXT</span>,                                     <span class="cm">-- 'Hombre' / 'Mujer'</span>
+  fecha_nac            <span class="ty">TEXT</span>,                                     <span class="cm">-- ISO 8601: YYYY-MM-DD</span>
+  provincia_residencia <span class="ty">TEXT</span>,
+  municipio            <span class="ty">TEXT</span>,
+  direccion            <span class="ty">TEXT</span>,
+  numero_via           <span class="ty">TEXT</span>,
+  piso                 <span class="ty">TEXT</span>,
+  codigo_postal        <span class="ty">TEXT</span>,
+  telefono             <span class="ty">TEXT</span>,
+  telefono2            <span class="ty">TEXT</span>,
+  email                <span class="ty">TEXT</span>,
+  nacionalidad         <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'Española'</span>,
+  estado_civil         <span class="ty">TEXT</span>,
+  num_hijos            <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">0</span>,
+  profesion            <span class="ty">TEXT</span>,
+  situacion_laboral    <span class="ty">TEXT</span>,
+  nivel_estudios       <span class="ty">TEXT</span>,
+  ingresos_anuales     <span class="ty">INTEGER</span>,
+  banco_ref            <span class="ty">TEXT</span>,
+  num_cuenta           <span class="ty">TEXT</span>,
+  licencia_conducir    <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'No'</span>,
+  tipo_licencia        <span class="ty">TEXT</span>,
+  puntos_carnet        <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">15</span>,
+  antecedentes_penales <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'No'</span>,
+  num_pasaporte        <span class="ty">TEXT</span>,
+  fecha_exp_dni        <span class="ty">TEXT</span>,
+  fecha_cad_dni        <span class="ty">TEXT</span>,
+  alerta_policial      <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'Sin alertas'</span>,
+  notas_admin          <span class="ty">TEXT</span>,
+  created_at           <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>)),
+  updated_at           <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>))
+);
+
+<span class="kw">CREATE TABLE</span> matriculas (
+  id               <span class="ty">INTEGER</span>   <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+  matricula        <span class="ty">TEXT</span>      <span class="kw">NOT NULL UNIQUE</span>,         <span class="cm">-- Formato: '0001 BBB' → '9999 NZZ'</span>
+  dni              <span class="ty">TEXT</span>      <span class="kw">NOT NULL</span>,
+  tipo_vehiculo    <span class="ty">TEXT</span>,
+  marca            <span class="ty">TEXT</span>,
+  modelo           <span class="ty">TEXT</span>,
+  año_fab          <span class="ty">INTEGER</span>,
+  fecha_mat        <span class="ty">TEXT</span>,
+  estado           <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'Activa'</span>,
+  combustible      <span class="ty">TEXT</span>,
+  cv               <span class="ty">INTEGER</span>,
+  co2_grkg         <span class="ty">INTEGER</span>,
+  bastidor         <span class="ty">TEXT</span>      <span class="kw">UNIQUE</span>,
+  fecha_itv        <span class="ty">TEXT</span>,
+  color            <span class="ty">TEXT</span>,
+  uso              <span class="ty">TEXT</span>,
+  km               <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">0</span>,
+  num_puertas      <span class="ty">INTEGER</span>,
+  num_plazas       <span class="ty">INTEGER</span>,
+  tara_kg          <span class="ty">INTEGER</span>,
+  masa_max_kg      <span class="ty">INTEGER</span>,
+  seguro_compañia  <span class="ty">TEXT</span>,
+  seguro_poliza    <span class="ty">TEXT</span>,
+  seguro_hasta     <span class="ty">TEXT</span>,
+  num_infracciones <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">0</span>,
+  importe_multas   <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">0</span>,
+  titular_anterior <span class="ty">TEXT</span>,
+  notas_admin      <span class="ty">TEXT</span>,
+  created_at       <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>)),
+  updated_at       <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>)),
+  <span class="kw">FOREIGN KEY</span> (dni) <span class="kw">REFERENCES</span> ciudadanos(dni) <span class="kw">ON UPDATE CASCADE</span>
+);
+
+<span class="kw">CREATE TABLE</span> alertas_policiales (
+  id               <span class="ty">INTEGER</span>   <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+  dni              <span class="ty">TEXT</span>      <span class="kw">NOT NULL</span>,
+  tipo_alerta      <span class="ty">TEXT</span>,     <span class="cm">-- Busca y Captura / Requisitoria Judicial / Vigilancia / Multas</span>
+  motivo           <span class="ty">TEXT</span>,
+  emisor           <span class="ty">TEXT</span>,
+  fecha_emision    <span class="ty">TEXT</span>,
+  fecha_caducidad  <span class="ty">TEXT</span>,
+  juzgado          <span class="ty">TEXT</span>,
+  num_expediente   <span class="ty">TEXT</span>,
+  peligrosidad     <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> <span class="str">'Media'</span>,
+  observaciones    <span class="ty">TEXT</span>,
+  activa           <span class="ty">INTEGER</span>   <span class="kw">DEFAULT</span> <span class="num">1</span>,
+  notas_admin      <span class="ty">TEXT</span>,
+  created_at       <span class="ty">TEXT</span>      <span class="kw">DEFAULT</span> (datetime(<span class="str">'now'</span>)),
+  <span class="kw">FOREIGN KEY</span> (dni) <span class="kw">REFERENCES</span> ciudadanos(dni)
+);
+
+<span class="cm">-- Cómo calcular la letra del DNI:</span>
+<span class="cm">-- letra = 'TRWAGMYFPDXBNJZSQVHLCKE'[numero % 23]</span>
+<span class="cm">-- Ejemplo: DNI 12345678 → 12345678 % 23 = 14 → letra Z → 12345678Z</span>
+
+<span class="cm">-- Rango DNI: 00000001A → 99999999Z (100 millones de combinaciones)</span>
+<span class="cm">-- Rango matrícula: 0001 BBB → 9999 NZZ</span>
+<span class="cm">-- Letras válidas matrícula: B,C,D,F,G,H,J,K,L,M,N,P,R,S,T,V,W,X,Y,Z (20 letras)</span>
+<span class="cm">-- Total combinaciones: 9.000 × 20³ = 72.000.000 matrículas posibles</span>
+    </div>
+  </div>
+
+  <!-- CONSULTAS SQL -->
+  <div id="tab-consultas" style="display:none">
+    <div style="display:flex;flex-direction:column;gap:14px" id="consultasBox">
+      <div class="loading">Haz clic en la pestaña para cargar consultas</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICAS -->
+  <div id="tab-graficas" style="display:none">
+    <div class="g2" id="graficasBox"><div class="loading">Cargando estadísticas...</div></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const LETS='BCDFGHJKLMNPRSTUVWXYZ';
+const ALDNI='TRWAGMYFPDXBNJZSQVHLCKE';
+let mPage=0,cPage=0,aPage=0;
+let activeTab='matriculas';
+let provOk=false;
+
+// ── Debounce ──
+function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+
+// ── Cargar provincias ──
+async function loadProvincias(){
+  if(provOk)return;
+  const provs=await fetch('/api/provincias').then(r=>r.json());
+  ['mProv','cProv'].forEach(id=>{
+    const sel=document.getElementById(id);
+    provs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+  });
+  provOk=true;
+}
+
+// ── Badges ──
+function estBadge(e){
+  const m={Activa:'bj-act',Suspendida:'bj-sus',Baja:'bj-baj',Pendiente:'bj-pen',Transferida:'bj-tra'};
+  return `<span class="bj ${m[e]||'bj-pen'}">${e}</span>`;
+}
+function alertBadge(t){
+  if(!t||t==='Sin alertas')return '<span class="al-ok">—</span>';
+  const m={'Busca y Captura':'al-bc','Requisitoria Judicial':'al-req','Vigilancia Especial':'al-vis','Multas Pendientes':'al-mul'};
+  const s={'Busca y Captura':'B&C','Requisitoria Judicial':'Req.J','Vigilancia Especial':'Vigil.','Multas Pendientes':'Multas'};
+  return `<span class="${m[t]||'al-ok'}">${s[t]||t}</span>`;
+}
+function matPlate(m){return `<span class="mat"><span class="eu">E</span>${m}</span>`;}
+
+// ── MATRÍCULAS ──
+async function loadMat(){
+  const q=document.getElementById('mQ').value;
+  const prov=document.getElementById('mProv').value;
+  const est=document.getElementById('mEst').value;
+  const tipo=document.getElementById('mTipo').value;
+  const comb=document.getElementById('mComb').value;
+  const alerta=document.getElementById('mAlerta').value;
+  if(mPage<0)mPage=0;
+  const url=`/api/matriculas?q=${encodeURIComponent(q)}&prov=${encodeURIComponent(prov)}&estado=${est}&tipo=${tipo}&combustible=${comb}&alerta=${alerta}&page=${mPage}`;
+  const data=await fetch(url).then(r=>r.json());
+  const total=data.total, pages=Math.ceil(total/data.per);
+  if(mPage>=pages&&pages>0)mPage=pages-1;
+  document.getElementById('mPI').textContent=`Pág ${mPage+1}/${pages||1} | ${total} registros`;
+  document.getElementById('mBody').innerHTML=data.rows.map(r=>`
+    <tr class="${r.alerta_policial&&r.alerta_policial!='Sin alertas'?'alert-row':''}">
+      <td>${matPlate(r.matricula)}</td>
+      <td title="${r.propietario_full||''}">${(r.propietario_full||'—').substring(0,18)}…</td>
+      <td>${r.dni}</td>
+      <td>${r.provincia||'—'}</td>
+      <td>${r.tipo_vehiculo||'—'}</td>
+      <td>${r.marca||'—'}</td>
+      <td>${r.modelo||'—'}</td>
+      <td>${r.año_fab||'—'}</td>
+      <td>${r.fecha_mat||'—'}</td>
+      <td>${estBadge(r.estado)}</td>
+      <td>${r.combustible||'—'}</td>
+      <td>${r.cv||'—'}</td>
+      <td>${r.co2_grkg||0}g</td>
+      <td>${r.color||'—'}</td>
+      <td>${r.uso||'—'}</td>
+      <td>${r.fecha_itv||'—'}</td>
+      <td>${r.seguro_hasta||'—'}</td>
+      <td>${r.importe_multas||0}€</td>
+      <td>${alertBadge(r.alerta_policial)}</td>
+      <td><button class="btn btn-sm" onclick="showMatDetail(${r.id})">Ver</button></td>
+    </tr>`).join('')||'<tr><td colspan="20" class="loading">Sin resultados</td></tr>';
+}
+
+async function showMatDetail(id){
+  const r=await fetch(`/api/matricula/${id}`).then(x=>x.json());
+  const dv=document.getElementById('mDetail');
+  dv.style.display='block';
+  const fields=[
+    ['VEHÍCULO','sep'],
+    ['Matrícula',r.matricula],['Bastidor',r.bastidor],['Tipo',r.tipo_vehiculo],
+    ['Marca',r.marca],['Modelo',r.modelo],['Año fabricación',r.año_fab],
+    ['F. matriculación',r.fecha_mat],['Estado',r.estado],['Combustible',r.combustible],
+    ['Potencia (CV)',r.cv||'N/A'],['CO₂ (g/km)',r.co2_grkg+'g'],['Color',r.color],
+    ['Uso',r.uso],['Km registrados',(r.km||0).toLocaleString('es-ES')+' km'],
+    ['Nº plazas',r.num_plazas||'—'],['Nº puertas',r.num_puertas||'—'],
+    ['Tara (kg)',r.tara_kg||'—'],['Masa máx. (kg)',r.masa_max_kg||'—'],
+    ['Próx. ITV',r.fecha_itv||'—'],['Seguro compañía',r.seguro_compañia||'—'],
+    ['Póliza',r.seguro_poliza||'—'],['Seguro hasta',r.seguro_hasta||'—'],
+    ['Infracciones',r.num_infracciones||0],['Multas pendientes',(r.importe_multas||0)+'€'],
+    ['Titular anterior',r.titular_anterior||'Primer titular'],
+    ['PROPIETARIO','sep'],
+    ['Nombre completo',`${r.nombre||''} ${r.apellido1||''} ${r.apellido2||''}`],
+    ['DNI',r.dni],['Sexo',r.sexo||'—'],['Fecha nac.',r.fecha_nac||'—'],
+    ['Provincia',r.provincia_residencia||'—'],['Dirección',r.direccion||'—'],
+    ['Teléfono',r.telefono||'—'],['Email',r.email||'—'],
+    ['Profesión',r.profesion||'—'],['Situación laboral',r.situacion_laboral||'—'],
+    ['Puntos carnet',r.puntos_carnet],['Tipo licencia',r.tipo_licencia||'—'],
+    ['Antecedentes',r.antecedentes_penales||'—'],['Alerta policial',r.alerta_policial||'—'],
+  ];
+  dv.innerHTML=`<div class="ficha">
+    <button class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">✕ Cerrar</button>
+    <h3>Ficha matrícula — ${matPlate(r.matricula)} ${r.alerta_policial&&r.alerta_policial!='Sin alertas'?`<span class="al-bc">⚠ ${r.alerta_policial}</span>`:''}</h3>
+    <div class="ficha-grid">${fields.map(([k,v])=>v==='sep'?`<div class="ficha-sep">${k}</div>`:`<div class="ficha-row"><div class="ficha-key">${k}</div><div class="ficha-val">${v}</div></div>`).join('')}</div>
+  </div>`;
+  dv.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── CIUDADANOS ──
+async function loadCiu(){
+  const q=document.getElementById('cQ').value;
+  const prov=document.getElementById('cProv').value;
+  const alerta=document.getElementById('cAlerta').value;
+  const sexo=document.getElementById('cSexo').value;
+  if(cPage<0)cPage=0;
+  const url=`/api/ciudadanos?q=${encodeURIComponent(q)}&prov=${encodeURIComponent(prov)}&alerta=${encodeURIComponent(alerta)}&sexo=${sexo}&page=${cPage}`;
+  const data=await fetch(url).then(r=>r.json());
+  const total=data.total, pages=Math.ceil(total/data.per);
+  document.getElementById('cPI').textContent=`Pág ${cPage+1}/${pages||1} | ${total} registros`;
+  document.getElementById('cBody').innerHTML=data.rows.map(r=>`
+    <tr class="${r.alerta_policial&&r.alerta_policial!='Sin alertas'?'alert-row':''}">
+      <td>${r.dni}</td>
+      <td title="${r.nombre} ${r.apellido1} ${r.apellido2||''}">${(r.nombre+' '+r.apellido1).substring(0,20)}</td>
+      <td>${r.fecha_nac||'—'}</td>
+      <td>${r.fecha_nac?Math.floor((new Date('2025-06-01')-new Date(r.fecha_nac))/31557600000):'-'}</td>
+      <td>${r.sexo==='Hombre'?'H':'M'}</td>
+      <td>${r.provincia_residencia||'—'}</td>
+      <td title="${r.direccion||''}">${(r.direccion||'—').substring(0,20)}</td>
+      <td>${r.telefono||'—'}</td>
+      <td title="${r.email||''}">${(r.email||'—').substring(0,18)}</td>
+      <td>${r.nacionalidad||'—'}</td>
+      <td>${r.estado_civil||'—'}</td>
+      <td>${r.num_hijos||0}</td>
+      <td title="${r.profesion||''}">${(r.profesion||'—').substring(0,12)}</td>
+      <td>${r.puntos_carnet}</td>
+      <td>${r.antecedentes_penales||'No'}</td>
+      <td>${alertBadge(r.alerta_policial)}</td>
+      <td>${r.num_vehiculos||0}</td>
+      <td><button class="btn btn-sm" onclick="showCiuDetail('${r.dni}')">Ver</button></td>
+    </tr>`).join('')||'<tr><td colspan="18" class="loading">Sin resultados</td></tr>';
+}
+
+async function showCiuDetail(dni){
+  const d=await fetch(`/api/ciudadano/${dni}`).then(x=>x.json());
+  const c=d.ciudadano, mats=d.matriculas, alts=d.alertas;
+  const dv=document.getElementById('cDetail');
+  dv.style.display='block';
+  const age=c.fecha_nac?Math.floor((new Date('2025-06-01')-new Date(c.fecha_nac))/31557600000):'—';
+  const fields=[
+    ['IDENTIFICACIÓN','sep'],
+    ['DNI/NIF',c.dni],['Nombre',c.nombre],['1er Apellido',c.apellido1],['2º Apellido',c.apellido2||'—'],
+    ['Sexo',c.sexo||'—'],['Fecha nacimiento',c.fecha_nac||'—'],['Edad',age+' años'],
+    ['Nacionalidad',c.nacionalidad||'—'],['Nº Pasaporte',c.num_pasaporte||'—'],
+    ['F.Expedición DNI',c.fecha_exp_dni||'—'],['Caducidad DNI',c.fecha_cad_dni||'—'],
+    ['RESIDENCIA','sep'],
+    ['Provincia',c.provincia_residencia||'—'],['Municipio',c.municipio||'—'],
+    ['Dirección',c.direccion||'—'],['Número',c.numero_via||'—'],
+    ['Piso',c.piso||'—'],['C.Postal',c.codigo_postal||'—'],
+    ['CONTACTO','sep'],
+    ['Teléfono 1',c.telefono||'—'],['Teléfono 2',c.telefono2||'—'],['Email',c.email||'—'],
+    ['SITUACIÓN PERSONAL','sep'],
+    ['Estado civil',c.estado_civil||'—'],['Nº hijos',c.num_hijos||0],
+    ['Profesión',c.profesion||'—'],['Situación laboral',c.situacion_laboral||'—'],
+    ['Nivel estudios',c.nivel_estudios||'—'],['Ingresos anuales est.',(c.ingresos_anuales||0).toLocaleString('es-ES')+'€'],
+    ['Banco',c.banco_ref||'—'],['Num. cuenta',c.num_cuenta||'—'],
+    ['PERMISOS Y LICENCIAS','sep'],
+    ['Licencia conducir',c.licencia_conducir||'No'],['Tipo licencia',c.tipo_licencia||'—'],
+    ['Puntos carnet',c.puntos_carnet],['Antecedentes penales',c.antecedentes_penales||'No'],
+    ['VEHÍCULOS ('+mats.length+')','sep'],
+    ...mats.map(m=>['Matrícula',`${m.matricula} — ${m.marca} ${m.modelo} (${m.año_fab})`]),
+    ['ESTADO POLICIAL','sep'],
+    ['Alerta policial',c.alerta_policial||'Sin alertas'],
+    ...alts.flatMap(a=>[
+      ['Tipo alerta',a.tipo_alerta],['Motivo',a.motivo||'—'],
+      ['Emisor',a.emisor||'—'],['Expediente',a.num_expediente||'—'],
+      ['Juzgado',a.juzgado||'—'],['Peligrosidad',a.peligrosidad||'—'],
+      ['Observaciones',a.observaciones||'—'],['Activa',a.activa?'Sí':'No'],
+    ]),
+    ['NOTAS ADMIN','sep'],
+    ['Notas',c.notas_admin||'—'],
+  ];
+  dv.innerHTML=`<div class="ficha" style="${c.alerta_policial&&c.alerta_policial!='Sin alertas'?'border-color:#6b2020':''}">
+    <button class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">✕ Cerrar</button>
+    <h3>Ficha ciudadano — ${c.nombre} ${c.apellido1} ${c.apellido2||''} ${c.alerta_policial&&c.alerta_policial!='Sin alertas'?`<span class="al-bc">⚠ ${c.alerta_policial}</span>`:''}</h3>
+    <div class="ficha-grid">${fields.map(([k,v])=>v==='sep'?`<div class="ficha-sep">${k}</div>`:`<div class="ficha-row"><div class="ficha-key">${k}</div><div class="ficha-val">${v}</div></div>`).join('')}</div>
+  </div>`;
+  dv.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── ALERTAS ──
+async function loadAlert(){
+  const q=document.getElementById('aQ').value;
+  const tipo=document.getElementById('aTipo').value;
+  if(aPage<0)aPage=0;
+  const data=await fetch(`/api/alertas?q=${encodeURIComponent(q)}&tipo=${encodeURIComponent(tipo)}&page=${aPage}`).then(r=>r.json());
+  const total=data.total, pages=Math.ceil(total/data.per);
+  document.getElementById('aPI').textContent=`Pág ${aPage+1}/${pages||1} | ${total} alertas`;
+  const danger={'Busca y Captura':'al-bc','Requisitoria Judicial':'al-req','Vigilancia Especial':'al-vis','Multas Pendientes':'al-mul'};
+  document.getElementById('aBody').innerHTML=data.rows.map(r=>`
+    <tr class="alert-row">
+      <td>${r.id}</td>
+      <td>${r.dni}</td>
+      <td title="${r.nombre_completo||''}">${(r.nombre_completo||'—').substring(0,18)}</td>
+      <td><span class="${danger[r.tipo_alerta]||'al-ok'}">${r.tipo_alerta}</span></td>
+      <td title="${r.motivo||''}">${(r.motivo||'—').substring(0,16)}</td>
+      <td title="${r.emisor||''}">${(r.emisor||'—').substring(0,12)}</td>
+      <td>${r.fecha_emision||'—'}</td>
+      <td>${r.fecha_caducidad||'—'}</td>
+      <td title="${r.juzgado||''}">${(r.juzgado||'—').substring(0,12)}</td>
+      <td>${r.num_expediente||'—'}</td>
+      <td style="color:${r.peligrosidad==='Alta'?'var(--red)':r.peligrosidad==='Media'?'var(--orange)':'var(--green)'}">${r.peligrosidad||'—'}</td>
+      <td style="font-weight:600;color:${r.activa?'var(--red)':'var(--green)'}">${r.activa?'Sí':'No'}</td>
+      <td><button class="btn btn-sm" onclick="showAlertDetail(${r.id})">Ver</button></td>
+    </tr>`).join('')||'<tr><td colspan="13" class="loading">Sin resultados</td></tr>';
+}
+
+async function showAlertDetail(id){
+  const data=await fetch(`/api/alertas?q=${id}&page=0`).then(r=>r.json());
+  const r=data.rows.find(x=>x.id==id)||data.rows[0];
+  if(!r)return;
+  const ciu=await fetch(`/api/ciudadano/${r.dni}`).then(x=>x.json());
+  const c=ciu.ciudadano||{};
+  const dv=document.getElementById('aDetail');
+  dv.style.display='block';
+  const fields=[
+    ['ALERTA','sep'],
+    ['ID alerta',r.id],['Tipo',r.tipo_alerta],['Motivo',r.motivo||'—'],
+    ['Emisor',r.emisor||'—'],['F.Emisión',r.fecha_emision||'—'],['F.Caducidad',r.fecha_caducidad||'—'],
+    ['Activa',r.activa?'SÍ':'NO'],['Peligrosidad',r.peligrosidad||'—'],
+    ['Juzgado',r.juzgado||'—'],['Expediente',r.num_expediente||'—'],
+    ['Observaciones',r.observaciones||'—'],
+    ['SUJETO','sep'],
+    ['DNI',r.dni],['Nombre',r.nombre_completo||'—'],
+    ['Fecha nac.',r.fecha_nac||c.fecha_nac||'—'],['Provincia',r.provincia_residencia||c.provincia_residencia||'—'],
+    ['Teléfono',r.telefono||c.telefono||'—'],['Profesión',c.profesion||'—'],
+    ['Antecedentes',c.antecedentes_penales||'—'],['Puntos carnet',c.puntos_carnet||'—'],
+  ];
+  dv.innerHTML=`<div class="ficha" style="border-color:#6b2020">
+    <button class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">✕ Cerrar</button>
+    <h3 style="color:var(--red)">⚠ Alerta #${r.id} — <span class="al-bc">${r.tipo_alerta}</span> — ${r.nombre_completo||r.dni}</h3>
+    <div class="ficha-grid">${fields.map(([k,v])=>v==='sep'?`<div class="ficha-sep">${k}</div>`:`<div class="ficha-row"><div class="ficha-key">${k}</div><div class="ficha-val">${v}</div></div>`).join('')}</div>
+  </div>`;
+  dv.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── GRÁFICAS ──
+const COLORS=['#58a6ff','#3fb950','#f85149','#d29922','#bc8cff','#ff7b72','#39d353','#79c0ff','#ffa657','#a5d6ff'];
+async function loadGraficas(){
+  const d=await fetch('/api/stats/graficas').then(r=>r.json());
+  function chart(title,data,max8=true){
+    const ents=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+    const show=max8?ents.slice(0,8):ents;
+    const maxv=Math.max(...show.map(e=>e[1]),1);
+    return`<div class="chart-card">
+      <div class="g-title">${title}</div>
+      <div class="bar-chart">${show.map(([k,v],i)=>`<div class="bar-row">
+        <div class="bar-label">${k}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxv*100)}%;background:${COLORS[i%COLORS.length]}"></div></div>
+        <div class="bar-val">${v}</div>
+      </div>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('graficasBox').innerHTML=
+    chart('Vehículos por tipo',d.por_tipo)+
+    chart('Combustible',d.por_comb)+
+    chart('Estado matrícula',d.por_estado)+
+    chart('Alertas policiales',d.por_alerta)+
+    chart('Ciudadanos por provincia',d.por_prov_cit)+
+    chart('Marcas más frecuentes',d.por_marca)+
+    chart('Rangos de edad',d.por_edad,false)+
+    chart('Matrículas por año fabricación',d.por_año,false);
+}
+
+// ── CONSULTAS SQL ──
+const SQLS=[
+  {t:'JOIN: Matrículas con dueño en B&C',
+   s:`SELECT m.matricula, m.marca, m.modelo, c.nombre, c.apellido1,
+       c.telefono, a.tipo_alerta, a.motivo, a.peligrosidad
+FROM matriculas m
+INNER JOIN ciudadanos c ON m.dni = c.dni
+INNER JOIN alertas_policiales a ON c.dni = a.dni
+WHERE a.tipo_alerta = 'Busca y Captura'
+ORDER BY a.peligrosidad DESC;`,
+   url:'/api/alertas?tipo=Busca%20y%20Captura&page=0'},
+  {t:'Ciudadanos con 0 puntos de carnet',
+   s:`SELECT dni, nombre, apellido1, provincia_residencia,
+       puntos_carnet, num_infracciones
+FROM ciudadanos
+WHERE puntos_carnet = 0 AND licencia_conducir = 'Sí'
+ORDER BY nombre;`,
+   url:null,custom:()=>fetch('/api/ciudadanos?q=&page=0').then(r=>r.json()).then(d=>({rows:d.rows.filter(x=>x.puntos_carnet===0)}))},
+  {t:'Matrículas con ITV caducada',
+   s:`SELECT m.matricula, m.marca, m.modelo, m.fecha_itv,
+       c.nombre, c.apellido1, c.telefono
+FROM matriculas m
+JOIN ciudadanos c ON m.dni = c.dni
+WHERE m.fecha_itv < date('now') AND m.estado = 'Activa'
+ORDER BY m.fecha_itv ASC
+LIMIT 20;`,
+   url:null,custom:()=>fetch('/api/matriculas?estado=Activa&page=0').then(r=>r.json()).then(d=>({rows:d.rows.filter(x=>x.fecha_itv<new Date().toISOString().slice(0,10)).slice(0,20)}))},
+  {t:'Estadísticas de alertas por tipo y peligrosidad',
+   s:`SELECT tipo_alerta, peligrosidad, COUNT(*) AS total
+FROM alertas_policiales
+WHERE activa = 1
+GROUP BY tipo_alerta, peligrosidad
+ORDER BY total DESC;`,
+   url:'/api/alertas?page=0'},
+  {t:'Top 10 marcas de vehículos con propietarios con antecedentes',
+   s:`SELECT m.marca, COUNT(*) AS total
+FROM matriculas m
+JOIN ciudadanos c ON m.dni = c.dni
+WHERE c.antecedentes_penales = 'Sí'
+GROUP BY m.marca
+ORDER BY total DESC
+LIMIT 10;`,
+   url:'/api/matriculas?page=0'},
+];
+
+function renderConsultas(){
+  document.getElementById('consultasBox').innerHTML=SQLS.map((q,i)=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">${i+1}. ${q.t}</div>
+      <pre style="background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:10.5px;color:var(--text2);overflow-x:auto;white-space:pre-wrap">${q.s}</pre>
+      <div style="margin-top:8px"><button class="btn btn-sm" onclick="runSQL(${i})">▶ Ejecutar (datos reales)</button></div>
+      <div id="qres-${i}" style="margin-top:8px"></div>
+    </div>`).join('');
+}
+
+async function runSQL(i){
+  const q=SQLS[i];
+  let rows=[];
+  if(q.custom){const d=await q.custom();rows=d.rows||[];}
+  else{const d=await fetch(q.url).then(r=>r.json());rows=d.rows||[];}
+  if(!rows.length){document.getElementById(`qres-${i}`).innerHTML='<p style="font-size:11px;color:var(--text3)">Sin resultados.</p>';return;}
+  const keys=Object.keys(rows[0]);
+  document.getElementById(`qres-${i}`).innerHTML=`
+    <div class="tw"><table>
+      <thead><tr>${keys.map(k=>`<th>${k}</th>`).join('')}</tr></thead>
+      <tbody>${rows.slice(0,20).map(r=>`<tr>${keys.map(k=>`<td title="${r[k]??''}">${String(r[k]??'NULL').substring(0,30)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>
+    <p style="font-size:10px;color:var(--text3);margin-top:4px">${rows.length} filas (mostrando hasta 20)</p>`;
+}
+
+// ── TAB SWITCH ──
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['matriculas','ciudadanos','alertas','schema','consultas','graficas'][i]===tab);
+  });
+  ['matriculas','ciudadanos','alertas','schema','consultas','graficas'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+  activeTab=tab;
+  if(tab==='graficas')loadGraficas();
+  if(tab==='consultas')renderConsultas();
+  if(tab==='ciudadanos')loadCiu();
+  if(tab==='alertas')loadAlert();
+}
+
+// ── INIT ──
+async function init(){
+  await loadProvincias();
+  loadMat();
+  // Cargar contador B&C
+  fetch('/api/alertas?tipo=Busca%20y%20Captura&page=0').then(r=>r.json()).then(d=>{
+    document.getElementById('bcCount').textContent=`⚠ ${d.total} B&C activos`;
+  });
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin — DGT/Interior</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --blue:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;
+  --accent:#1f6feb;--accent2:#388bfd;
+}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-size:14px;font-weight:700;letter-spacing:2px;color:#fff}
+.logo span{color:var(--orange)}
+.badge-admin{background:#2d1a4d;color:var(--purple);border:1px solid #4d2d80;
+  padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.ml-auto{margin-left:auto}
+.container{max-width:1600px;margin:0 auto;padding:16px}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stat-n{font-size:22px;font-weight:700}.sblue{color:var(--blue)}.sgreen{color:var(--green)}.sred{color:var(--red)}.sorng{color:var(--orange)}
+.stat-l{font-size:10px;color:var(--text2);margin-top:2px}
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:7px 14px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent}
+.tab:hover{color:var(--text)}.tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+/* FORMS */
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px}
+.form-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;letter-spacing:.5px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:7px 10px;border-radius:6px;font-family:monospace;font-size:12px}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent2)}
+.form-group textarea{resize:vertical;min-height:60px}
+/* DNI helper */
+.dni-helper{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px}
+.dni-helper h4{font-size:11px;color:var(--orange);margin-bottom:8px;letter-spacing:.5px}
+.dni-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dni-row input,.dni-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);
+  padding:5px 8px;height:30px;border-radius:6px;font-family:monospace;font-size:12px}
+.dni-result{font-size:18px;font-weight:700;color:var(--blue);font-family:monospace;letter-spacing:2px}
+.mat-result{display:inline-block;background:#fff;border:2px solid #00308F;border-radius:3px;
+  padding:2px 10px;font-weight:700;font-size:16px;color:#00308F;letter-spacing:3px}
+.mat-result .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:8px;
+  padding:0 2px;border-radius:2px 0 0 2px;margin-right:4px;font-weight:700}
+.exists-yes{color:var(--red);font-size:11px}.exists-no{color:var(--green);font-size:11px}
+/* BUTTONS */
+.btn{background:var(--accent);color:#fff;border:none;padding:7px 16px;border-radius:6px;
+  cursor:pointer;font-size:12px;font-family:monospace;height:34px}
+.btn:hover{background:var(--accent2)}
+.btn-sm{padding:3px 9px;height:26px;font-size:10px}
+.btn-red{background:#6b2020}.btn-red:hover{background:#8b2424}
+.btn-green{background:#1a3d20}.btn-green:hover{background:#2a5c30}
+.btn-orange{background:#4d2800}.btn-orange:hover{background:#6b3800}
+.btn-gray{background:var(--bg3)}.btn-gray:hover{background:var(--border)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+/* TABLE */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:monospace;table-layout:fixed}
+th{background:var(--bg3);padding:7px 8px;text-align:left;font-weight:600;font-size:10px;
+  color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;letter-spacing:.5px}
+td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.alert-row td{background:rgba(248,81,73,.05)!important}
+/* CTRL */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.ctrl input,.ctrl select{background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:5px 10px;height:32px;border-radius:6px;font-family:monospace}
+.ctrl input{flex:1;min-width:160px}
+.pag{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)}
+.pag .pi{flex:1;text-align:center}
+/* BADGES */
+.bj{display:inline-block;padding:1px 7px;border-radius:99px;font-size:9px;font-weight:700}
+.bj-act{background:#1a3d20;color:#3fb950}.bj-sus{background:#3d1a1a;color:#f85149}
+.bj-baj{background:#3d2a00;color:#d29922}.bj-pen{background:#1a2d4d;color:#58a6ff}.bj-tra{background:#3d1a3d;color:#bc8cff}
+.al-bc{background:#6b2020;color:#ff6b6b;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-req{background:#4d2800;color:#ffa040;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-vis{background:#2d1a4d;color:#c084fc;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.al-mul{background:#1a2d4d;color:#60a5fa;font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700}
+.mat{display:inline-block;background:#fff;border:2px solid #00308F;border-radius:3px;
+  padding:1px 6px;font-weight:700;font-size:12px;color:#00308F;letter-spacing:2px}
+.mat .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:7px;
+  padding:0 2px;border-radius:2px 0 0 2px;margin-right:3px;font-weight:700}
+/* MODAL EDIT */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:24px;max-width:900px;width:95%;max-height:90vh;overflow-y:auto;position:relative}
+.modal h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px}
+.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:monospace}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:10px 18px;font-size:12px;z-index:9999;
+  transition:.3s;transform:translateY(100px);opacity:0}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
+/* LOG */
+.log-table td{font-size:10px}
+.loading{color:var(--text3);text-align:center;padding:20px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">⬛ <span>ADMIN</span> DGT/INTERIOR</div>
+  <span class="badge-admin">🔧 {{admin}} [{{rol}}]</span>
+  <nav style="display:flex;gap:4px;margin-left:16px">
+    <a href="/" style="color:var(--text2);padding:3px 8px;border-radius:6px;font-size:11px">Vista pública</a>
+  </nav>
+  <div class="ml-auto">
+    <a href="/logout" class="btn btn-sm btn-red">Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-n sblue">{{stats.matriculas}}</div><div class="stat-l">Matrículas</div></div>
+    <div class="stat"><div class="stat-n sblue">{{stats.ciudadanos}}</div><div class="stat-l">Ciudadanos</div></div>
+    <div class="stat"><div class="stat-n sred">{{stats.alertas}}</div><div class="stat-l">Alertas activas</div></div>
+    <div class="stat"><div class="stat-n sred">{{stats.bc}}</div><div class="stat-l">Busca y Captura</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('crear')">➕ Crear registros</div>
+    <div class="tab" onclick="switchTab('editar_cit')">✏️ Editar ciudadanos</div>
+    <div class="tab" onclick="switchTab('editar_mat')">✏️ Editar matrículas</div>
+    <div class="tab" onclick="switchTab('editar_alert')">✏️ Editar alertas</div>
+    <div class="tab" onclick="switchTab('calculadora')">🔢 Calculadora DNI/Mat</div>
+    <div class="tab" onclick="switchTab('auditoria')">📋 Auditoría</div>
+    <div class="tab" onclick="switchTab('usuarios')">👤 Usuarios admin</div>
+  </div>
+
+  <!-- ── CREAR ── -->
+  <div id="tab-crear">
+
+    <!-- Nuevo ciudadano -->
+    <div class="form-card">
+      <h3>➕ Nuevo ciudadano</h3>
+      <div class="dni-helper">
+        <h4>🔢 CALCULADOR DE DNI</h4>
+        <div class="dni-row">
+          <span style="font-size:11px;color:var(--text2)">Número DNI:</span>
+          <input type="number" id="dniNumInput" min="1" max="99999999" placeholder="12345678" style="width:120px" oninput="calcDNI()">
+          <span style="font-size:11px;color:var(--text2)">→</span>
+          <span class="dni-result" id="dniResultado">--------</span>
+          <span id="dniExiste" class="exists-no"></span>
+          <button class="btn btn-sm btn-orange" onclick="usarDNI()">Usar este DNI →</button>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>DNI (calculado)</label><input type="text" id="nc_dni" placeholder="00000001A" readonly style="color:var(--blue)"></div>
+        <div class="form-group"><label>Nombre *</label><input type="text" id="nc_nombre" placeholder="María"></div>
+        <div class="form-group"><label>1er Apellido *</label><input type="text" id="nc_ap1" placeholder="García"></div>
+        <div class="form-group"><label>2º Apellido</label><input type="text" id="nc_ap2" placeholder="López"></div>
+        <div class="form-group"><label>Sexo</label>
+          <select id="nc_sexo"><option>Hombre</option><option>Mujer</option></select></div>
+        <div class="form-group"><label>Fecha nacimiento</label><input type="date" id="nc_fnac" value="1985-06-15"></div>
+        <div class="form-group"><label>Provincia</label>
+          <select id="nc_prov">{% for p in provincias %}<option>{{p}}</option>{% endfor %}</select></div>
+        <div class="form-group"><label>Municipio</label><input type="text" id="nc_municipio" placeholder="Capital"></div>
+        <div class="form-group"><label>Dirección</label><input type="text" id="nc_dir" placeholder="Calle Mayor"></div>
+        <div class="form-group"><label>Número</label><input type="text" id="nc_num" placeholder="15"></div>
+        <div class="form-group"><label>Piso</label><input type="text" id="nc_piso" placeholder="3º B"></div>
+        <div class="form-group"><label>C.Postal</label><input type="text" id="nc_cp" placeholder="28001"></div>
+        <div class="form-group"><label>Teléfono</label><input type="tel" id="nc_tel" placeholder="+34 600 000 000"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="nc_email" placeholder="nombre@gmail.com"></div>
+        <div class="form-group"><label>Nacionalidad</label><input type="text" id="nc_nac" value="Española"></div>
+        <div class="form-group"><label>Estado civil</label>
+          <select id="nc_ecivil"><option>Soltero/a</option><option>Casado/a</option><option>Divorciado/a</option><option>Viudo/a</option></select></div>
+        <div class="form-group"><label>Nº hijos</label><input type="number" id="nc_hijos" value="0" min="0" max="20"></div>
+        <div class="form-group"><label>Profesión</label><input type="text" id="nc_prof" placeholder="Ingeniero/a"></div>
+        <div class="form-group"><label>Situación laboral</label>
+          <select id="nc_sitlab"><option>Empleado/a</option><option>Autónomo/a</option><option>Desempleado/a</option><option>Jubilado/a</option><option>Estudiante</option></select></div>
+        <div class="form-group"><label>Nivel estudios</label>
+          <select id="nc_estudios"><option>Primaria</option><option>Secundaria</option><option>Bachillerato</option><option>FP Grado Medio</option><option>FP Grado Superior</option><option>Grado Universitario</option><option>Máster</option><option>Doctorado</option></select></div>
+        <div class="form-group"><label>Ingresos anuales (€)</label><input type="number" id="nc_ingresos" placeholder="25000"></div>
+        <div class="form-group"><label>Banco</label><input type="text" id="nc_banco" placeholder="Santander"></div>
+        <div class="form-group"><label>Licencia conducir</label>
+          <select id="nc_licencia"><option>Sí</option><option>No</option></select></div>
+        <div class="form-group"><label>Tipo licencia</label>
+          <select id="nc_tipo_lic"><option>B</option><option>B+E</option><option>A</option><option>AM</option><option>C</option><option>C+E</option><option>—</option></select></div>
+        <div class="form-group"><label>Puntos carnet</label><input type="number" id="nc_puntos" value="15" min="0" max="15"></div>
+        <div class="form-group"><label>Antecedentes</label>
+          <select id="nc_antec"><option>No</option><option>Sí</option></select></div>
+        <div class="form-group"><label>Alerta policial</label>
+          <select id="nc_alerta"><option>Sin alertas</option>{% for a in tipos_alerta %}<option>{{a}}</option>{% endfor %}</select></div>
+        <div class="form-group"><label>Nº pasaporte</label><input type="text" id="nc_pasaporte" placeholder="AAB123456"></div>
+        <div class="form-group"><label>F.Expedición DNI</label><input type="date" id="nc_exp_dni" value="2015-01-01"></div>
+        <div class="form-group"><label>Caducidad DNI</label><input type="date" id="nc_cad_dni" value="2025-01-01"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px"><label>Notas admin</label>
+        <textarea id="nc_notas" placeholder="Observaciones internas..."></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="crearCiudadano()">💾 Crear ciudadano</button>
+        <span id="nc_res" style="font-size:11px;color:var(--green)"></span>
+      </div>
+    </div>
+
+    <!-- Nueva matrícula -->
+    <div class="form-card">
+      <h3>🚗 Nueva matrícula</h3>
+      <div class="dni-helper">
+        <h4>🔢 GENERADOR DE MATRÍCULA (0001 BBB → 9999 NZZ)</h4>
+        <div class="dni-row" style="flex-wrap:wrap;gap:10px">
+          <span style="font-size:11px;color:var(--text2)">Número (1-9999):</span>
+          <input type="number" id="matNumInput" min="1" max="9999" value="1234" style="width:80px" oninput="calcMat()">
+          <span style="font-size:11px;color:var(--text2)">Letras:</span>
+          <select id="matL1" onchange="calcMat()" style="width:55px">{% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}</select>
+          <select id="matL2" onchange="calcMat()" style="width:55px">{% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}</select>
+          <select id="matL3" onchange="calcMat()" style="width:55px">{% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}</select>
+          <span>→</span>
+          <span class="mat-result" id="matResultado"><span class="eu">E</span>1234 BBB</span>
+          <span id="matExiste" class="exists-no"></span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Matrícula (generada)</label><input type="text" id="nm_mat" readonly style="color:var(--blue)"></div>
+        <div class="form-group"><label>DNI propietario *</label>
+          <input type="text" id="nm_dni" placeholder="12345678Z" oninput="checkDNIProp()">
+          <span id="nm_dni_check" style="font-size:10px"></span>
+        </div>
+        <div class="form-group"><label>Tipo vehículo</label>
+          <select id="nm_tipo">{% for t in tipos_mat %}<option>{{t}}</option>{% endfor %}</select></div>
+        <div class="form-group"><label>Marca</label><input type="text" id="nm_marca" placeholder="SEAT"></div>
+        <div class="form-group"><label>Modelo</label><input type="text" id="nm_modelo" placeholder="León"></div>
+        <div class="form-group"><label>Año fabricación</label><input type="number" id="nm_año" value="2020" min="1950" max="2026"></div>
+        <div class="form-group"><label>Fecha matriculación</label><input type="date" id="nm_fmat" value="2020-06-01"></div>
+        <div class="form-group"><label>Estado</label>
+          <select id="nm_estado"><option>Activa</option><option>Suspendida</option><option>Baja</option><option>Pendiente</option><option>Transferida</option></select></div>
+        <div class="form-group"><label>Combustible</label>
+          <select id="nm_comb">{% for c in combustibles %}<option>{{c}}</option>{% endfor %}</select></div>
+        <div class="form-group"><label>CV</label><input type="number" id="nm_cv" value="110" min="0"></div>
+        <div class="form-group"><label>CO₂ (g/km)</label><input type="number" id="nm_co2" value="120" min="0"></div>
+        <div class="form-group"><label>Bastidor (17 caracteres)</label><input type="text" id="nm_bastidor" placeholder="Auto-generado si vacío" maxlength="17"></div>
+        <div class="form-group"><label>Próxima ITV</label><input type="date" id="nm_itv" value="2022-06-01"></div>
+        <div class="form-group"><label>Color</label><input type="text" id="nm_color" value="Blanco"></div>
+        <div class="form-group"><label>Uso</label>
+          <select id="nm_uso"><option>Particular</option><option>Empresarial</option><option>Taxi</option><option>Alquiler</option><option>Transporte escolar</option></select></div>
+        <div class="form-group"><label>Km</label><input type="number" id="nm_km" value="0" min="0"></div>
+        <div class="form-group"><label>Nº puertas</label><input type="number" id="nm_puertas" value="5" min="0" max="6"></div>
+        <div class="form-group"><label>Nº plazas</label><input type="number" id="nm_plazas" value="5" min="0"></div>
+        <div class="form-group"><label>Tara (kg)</label><input type="number" id="nm_tara" value="1200"></div>
+        <div class="form-group"><label>Masa máx. (kg)</label><input type="number" id="nm_masa" value="1800"></div>
+        <div class="form-group"><label>Compañía seguro</label><input type="text" id="nm_seg_co" placeholder="Mapfre"></div>
+        <div class="form-group"><label>Nº póliza</label><input type="text" id="nm_seg_pol" placeholder="POL-1234567"></div>
+        <div class="form-group"><label>Seguro hasta</label><input type="date" id="nm_seg_hasta" value="2025-12-31"></div>
+        <div class="form-group"><label>Infracciones</label><input type="number" id="nm_infrac" value="0" min="0"></div>
+        <div class="form-group"><label>Multas pendientes (€)</label><input type="number" id="nm_multas" value="0" min="0"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px"><label>Notas admin</label>
+        <textarea id="nm_notas" placeholder="Observaciones internas..."></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="crearMatricula()">💾 Crear matrícula</button>
+        <span id="nm_res" style="font-size:11px;color:var(--green)"></span>
+      </div>
+    </div>
+
+    <!-- Nueva alerta -->
+    <div class="form-card">
+      <h3>⚠️ Nueva alerta policial</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>DNI *</label><input type="text" id="na_dni" placeholder="12345678Z"></div>
+        <div class="form-group"><label>Tipo alerta *</label>
+          <select id="na_tipo">{% for a in tipos_alerta %}<option>{{a}}</option>{% endfor %}</select></div>
+        <div class="form-group"><label>Motivo</label><input type="text" id="na_motivo" placeholder="Robo con violencia"></div>
+        <div class="form-group"><label>Emisor</label><input type="text" id="na_emisor" placeholder="Policía Nacional"></div>
+        <div class="form-group"><label>Fecha emisión</label><input type="date" id="na_femit" value="2024-01-01"></div>
+        <div class="form-group"><label>Fecha caducidad</label><input type="date" id="na_fcad" value="2026-01-01"></div>
+        <div class="form-group"><label>Juzgado</label><input type="text" id="na_juzgado" placeholder="Juzg. Instrucción nº1 Madrid"></div>
+        <div class="form-group"><label>Nº expediente</label><input type="text" id="na_expediente" placeholder="234/2024"></div>
+        <div class="form-group"><label>Peligrosidad</label>
+          <select id="na_peligrosidad"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+        <div class="form-group"><label>Observaciones</label><input type="text" id="na_obs" placeholder="Puede estar armado"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px"><label>Notas admin</label>
+        <textarea id="na_notas" placeholder="Notas internas..."></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-red" onclick="crearAlerta()">⚠️ Crear alerta</button>
+        <span id="na_res" style="font-size:11px"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EDITAR CIUDADANOS ── -->
+  <div id="tab-editar_cit" style="display:none">
+    <div class="ctrl">
+      <input id="ecQ" placeholder="DNI, nombre, provincia..." oninput="debounce(loadEditCit,300)()"/>
+      <select id="ecProv" onchange="loadEditCit()"><option value="">Todas las provincias</option>
+        {% for p in provincias %}<option>{{p}}</option>{% endfor %}
+      </select>
+      <select id="ecAlerta" onchange="loadEditCit()">
+        <option value="">Cualquier alerta</option>
+        {% for a in tipos_alerta %}<option>{{a}}</option>{% endfor %}
+        <option>Sin alertas</option>
+      </select>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:85px">DNI</th>
+        <th style="width:140px">Nombre</th>
+        <th style="width:80px">Provincia</th>
+        <th style="width:75px">Teléfono</th>
+        <th style="width:65px">Alerta</th>
+        <th style="width:40px">Pts</th>
+        <th style="width:75px">Profesión</th>
+        <th style="width:100px">Acciones</th>
+      </tr></thead>
+      <tbody id="ecBody"><tr><td colspan="8" class="loading">Haz clic en esta pestaña para cargar</td></tr></tbody>
+    </table></div>
+    <div class="pag"><button class="btn btn-sm" onclick="ecPage--;loadEditCit()">← Ant.</button>
+      <div class="pi" id="ecPI"></div>
+      <button class="btn btn-sm" onclick="ecPage++;loadEditCit()">Sig. →</button></div>
+  </div>
+
+  <!-- ── EDITAR MATRÍCULAS ── -->
+  <div id="tab-editar_mat" style="display:none">
+    <div class="ctrl">
+      <input id="emQ" placeholder="Matrícula, DNI, marca..." oninput="debounce(loadEditMat,300)()"/>
+      <select id="emEst" onchange="loadEditMat()">
+        <option value="">Todos estados</option>
+        <option>Activa</option><option>Suspendida</option><option>Baja</option><option>Pendiente</option><option>Transferida</option>
+      </select>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:95px">Matrícula</th>
+        <th style="width:85px">DNI</th>
+        <th style="width:120px">Propietario</th>
+        <th style="width:75px">Marca/Modelo</th>
+        <th style="width:40px">Año</th>
+        <th style="width:65px">Estado</th>
+        <th style="width:70px">Combustible</th>
+        <th style="width:110px">Acciones</th>
+      </tr></thead>
+      <tbody id="emBody"><tr><td colspan="8" class="loading">Cargando...</td></tr></tbody>
+    </table></div>
+    <div class="pag"><button class="btn btn-sm" onclick="emPage--;loadEditMat()">← Ant.</button>
+      <div class="pi" id="emPI"></div>
+      <button class="btn btn-sm" onclick="emPage++;loadEditMat()">Sig. →</button></div>
+  </div>
+
+  <!-- ── EDITAR ALERTAS ── -->
+  <div id="tab-editar_alert" style="display:none">
+    <div class="ctrl">
+      <input id="eaQ" placeholder="DNI, nombre, motivo..." oninput="debounce(loadEditAlert,300)()"/>
+      <select id="eaTipo" onchange="loadEditAlert()">
+        <option value="">Todos tipos</option>
+        {% for a in tipos_alerta %}<option>{{a}}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:30px">ID</th>
+        <th style="width:85px">DNI</th>
+        <th style="width:130px">Nombre</th>
+        <th style="width:100px">Tipo alerta</th>
+        <th style="width:100px">Motivo</th>
+        <th style="width:75px">F.Emisión</th>
+        <th style="width:50px">Activa</th>
+        <th style="width:110px">Acciones</th>
+      </tr></thead>
+      <tbody id="eaBody"><tr><td colspan="8" class="loading">Cargando...</td></tr></tbody>
+    </table></div>
+    <div class="pag"><button class="btn btn-sm" onclick="eaPage--;loadEditAlert()">← Ant.</button>
+      <div class="pi" id="eaPI"></div>
+      <button class="btn btn-sm" onclick="eaPage++;loadEditAlert()">Sig. →</button></div>
+  </div>
+
+  <!-- ── CALCULADORA ── -->
+  <div id="tab-calculadora" style="display:none">
+    <div class="form-card">
+      <h3>🔢 Calculadora de DNI — Rango 00000001A → 99999999Z</h3>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:12px">
+        La letra del DNI se calcula: <span style="color:var(--orange);font-family:monospace">número % 23 → posición en "TRWAGMYFPDXBNJZSQVHLCKE"</span>
+      </p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px">
+          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:6px">NÚMERO (1 → 99.999.999)</label>
+          <input type="range" id="dniSlider" min="1" max="99999999" value="12345678" style="width:100%;margin-bottom:8px" oninput="updateDNICalc()">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="dniCalcNum" min="1" max="99999999" value="12345678" oninput="updateDNICalc()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:monospace;font-size:14px;width:140px">
+            <span style="font-size:24px">→</span>
+            <span id="dniCalcResult" style="font-size:28px;font-weight:700;color:var(--blue);font-family:monospace;letter-spacing:2px">12345678Z</span>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text2)">
+            Letra: <span id="dniCalcLetra" style="color:var(--orange);font-weight:700">Z</span> |
+            Posición: <span id="dniCalcPos" style="color:var(--orange)">14</span> de 22 |
+            Módulo: <span id="dniCalcMod" style="color:var(--orange)">12345678 % 23 = 14</span>
+          </div>
+          <div style="margin-top:4px;font-size:10px;color:var(--text3)">
+            Existe en DB: <span id="dniCalcExiste">—</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:.5px">TABLA: LETRAS 0-22</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span id="dniTabla"></span>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>🚗 Calculadora de matrícula — Rango 0001 BBB → 9999 NZZ</h3>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:12px">
+        Letras válidas: <span style="color:var(--orange);font-family:monospace">B C D F G H J K L M N P R S T V W X Y Z</span> (20 letras, sin vocales ni Ñ,Q,U,V)<br>
+        Total combinaciones posibles: 9.000 × 20³ = <span style="color:var(--green);font-weight:700">72.000.000 matrículas</span>
+      </p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <div>
+          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">NÚMERO (1-9999)</label>
+          <input type="number" id="matCalcNum" min="1" max="9999" value="1234" oninput="updateMatCalc()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:monospace;width:90px">
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">LETRA 1</label>
+          <select id="matCalcL1" onchange="updateMatCalc()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:monospace;width:60px">
+            {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">LETRA 2</label>
+          <select id="matCalcL2" onchange="updateMatCalc()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:monospace;width:60px">
+            {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">LETRA 3</label>
+          <select id="matCalcL3" onchange="updateMatCalc()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:monospace;width:60px">
+            {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+          </select>
+        </div>
+        <div style="font-size:28px;color:var(--text3)">→</div>
+        <div>
+          <span class="mat-result" id="matCalcResult"><span class="eu">E</span>1234 BBB</span>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px">Existe en DB: <span id="matCalcExiste">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUDITORÍA ── -->
+  <div id="tab-auditoria" style="display:none">
+    <div class="form-card">
+      <h3>📋 Registro de auditoría (últimas acciones)</h3>
+      <div class="tw"><table>
+        <thead><tr>
+          <th style="width:30px">ID</th>
+          <th style="width:70px">Usuario</th>
+          <th style="width:70px">Acción</th>
+          <th style="width:80px">Tabla</th>
+          <th style="width:100px">Registro</th>
+          <th style="width:200px">Detalle</th>
+          <th style="width:120px">Fecha</th>
+        </tr></thead>
+        <tbody class="log-table">
+          {% for l in logs %}
+          <tr>
+            <td>{{l.id}}</td>
+            <td>{{l.usuario}}</td>
+            <td style="color:{% if l.accion=='CREAR' %}var(--green){% elif l.accion=='ELIMINAR' %}var(--red){% else %}var(--orange){% endif %}">{{l.accion}}</td>
+            <td>{{l.tabla}}</td>
+            <td>{{l.registro_id}}</td>
+            <td title="{{l.detalle}}">{{l.detalle[:40] if l.detalle else '—'}}</td>
+            <td>{{l.fecha}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── USUARIOS ── -->
+  <div id="tab-usuarios" style="display:none">
+    <div class="form-card">
+      <h3>👤 Crear nuevo usuario administrador</h3>
+      {% if rol == 'superadmin' %}
+      <div class="form-grid">
+        <div class="form-group"><label>Username</label><input type="text" id="nu_user" placeholder="nuevo_admin"></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="nu_pass" placeholder="contraseña segura"></div>
+        <div class="form-group"><label>Rol</label>
+          <select id="nu_rol"><option>admin</option><option>superadmin</option></select></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-orange" onclick="crearUsuario()">👤 Crear usuario</button>
+        <span id="nu_res" style="font-size:11px"></span>
+      </div>
+      {% else %}
+      <p style="color:var(--text3);font-size:12px">Solo los superadmin pueden crear usuarios.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CIUDADANO -->
+<div class="modal-overlay" id="modalCit">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalCit')">✕ Cerrar</button>
+    <h3 id="modalCitTitle">Editar ciudadano</h3>
+    <input type="hidden" id="ec_dni">
+    <div class="form-grid" id="modalCitFields"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="guardarCiudadano()">💾 Guardar cambios</button>
+      <button class="btn btn-red" onclick="eliminarCiudadano()">🗑 Eliminar ciudadano</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR MATRÍCULA -->
+<div class="modal-overlay" id="modalMat">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalMat')">✕ Cerrar</button>
+    <h3 id="modalMatTitle">Editar matrícula</h3>
+    <input type="hidden" id="em_id">
+    <div class="form-grid" id="modalMatFields"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="guardarMatricula()">💾 Guardar cambios</button>
+      <button class="btn btn-red" onclick="eliminarMatricula()">🗑 Eliminar matrícula</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR ALERTA -->
+<div class="modal-overlay" id="modalAlert">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalAlert')">✕ Cerrar</button>
+    <h3 id="modalAlertTitle">Editar alerta</h3>
+    <input type="hidden" id="ea_id">
+    <div class="form-grid" id="modalAlertFields"></div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="guardarAlerta()">💾 Guardar cambios</button>
+      <button class="btn btn-red" onclick="eliminarAlerta()">🗑 Eliminar alerta</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LETS='BCDFGHJKLMNPRSTUVWXYZ';
+const LETDNI='TRWAGMYFPDXBNJZSQVHLCKE';
+let ecPage=0,emPage=0,eaPage=0;
+
+function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',3000);
+}
+
+function switchTab(tab){
+  ['crear','editar_cit','editar_mat','editar_alert','calculadora','auditoria','usuarios'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['crear','editar_cit','editar_mat','editar_alert','calculadora','auditoria','usuarios'][i]===tab);
+  });
+  if(tab==='editar_cit')loadEditCit();
+  if(tab==='editar_mat')loadEditMat();
+  if(tab==='editar_alert')loadEditAlert();
+  if(tab==='calculadora')initCalc();
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ── DNI calculator ──
+async function calcDNI(){
+  const n=parseInt(document.getElementById('dniNumInput').value||0);
+  if(!n||n<1||n>99999999)return;
+  const letra=LETDNI[n%23];
+  const dni=`${String(n).padStart(8,'0')}${letra}`;
+  document.getElementById('dniResultado').textContent=dni;
+  const r=await fetch(`/api/calcular_dni?num=${n}`).then(x=>x.json());
+  document.getElementById('dniExiste').textContent=r.existe?'⚠ Ya existe en BD':'✓ Disponible';
+  document.getElementById('dniExiste').className=r.existe?'exists-yes':'exists-no';
+}
+function usarDNI(){
+  const dni=document.getElementById('dniResultado').textContent;
+  if(dni!='--------')document.getElementById('nc_dni').value=dni;
+}
+
+// ── Matrícula calculator ──
+async function calcMat(){
+  const num=parseInt(document.getElementById('matNumInput').value||1);
+  const l1=document.getElementById('matL1').value;
+  const l2=document.getElementById('matL2').value;
+  const l3=document.getElementById('matL3').value;
+  const mat=`${String(num).padStart(4,'0')} ${l1}${l2}${l3}`;
+  document.getElementById('matResultado').innerHTML=`<span class="eu">E</span>${mat}`;
+  document.getElementById('nm_mat').value=mat;
+  const r=await fetch(`/api/calcular_matricula?num=${num}&l1=${l1}&l2=${l2}&l3=${l3}`).then(x=>x.json());
+  document.getElementById('matExiste').textContent=r.existe?'⚠ Ya existe':'✓ Libre';
+  document.getElementById('matExiste').className=r.existe?'exists-yes':'exists-no';
+}
+
+async function checkDNIProp(){
+  const dni=document.getElementById('nm_dni').value.trim();
+  if(dni.length<9)return;
+  const r=await fetch(`/api/dni/${dni}`).then(x=>x.json());
+  const el=document.getElementById('nm_dni_check');
+  el.textContent=r.existe?`✓ ${r.nombre} ${r.apellido1}`:'⚠ DNI no encontrado en BD';
+  el.style.color=r.existe?'var(--green)':'var(--red)';
+}
+
+// ── CREAR CIUDADANO ──
+async function crearCiudadano(){
+  const dni=document.getElementById('nc_dni').value;
+  if(!dni||!document.getElementById('nc_nombre').value){toast('⚠ Calcula el DNI y rellena nombre','err');return;}
+  const body=new URLSearchParams({
+    dni_num:document.getElementById('dniNumInput').value||0,
+    nombre:document.getElementById('nc_nombre').value,
+    apellido1:document.getElementById('nc_ap1').value,
+    apellido2:document.getElementById('nc_ap2').value,
+    sexo:document.getElementById('nc_sexo').value,
+    fecha_nac:document.getElementById('nc_fnac').value,
+    provincia_residencia:document.getElementById('nc_prov').value,
+    municipio:document.getElementById('nc_municipio').value,
+    direccion:document.getElementById('nc_dir').value,
+    numero_via:document.getElementById('nc_num').value,
+    piso:document.getElementById('nc_piso').value,
+    codigo_postal:document.getElementById('nc_cp').value,
+    telefono:document.getElementById('nc_tel').value,
+    email:document.getElementById('nc_email').value,
+    nacionalidad:document.getElementById('nc_nac').value,
+    estado_civil:document.getElementById('nc_ecivil').value,
+    num_hijos:document.getElementById('nc_hijos').value,
+    profesion:document.getElementById('nc_prof').value,
+    situacion_laboral:document.getElementById('nc_sitlab').value,
+    nivel_estudios:document.getElementById('nc_estudios').value,
+    ingresos_anuales:document.getElementById('nc_ingresos').value||0,
+    banco_ref:document.getElementById('nc_banco').value,
+    licencia_conducir:document.getElementById('nc_licencia').value,
+    tipo_licencia:document.getElementById('nc_tipo_lic').value,
+    puntos_carnet:document.getElementById('nc_puntos').value,
+    antecedentes_penales:document.getElementById('nc_antec').value,
+    alerta_policial:document.getElementById('nc_alerta').value,
+    num_pasaporte:document.getElementById('nc_pasaporte').value,
+    fecha_exp_dni:document.getElementById('nc_exp_dni').value,
+    fecha_cad_dni:document.getElementById('nc_cad_dni').value,
+    notas_admin:document.getElementById('nc_notas').value
+  });
+  const r=await fetch('/admin/ciudadano/nuevo',{method:'POST',body}).then(x=>x.json());
+  if(r.ok){document.getElementById('nc_res').textContent=`✓ Creado: ${r.dni}`;toast(`✓ Ciudadano ${r.dni} creado`);}
+  else{toast('⚠ Error: '+JSON.stringify(r),'err');}
+}
+
+// ── CREAR MATRÍCULA ──
+async function crearMatricula(){
+  const mat=document.getElementById('nm_mat').value;
+  const dni=document.getElementById('nm_dni').value;
+  if(!mat||!dni){toast('⚠ Genera la matrícula y especifica DNI','err');return;}
+  const [num,lets]=mat.split(' ');
+  const data={
+    mat_num:num,l1:lets[0],l2:lets[1],l3:lets[2],
+    dni,tipo_vehiculo:document.getElementById('nm_tipo').value,
+    marca:document.getElementById('nm_marca').value,modelo:document.getElementById('nm_modelo').value,
+    año_fab:document.getElementById('nm_año').value,fecha_mat:document.getElementById('nm_fmat').value,
+    estado:document.getElementById('nm_estado').value,combustible:document.getElementById('nm_comb').value,
+    cv:document.getElementById('nm_cv').value,co2_grkg:document.getElementById('nm_co2').value,
+    bastidor:document.getElementById('nm_bastidor').value,fecha_itv:document.getElementById('nm_itv').value,
+    color:document.getElementById('nm_color').value,uso:document.getElementById('nm_uso').value,
+    km:document.getElementById('nm_km').value,num_puertas:document.getElementById('nm_puertas').value,
+    num_plazas:document.getElementById('nm_plazas').value,tara_kg:document.getElementById('nm_tara').value,
+    masa_max_kg:document.getElementById('nm_masa').value,seguro_compañia:document.getElementById('nm_seg_co').value,
+    seguro_poliza:document.getElementById('nm_seg_pol').value,seguro_hasta:document.getElementById('nm_seg_hasta').value,
+    num_infracciones:document.getElementById('nm_infrac').value,importe_multas:document.getElementById('nm_multas').value,
+    notas_admin:document.getElementById('nm_notas').value
+  };
+  const r=await fetch('/admin/matricula/nueva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){document.getElementById('nm_res').textContent=`✓ Creada: ${r.matricula}`;toast(`✓ Matrícula ${r.matricula} creada`);}
+  else{toast('⚠ Error: '+JSON.stringify(r),'err');}
+}
+
+// ── CREAR ALERTA ──
+async function crearAlerta(){
+  const data={
+    dni:document.getElementById('na_dni').value,
+    tipo_alerta:document.getElementById('na_tipo').value,
+    motivo:document.getElementById('na_motivo').value,
+    emisor:document.getElementById('na_emisor').value,
+    fecha_emision:document.getElementById('na_femit').value,
+    fecha_caducidad:document.getElementById('na_fcad').value,
+    juzgado:document.getElementById('na_juzgado').value,
+    num_expediente:document.getElementById('na_expediente').value,
+    peligrosidad:document.getElementById('na_peligrosidad').value,
+    observaciones:document.getElementById('na_obs').value,
+    notas_admin:document.getElementById('na_notas').value
+  };
+  if(!data.dni){toast('⚠ Especifica el DNI','err');return;}
+  const r=await fetch('/admin/alerta/nueva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){document.getElementById('na_res').textContent=`✓ Alerta creada ID ${r.id}`;document.getElementById('na_res').style.color='var(--green)';toast(`✓ Alerta creada`);}
+  else{toast('⚠ Error: '+JSON.stringify(r),'err');}
+}
+
+// ── EDITAR: cargar listas ──
+async function loadEditCit(){
+  const q=document.getElementById('ecQ').value;
+  const prov=document.getElementById('ecProv').value;
+  const alerta=document.getElementById('ecAlerta').value;
+  if(ecPage<0)ecPage=0;
+  const data=await fetch(`/api/ciudadanos?q=${encodeURIComponent(q)}&prov=${encodeURIComponent(prov)}&alerta=${encodeURIComponent(alerta)}&page=${ecPage}`).then(r=>r.json());
+  const total=data.total,pages=Math.ceil(total/data.per);
+  document.getElementById('ecPI').textContent=`Pág ${ecPage+1}/${pages||1} | ${total}`;
+  const amap={'Busca y Captura':'al-bc','Requisitoria Judicial':'al-req','Vigilancia Especial':'al-vis','Multas Pendientes':'al-mul'};
+  document.getElementById('ecBody').innerHTML=data.rows.map(r=>`
+    <tr class="${r.alerta_policial&&r.alerta_policial!='Sin alertas'?'alert-row':''}">
+      <td>${r.dni}</td>
+      <td>${r.nombre} ${r.apellido1}</td>
+      <td>${r.provincia_residencia||'—'}</td>
+      <td>${r.telefono||'—'}</td>
+      <td>${r.alerta_policial&&r.alerta_policial!='Sin alertas'?`<span class="${amap[r.alerta_policial]||'al-ok'}">${r.alerta_policial.substring(0,8)}</span>`:'—'}</td>
+      <td>${r.puntos_carnet}</td>
+      <td>${(r.profesion||'—').substring(0,12)}</td>
+      <td><button class="btn btn-sm btn-orange" onclick="abrirModalCit('${r.dni}')">✏️ Editar</button></td>
+    </tr>`).join('')||'<tr><td colspan="8" class="loading">Sin resultados</td></tr>';
+}
+
+async function abrirModalCit(dni){
+  const r=await fetch(`/api/ciudadano/${dni}`).then(x=>x.json());
+  const c=r.ciudadano;
+  document.getElementById('ec_dni').value=dni;
+  document.getElementById('modalCitTitle').textContent=`Editar ciudadano — ${c.nombre} ${c.apellido1} [${dni}]`;
+  const campos=[
+    ['nombre','Nombre',c.nombre,'text'],['apellido1','1er Apellido',c.apellido1,'text'],
+    ['apellido2','2º Apellido',c.apellido2||'','text'],
+    ['fecha_nac','Fecha nacimiento',c.fecha_nac||'','date'],
+    ['provincia_residencia','Provincia',c.provincia_residencia||'','text'],
+    ['municipio','Municipio',c.municipio||'','text'],
+    ['direccion','Dirección',c.direccion||'','text'],
+    ['telefono','Teléfono',c.telefono||'','text'],
+    ['telefono2','Teléfono 2',c.telefono2||'','text'],
+    ['email','Email',c.email||'','email'],
+    ['profesion','Profesión',c.profesion||'','text'],
+    ['situacion_laboral','Sit. laboral',c.situacion_laboral||'','text'],
+    ['ingresos_anuales','Ingresos (€)',c.ingresos_anuales||0,'number'],
+    ['puntos_carnet','Puntos carnet',c.puntos_carnet||0,'number'],
+    ['antecedentes_penales','Antecedentes',c.antecedentes_penales||'No','text'],
+    ['alerta_policial','Alerta policial',c.alerta_policial||'Sin alertas','text'],
+    ['notas_admin','Notas admin',c.notas_admin||'','text'],
+  ];
+  document.getElementById('modalCitFields').innerHTML=campos.map(([name,label,val,type])=>`
+    <div class="form-group">
+      <label>${label}</label>
+      <input type="${type}" id="edf_${name}" value="${String(val).replace(/"/g,'&quot;')}">
+    </div>`).join('');
+  document.getElementById('modalCit').classList.add('open');
+}
+
+async function guardarCiudadano(){
+  const dni=document.getElementById('ec_dni').value;
+  const campos=['nombre','apellido1','apellido2','fecha_nac','provincia_residencia','municipio',
+    'direccion','telefono','telefono2','email','profesion','situacion_laboral',
+    'ingresos_anuales','puntos_carnet','antecedentes_penales','alerta_policial','notas_admin'];
+  const data={};
+  campos.forEach(c=>{const el=document.getElementById('edf_'+c);if(el)data[c]=el.value;});
+  const r=await fetch(`/admin/ciudadano/${dni}/editar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){toast('✓ Ciudadano actualizado');closeModal('modalCit');loadEditCit();}
+  else toast('⚠ Error','err');
+}
+
+async function eliminarCiudadano(){
+  const dni=document.getElementById('ec_dni').value;
+  if(!confirm(`¿Eliminar ciudadano ${dni} y todos sus registros asociados?\nEsta acción NO se puede deshacer.`))return;
+  const r=await fetch(`/admin/ciudadano/${dni}/eliminar`,{method:'POST'}).then(x=>x.json());
+  if(r.ok){toast('✓ Ciudadano eliminado');closeModal('modalCit');loadEditCit();}
+  else toast('⚠ Error','err');
+}
+
+async function loadEditMat(){
+  const q=document.getElementById('emQ').value;
+  const est=document.getElementById('emEst').value;
+  if(emPage<0)emPage=0;
+  const data=await fetch(`/api/matriculas?q=${encodeURIComponent(q)}&estado=${est}&page=${emPage}`).then(r=>r.json());
+  const total=data.total,pages=Math.ceil(total/data.per);
+  document.getElementById('emPI').textContent=`Pág ${emPage+1}/${pages||1} | ${total}`;
+  const em={'Activa':'bj-act',Suspendida:'bj-sus',Baja:'bj-baj',Pendiente:'bj-pen',Transferida:'bj-tra'};
+  document.getElementById('emBody').innerHTML=data.rows.map(r=>`
+    <tr>
+      <td><span class="mat"><span class="eu">E</span>${r.matricula}</span></td>
+      <td>${r.dni}</td>
+      <td>${(r.propietario_full||'—').substring(0,16)}</td>
+      <td>${r.marca} ${r.modelo}</td>
+      <td>${r.año_fab}</td>
+      <td><span class="bj ${em[r.estado]||'bj-pen'}">${r.estado}</span></td>
+      <td>${r.combustible}</td>
+      <td><button class="btn btn-sm btn-orange" onclick="abrirModalMat(${r.id})">✏️ Editar</button></td>
+    </tr>`).join('')||'<tr><td colspan="8" class="loading">Sin resultados</td></tr>';
+}
+
+async function abrirModalMat(id){
+  const r=await fetch(`/api/matricula/${id}`).then(x=>x.json());
+  document.getElementById('em_id').value=id;
+  document.getElementById('modalMatTitle').textContent=`Editar matrícula — ${r.matricula}`;
+  const campos=[
+    ['dni','DNI propietario',r.dni,'text'],['tipo_vehiculo','Tipo',r.tipo_vehiculo||'','text'],
+    ['marca','Marca',r.marca||'','text'],['modelo','Modelo',r.modelo||'','text'],
+    ['año_fab','Año fab.',r.año_fab||'','number'],['fecha_mat','F.matriculación',r.fecha_mat||'','date'],
+    ['estado','Estado',r.estado||'Activa','text'],['combustible','Combustible',r.combustible||'','text'],
+    ['cv','CV',r.cv||0,'number'],['co2_grkg','CO₂ g/km',r.co2_grkg||0,'number'],
+    ['color','Color',r.color||'','text'],['uso','Uso',r.uso||'','text'],
+    ['km','Km',r.km||0,'number'],['fecha_itv','ITV',r.fecha_itv||'','date'],
+    ['seguro_compañia','Seguro compañía',r.seguro_compañia||'','text'],
+    ['seguro_hasta','Seguro hasta',r.seguro_hasta||'','date'],
+    ['num_infracciones','Infracciones',r.num_infracciones||0,'number'],
+    ['importe_multas','Multas (€)',r.importe_multas||0,'number'],
+    ['notas_admin','Notas admin',r.notas_admin||'','text'],
+  ];
+  document.getElementById('modalMatFields').innerHTML=campos.map(([name,label,val,type])=>`
+    <div class="form-group"><label>${label}</label>
+    <input type="${type}" id="emf_${name}" value="${String(val).replace(/"/g,'&quot;')}">
+    </div>`).join('');
+  document.getElementById('modalMat').classList.add('open');
+}
+
+async function guardarMatricula(){
+  const id=document.getElementById('em_id').value;
+  const campos=['dni','tipo_vehiculo','marca','modelo','año_fab','fecha_mat','estado','combustible',
+    'cv','co2_grkg','color','uso','km','fecha_itv','seguro_compañia','seguro_hasta',
+    'num_infracciones','importe_multas','notas_admin'];
+  const data={};
+  campos.forEach(c=>{const el=document.getElementById('emf_'+c);if(el)data[c]=el.value;});
+  const r=await fetch(`/admin/matricula/${id}/editar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){toast('✓ Matrícula actualizada');closeModal('modalMat');loadEditMat();}
+  else toast('⚠ Error','err');
+}
+
+async function eliminarMatricula(){
+  const id=document.getElementById('em_id').value;
+  if(!confirm('¿Eliminar esta matrícula?'))return;
+  const r=await fetch(`/admin/matricula/${id}/eliminar`,{method:'POST'}).then(x=>x.json());
+  if(r.ok){toast('✓ Matrícula eliminada');closeModal('modalMat');loadEditMat();}
+  else toast('⚠ Error','err');
+}
+
+async function loadEditAlert(){
+  const q=document.getElementById('eaQ').value;
+  const tipo=document.getElementById('eaTipo').value;
+  if(eaPage<0)eaPage=0;
+  const data=await fetch(`/api/alertas?q=${encodeURIComponent(q)}&tipo=${encodeURIComponent(tipo)}&page=${eaPage}`).then(r=>r.json());
+  const total=data.total,pages=Math.ceil(total/data.per);
+  document.getElementById('eaPI').textContent=`Pág ${eaPage+1}/${pages||1} | ${total}`;
+  const amap={'Busca y Captura':'al-bc','Requisitoria Judicial':'al-req','Vigilancia Especial':'al-vis','Multas Pendientes':'al-mul'};
+  document.getElementById('eaBody').innerHTML=data.rows.map(r=>`
+    <tr class="alert-row">
+      <td>${r.id}</td>
+      <td>${r.dni}</td>
+      <td>${(r.nombre_completo||'—').substring(0,16)}</td>
+      <td><span class="${amap[r.tipo_alerta]||'al-ok'}">${r.tipo_alerta}</span></td>
+      <td title="${r.motivo||''}">${(r.motivo||'—').substring(0,14)}</td>
+      <td>${r.fecha_emision||'—'}</td>
+      <td style="color:${r.activa?'var(--red)':'var(--green)'}">${r.activa?'Sí':'No'}</td>
+      <td><button class="btn btn-sm btn-orange" onclick="abrirModalAlert(${r.id})">✏️ Editar</button></td>
+    </tr>`).join('')||'<tr><td colspan="8" class="loading">Sin resultados</td></tr>';
+}
+
+async function abrirModalAlert(id){
+  const data=await fetch(`/api/alertas?page=0`).then(r=>r.json());
+  const r=data.rows.find(x=>x.id==id)||data.rows[0];
+  if(!r)return;
+  document.getElementById('ea_id').value=id;
+  document.getElementById('modalAlertTitle').textContent=`Editar alerta #${id}`;
+  const campos=[
+    ['tipo_alerta','Tipo alerta',r.tipo_alerta||'','text'],
+    ['motivo','Motivo',r.motivo||'','text'],
+    ['emisor','Emisor',r.emisor||'','text'],
+    ['fecha_emision','F.emisión',r.fecha_emision||'','date'],
+    ['fecha_caducidad','F.caducidad',r.fecha_caducidad||'','date'],
+    ['juzgado','Juzgado',r.juzgado||'','text'],
+    ['num_expediente','Expediente',r.num_expediente||'','text'],
+    ['peligrosidad','Peligrosidad',r.peligrosidad||'Media','text'],
+    ['observaciones','Observaciones',r.observaciones||'','text'],
+    ['activa','Activa (1/0)',r.activa,'number'],
+    ['notas_admin','Notas admin',r.notas_admin||'','text'],
+  ];
+  document.getElementById('modalAlertFields').innerHTML=campos.map(([name,label,val,type])=>`
+    <div class="form-group"><label>${label}</label>
+    <input type="${type}" id="eaf_${name}" value="${String(val).replace(/"/g,'&quot;')}">
+    </div>`).join('');
+  document.getElementById('modalAlert').classList.add('open');
+}
+
+async function guardarAlerta(){
+  const id=document.getElementById('ea_id').value;
+  const campos=['tipo_alerta','motivo','emisor','fecha_emision','fecha_caducidad','juzgado','num_expediente','peligrosidad','observaciones','activa','notas_admin'];
+  const data={};
+  campos.forEach(c=>{const el=document.getElementById('eaf_'+c);if(el)data[c]=el.value;});
+  const r=await fetch(`/admin/alerta/${id}/editar`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){toast('✓ Alerta actualizada');closeModal('modalAlert');loadEditAlert();}
+  else toast('⚠ Error','err');
+}
+
+async function eliminarAlerta(){
+  const id=document.getElementById('ea_id').value;
+  if(!confirm('¿Eliminar esta alerta policial?'))return;
+  const r=await fetch(`/admin/alerta/${id}/eliminar`,{method:'POST'}).then(x=>x.json());
+  if(r.ok){toast('✓ Alerta eliminada');closeModal('modalAlert');loadEditAlert();}
+  else toast('⚠ Error','err');
+}
+
+async function crearUsuario(){
+  const data={username:document.getElementById('nu_user').value,password:document.getElementById('nu_pass').value,rol:document.getElementById('nu_rol').value};
+  if(!data.username||!data.password){toast('⚠ Rellena usuario y contraseña','err');return;}
+  const r=await fetch('/admin/usuario/nuevo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+  if(r.ok){document.getElementById('nu_res').textContent='✓ Usuario creado';document.getElementById('nu_res').style.color='var(--green)';toast('✓ Usuario creado');}
+  else{toast('⚠ Error: '+JSON.stringify(r),'err');}
+}
+
+// ── CALCULADORA ──
+function initCalc(){
+  const tabla=document.getElementById('dniTabla');
+  if(tabla)tabla.innerHTML=Array.from('TRWAGMYFPDXBNJZSQVHLCKE').map((l,i)=>`<span style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10px;font-family:monospace"><span style="color:var(--text3)">${i}→</span><span style="color:var(--orange)">${l}</span></span>`).join('');
+  updateDNICalc();updateMatCalc();
+}
+
+async function updateDNICalc(){
+  const n=parseInt(document.getElementById('dniCalcNum').value||0);
+  document.getElementById('dniSlider').value=n;
+  if(!n||n<1||n>99999999)return;
+  const letra=LETDNI[n%23];
+  document.getElementById('dniCalcResult').textContent=`${String(n).padStart(8,'0')}${letra}`;
+  document.getElementById('dniCalcLetra').textContent=letra;
+  document.getElementById('dniCalcPos').textContent=n%23;
+  document.getElementById('dniCalcMod').textContent=`${n} % 23 = ${n%23}`;
+  const r=await fetch(`/api/calcular_dni?num=${n}`).then(x=>x.json());
+  document.getElementById('dniCalcExiste').textContent=r.existe?'⚠ Existe en BD':'✓ No existe';
+  document.getElementById('dniCalcExiste').style.color=r.existe?'var(--red)':'var(--green)';
+}
+
+async function updateMatCalc(){
+  const num=parseInt(document.getElementById('matCalcNum').value||1);
+  const l1=document.getElementById('matCalcL1').value;
+  const l2=document.getElementById('matCalcL2').value;
+  const l3=document.getElementById('matCalcL3').value;
+  const mat=`${String(num).padStart(4,'0')} ${l1}${l2}${l3}`;
+  document.getElementById('matCalcResult').innerHTML=`<span class="eu">E</span>${mat}`;
+  const r=await fetch(`/api/calcular_matricula?num=${num}&l1=${l1}&l2=${l2}&l3=${l3}`).then(x=>x.json());
+  document.getElementById('matCalcExiste').textContent=r.existe?'⚠ Existe en BD':'✓ Disponible';
+  document.getElementById('matCalcExiste').style.color=r.existe?'var(--red)':'var(--green)';
+}
+
+// ── INIT ──
+calcMat();
+</script>
+</body>
+</html>

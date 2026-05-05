@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Login Admin — DGT/Interior</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Courier New',monospace;
+  display:flex;align-items:center;justify-content:center;min-height:100vh}
+.box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:32px;width:360px}
+.logo{font-size:18px;font-weight:700;letter-spacing:2px;color:#fff;margin-bottom:6px}
+.logo span{color:#58a6ff}
+.sub{font-size:10px;color:#6e7681;margin-bottom:28px;letter-spacing:1px}
+label{font-size:11px;color:#8b949e;display:block;margin-bottom:4px;letter-spacing:.5px}
+input{width:100%;background:#0d1117;border:1px solid #30363d;color:#e6edf3;
+  padding:8px 12px;border-radius:6px;font-family:monospace;font-size:13px;margin-bottom:16px}
+input:focus{outline:none;border-color:#58a6ff}
+button{width:100%;background:#1f6feb;color:#fff;border:none;padding:10px;border-radius:6px;
+  cursor:pointer;font-size:13px;font-family:monospace;font-weight:600;letter-spacing:1px}
+button:hover{background:#388bfd}
+.err{background:#3d1a1a;color:#f85149;border:1px solid #6b2020;border-radius:6px;
+  padding:8px 12px;margin-bottom:16px;font-size:12px}
+.hint{font-size:10px;color:#6e7681;margin-top:16px;text-align:center}
+a{color:#58a6ff;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">⬛ <span>DGT</span>/INTERIOR</div>
+  <div class="sub">PANEL DE ADMINISTRACIÓN — ACCESO RESTRINGIDO</div>
+  {% if error %}<div class="err">⚠ {{error}}</div>{% endif %}
+  <form method="POST">
+    <label>USUARIO</label>
+    <input type="text" name="username" placeholder="admin" autocomplete="username" required>
+    <label>CONTRASEÑA</label>
+    <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+    <button type="submit">→ ACCEDER AL PANEL</button>
+  </form>
+  <div class="hint">
+    Credenciales por defecto: <strong>admin</strong> / <strong>admin123</strong><br><br>
+    <a href="/">← Volver a la vista pública</a>
+  </div>
+</div>
+</body>
+</html>
