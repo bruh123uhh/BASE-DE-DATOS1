@@ -1009,6 +1009,238 @@ def api_rango_dni():
 def buscador():
     return render_template("buscador.html", admin=session.get("admin"))
 
+# ──────────────────────────────────────────────
+#  MÓDULO POLICIAL — verificación + multas
+# ──────────────────────────────────────────────
+
+TIPOS_MULTA = [
+    # (codigo, descripcion, articulo, importe_base, puntos_retirar, grave)
+    ("VEL-01", "Exceso velocidad hasta 20 km/h en vía urbana",         "Art. 76 LSV",   100,  0, False),
+    ("VEL-02", "Exceso velocidad 20-40 km/h en vía urbana",            "Art. 76 LSV",   300,  2, True),
+    ("VEL-03", "Exceso velocidad +40 km/h en vía urbana",              "Art. 76 LSV",   600,  6, True),
+    ("VEL-04", "Exceso velocidad hasta 30 km/h en autopista",          "Art. 76 LSV",   100,  0, False),
+    ("VEL-05", "Exceso velocidad 30-50 km/h en autopista",             "Art. 76 LSV",   400,  4, True),
+    ("VEL-06", "Exceso velocidad +50 km/h en autopista",               "Art. 76 LSV",   600,  6, True),
+    ("ALC-01", "Conducción con tasa alcohol 0.25-0.50 mg/l aire",      "Art. 79 LSV",   500,  4, True),
+    ("ALC-02", "Conducción con tasa alcohol +0.50 mg/l aire",          "Art. 79 LSV",   1000, 6, True),
+    ("ALC-03", "Negativa a prueba alcoholemia",                        "Art. 383 CP",   1000, 6, True),
+    ("DRG-01", "Conducción bajo efectos de drogas",                    "Art. 379 CP",   1000, 6, True),
+    ("TEL-01", "Uso de móvil conduciendo",                             "Art. 76.j LSV", 200,  3, True),
+    ("CIN-01", "No uso del cinturón de seguridad",                     "Art. 76.i LSV", 200,  3, True),
+    ("CAS-01", "No uso del casco en motocicleta",                      "Art. 76.i LSV", 200,  3, True),
+    ("SEM-01", "Saltarse un semáforo en rojo",                         "Art. 76.b LSV", 200,  2, True),
+    ("SEM-02", "No respetar señal de stop/ceda el paso",               "Art. 76.b LSV", 200,  2, True),
+    ("EST-01", "Estacionamiento en zona prohibida",                    "Art. 90 LSV",    80,  0, False),
+    ("EST-02", "Estacionamiento en plaza reservada discapacitados",    "Art. 94 LSV",   200,  0, True),
+    ("EST-03", "Estacionamiento en carril bus/taxi",                   "Art. 90 LSV",   100,  0, False),
+    ("EST-04", "Estacionamiento obstruyendo salida emergencias",       "Art. 94 LSV",   500,  0, True),
+    ("CAR-01", "Conducción sin seguro obligatorio",                    "Art. 1 LRCSCVM",600,  0, True),
+    ("CAR-02", "Conducción con ITV caducada",                          "Art. 106 LSV",  200,  0, False),
+    ("CAR-03", "Conducción sin permiso en vigor",                      "Art. 77 LSV",   500,  0, True),
+    ("CAR-04", "Conducción con permiso suspendido/retirado",           "Art. 383 CP",  1000,  0, True),
+    ("CAR-05", "Matrícula ilegible o falsa",                           "Art. 70 LSV",   200,  0, True),
+    ("ADV-01", "Adelantamiento antirreglamentario",                    "Art. 84 LSV",   200,  2, True),
+    ("ADV-02", "Adelantamiento en paso de peatones",                   "Art. 84 LSV",   200,  2, True),
+    ("PRI-01", "No ceder paso en cruce",                               "Art. 68 LSV",   200,  2, True),
+    ("PRI-02", "No ceder paso a peatones en paso de cebra",            "Art. 65 LSV",   200,  2, True),
+    ("TEC-01", "Vehículo sin documentación en regla",                  "Art. 109 LSV",  100,  0, False),
+    ("TEC-02", "Carga mal sujeta o con exceso",                        "Art. 105 LSV",  200,  0, True),
+    ("DIS-01", "Conducción distraída / fatiga",                        "Art. 76.m LSV", 200,  3, True),
+    ("FUG-01", "Abandono del lugar del accidente",                     "Art. 75 LSV",   500,  0, True),
+]
+
+AGENTES_TIPOS = ["Guardia Civil de Tráfico","Policía Local","Policía Nacional","Mossos d'Esquadra","Ertzaintza","Policía Foral"]
+MUNICIPIOS_MULTA = ["Madrid","Barcelona","Valencia","Sevilla","Málaga","Bilbao","Zaragoza","Murcia","Palma","Alicante","Córdoba","Valladolid","Vigo","Granada","La Coruña","Santander","Burgos","Pamplona","Almería","Castellón"]
+VIAS_MULTA = ["A-1 km 34","M-30 altura Vallecas","N-II km 56","A-7 km 230","Calle Mayor 45","Gran Vía 102","Avenida Diagonal 350","Paseo de la Castellana 200","Carretera Nacional N-IV km 89","Autopista AP-7 km 145","Ronda de Atocha 12","Avenida Meridiana 55"]
+
+def get_multas_tabla():
+    return {c: {"codigo":c,"descripcion":d,"articulo":a,"importe":i,"puntos":p,"grave":g}
+            for c,d,a,i,p,g in TIPOS_MULTA}
+
+# ── API: verificación policial rápida ──
+@app.route("/api/policia/verificar")
+def api_policia_verificar():
+    """Verificación rápida de DNI o matrícula: alertas, multas, antecedentes."""
+    q = request.args.get("q","").strip().upper()
+    if not q:
+        return jsonify({"error": "Introduce un DNI o matrícula"}), 400
+
+    resultado = {"query": q, "tipo": None, "encontrado": False,
+                 "alertas": [], "multas_pendientes": [], "ciudadano": None, "matricula": None}
+
+    # Determinar si es DNI o matrícula
+    es_dni = len(q) == 9 and q[:8].isdigit() and q[8].isalpha()
+    es_mat = (len(q) == 7 and q[:4].isdigit()) or (len(q) == 8 and q[4] == ' ')
+
+    if es_dni:
+        resultado["tipo"] = "DNI"
+        num = int(q[:8])
+        ficha = _ficha_dni_universal(num)
+        resultado["ciudadano"] = ficha
+        resultado["encontrado"] = ficha.get("en_bd", False)
+        # Alertas reales de BD
+        alertas = [dict(a) for a in query("SELECT * FROM alertas_policiales WHERE dni=? AND activa=1", (q,))]
+        resultado["alertas"] = alertas
+        # Multas pendientes reales
+        mats = query("SELECT matricula, importe_multas, num_infracciones FROM matriculas WHERE dni=?", (q,))
+        resultado["multas_pendientes"] = [dict(m) for m in mats if (m["importe_multas"] or 0) > 0]
+        resultado["antecedentes"] = ficha.get("antecedentes_penales","No")
+        resultado["puntos_carnet"] = ficha.get("puntos_carnet", 15)
+
+    elif es_mat:
+        mat = q if ' ' in q else q[:4]+' '+q[4:]
+        resultado["tipo"] = "MATRICULA"
+        ficha = _ficha_matricula_universal(mat)
+        resultado["matricula"] = ficha
+        resultado["encontrado"] = ficha.get("en_bd", False)
+        # Alertas del propietario
+        dni_prop = ficha.get("dni","")
+        alertas = [dict(a) for a in query("SELECT * FROM alertas_policiales WHERE dni=? AND activa=1", (dni_prop,))]
+        resultado["alertas"] = alertas
+        resultado["multas_pendientes_importe"] = ficha.get("importe_multas", 0)
+        resultado["num_infracciones"] = ficha.get("num_infracciones", 0)
+        # Info propietario
+        prop = query("SELECT * FROM ciudadanos WHERE dni=?", (dni_prop,), one=True)
+        if prop:
+            resultado["ciudadano"] = dict(prop)
+    else:
+        return jsonify({"error": "Formato no reconocido. Introduce un DNI (12345678Z) o matrícula (1234BBB)"}), 400
+
+    return jsonify(resultado)
+
+# ── API: poner multa ──
+@app.route("/api/policia/multa/nueva", methods=["POST"])
+@admin_required
+def api_nueva_multa():
+    d = request.json or {}
+    # Validar matrícula o DNI
+    mat_str = d.get("matricula","").upper().strip()
+    dni_str  = d.get("dni","").upper().strip()
+    codigo   = d.get("codigo_infraccion","")
+    tabla    = get_multas_tabla()
+
+    if codigo not in tabla:
+        return jsonify({"error": "Código de infracción no válido"}), 400
+
+    inf = tabla[codigo]
+    importe_final = int(d.get("importe_final", inf["importe"]))
+    puntos_retirar = int(d.get("puntos_retirar", inf["puntos"]))
+
+    # Buscar matrícula en BD
+    if mat_str:
+        mat_row = query("SELECT * FROM matriculas WHERE matricula=?", (mat_str,), one=True)
+        if mat_row:
+            new_multas = (mat_row["importe_multas"] or 0) + importe_final
+            new_infrac = (mat_row["num_infracciones"] or 0) + 1
+            execute("UPDATE matriculas SET importe_multas=?, num_infracciones=?, updated_at=datetime('now') WHERE matricula=?",
+                    (new_multas, new_infrac, mat_str))
+            dni_str = mat_row["dni"]
+
+    # Retirar puntos al ciudadano
+    if dni_str and puntos_retirar > 0:
+        cit = query("SELECT puntos_carnet FROM ciudadanos WHERE dni=?", (dni_str,), one=True)
+        if cit:
+            nuevos = max(0, (cit["puntos_carnet"] or 15) - puntos_retirar)
+            execute("UPDATE ciudadanos SET puntos_carnet=?, updated_at=datetime('now') WHERE dni=?",
+                    (nuevos, dni_str))
+
+    # Guardar registro de la multa
+    lid = execute("""INSERT INTO multas_registro
+        (matricula, dni, codigo_infraccion, descripcion, articulo, importe, puntos_retirados,
+         lugar, via, municipio, agente_tipo, agente_num, fecha_hora, velocidad_detectada,
+         velocidad_limite, observaciones, estado, creado_por)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (mat_str, dni_str, codigo, inf["descripcion"], inf["articulo"],
+         importe_final, puntos_retirar,
+         d.get("lugar",""), d.get("via",""), d.get("municipio",""),
+         d.get("agente_tipo","Policía Local"), d.get("agente_num",""),
+         d.get("fecha_hora", datetime.now().strftime("%Y-%m-%d %H:%M")),
+         d.get("velocidad_detectada"), d.get("velocidad_limite"),
+         d.get("observaciones",""), "Pendiente pago",
+         session.get("admin","sistema")))
+
+    audit("MULTA", "multas_registro", lid,
+          f"Multa {codigo} a {mat_str or dni_str} — {importe_final}€")
+    return jsonify({"ok": True, "id": lid, "infraccion": inf, "importe": importe_final, "puntos": puntos_retirar})
+
+# ── API: listar multas ──
+@app.route("/api/policia/multas")
+def api_multas_lista():
+    q = request.args.get("q","")
+    estado = request.args.get("estado","")
+    page = max(0, int(request.args.get("page",0)))
+    per = 20
+    sql = "SELECT * FROM multas_registro WHERE 1=1"
+    params = []
+    if q:
+        sql += " AND (matricula LIKE ? OR dni LIKE ? OR descripcion LIKE ? OR municipio LIKE ?)"
+        params += [f"%{q}%"]*4
+    if estado:
+        sql += " AND estado=?"; params.append(estado)
+    total = get_db().execute(f"SELECT COUNT(*) FROM ({sql})", params).fetchone()[0]
+    sql += f" ORDER BY id DESC LIMIT {per} OFFSET {page*per}"
+    rows = [dict(r) for r in query(sql, params)]
+    return jsonify({"rows": rows, "total": total, "page": page, "per": per})
+
+# ── API: actualizar estado multa ──
+@app.route("/api/policia/multa/<int:mid>/estado", methods=["POST"])
+@admin_required
+def api_multa_estado(mid):
+    estado = (request.json or {}).get("estado","")
+    execute("UPDATE multas_registro SET estado=? WHERE id=?", (estado, mid))
+    audit("MULTA_ESTADO", "multas_registro", mid, f"Estado → {estado}")
+    return jsonify({"ok": True})
+
+# ── API: tipos de infracción ──
+@app.route("/api/policia/infracciones")
+def api_infracciones():
+    return jsonify([{"codigo":c,"descripcion":d,"articulo":a,"importe":i,"puntos":p,"grave":g}
+                    for c,d,a,i,p,g in TIPOS_MULTA])
+
+# ── PÁGINA policial ──
+@app.route("/policia")
+def policia():
+    return render_template("policia.html",
+        admin=session.get("admin"),
+        agentes_tipos=AGENTES_TIPOS,
+        municipios=MUNICIPIOS_MULTA,
+        vias=VIAS_MULTA,
+        tipos_multa=TIPOS_MULTA)
+
+# ── Crear tabla multas_registro si no existe ──
+def ensure_multas_table():
+    get_db().executescript("""
+    CREATE TABLE IF NOT EXISTS multas_registro (
+        id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+        matricula            TEXT,
+        dni                  TEXT,
+        codigo_infraccion    TEXT,
+        descripcion          TEXT,
+        articulo             TEXT,
+        importe              INTEGER,
+        puntos_retirados     INTEGER DEFAULT 0,
+        lugar                TEXT,
+        via                  TEXT,
+        municipio            TEXT,
+        agente_tipo          TEXT,
+        agente_num           TEXT,
+        fecha_hora           TEXT,
+        velocidad_detectada  INTEGER,
+        velocidad_limite     INTEGER,
+        observaciones        TEXT,
+        estado               TEXT DEFAULT 'Pendiente pago',
+        creado_por           TEXT,
+        created_at           TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_multa_mat ON multas_registro(matricula);
+    CREATE INDEX IF NOT EXISTS idx_multa_dni ON multas_registro(dni);
+    """)
+    get_db().commit()
+
+@app.before_request
+def before_request():
+    ensure_multas_table()
+
 if __name__ == "__main__":
     print("="*52)
     print("  SISTEMA DGT / INTERIOR - USO EDUCATIVO")
