@@ -135,6 +135,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <a href="#" onclick="switchTab('alertas');return false">Alertas</a>
     <a href="#" onclick="switchTab('schema');return false">SQL</a>
     <a href="#" onclick="switchTab('graficas');return false">Stats</a>
+    <a href="/buscador" style="color:var(--orange)">🔍 Buscador</a>
+    <a href="/policia" style="color:var(--red);font-weight:700;background:#3d1a1a;border:1px solid #6b2020;border-radius:6px;padding:4px 10px">🚔 Policía</a>
   </nav>
   <div class="ml-auto" style="display:flex;gap:8px;align-items:center">
     <span class="badge-red" id="bcCount">⚠ ...</span>
@@ -156,6 +158,119 @@ tr:hover td{background:rgba(255,255,255,.02)}
       DNI 00000001A → 99999999Z · Matrículas 0001 BBB → 9999 NZZ
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  MÓDULOS DE ACCESO RÁPIDO                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px">
+
+    <!-- BASE DE DATOS -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;
+      cursor:pointer;transition:.2s;position:relative;overflow:hidden"
+      onmouseover="this.style.borderColor='var(--blue)';this.style.background='#161f2e'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg2)'"
+      onclick="document.querySelector('.tab').click()">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--accent2))"></div>
+      <div style="font-size:32px;margin-bottom:10px">🗄️</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:.5px">BASE DE DATOS</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Consulta matrículas, ciudadanos y alertas.<br>
+        Tablas SQL · Filtros · Fichas completas
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#1a2d4d;color:var(--blue);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">MATRÍCULAS</span>
+        <span style="background:#1a2d4d;color:var(--blue);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">CIUDADANOS</span>
+        <span style="background:#1a2d4d;color:var(--blue);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">SQL</span>
+      </div>
+      <div style="margin-top:14px">
+        <span style="background:var(--accent);color:#fff;font-size:11px;padding:5px 14px;
+          border-radius:6px;font-weight:600;letter-spacing:.5px">→ ABRIR MÓDULO</span>
+      </div>
+    </div>
+
+    <!-- BUSCADOR UNIVERSAL -->
+    <a href="/buscador" style="text-decoration:none">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;
+      cursor:pointer;transition:.2s;position:relative;overflow:hidden;height:100%"
+      onmouseover="this.style.borderColor='var(--orange)';this.style.background='#1e1a0e'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),#ff6600)"></div>
+      <div style="font-size:32px;margin-bottom:10px">🔍</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:.5px">BUSCADOR UNIVERSAL</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Resuelve cualquier DNI <strong style="color:var(--orange)">00000001A→99999999Z</strong><br>
+        y cualquier matrícula <strong style="color:var(--orange)">0001 BBB→9999 NZZ</strong>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:var(--orange3,#3d1e00);color:var(--orange);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">100M DNIs</span>
+        <span style="background:#3d1e00;color:var(--orange);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">72M MATRÍCULAS</span>
+        <span style="background:#3d1e00;color:var(--orange);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">RANGO</span>
+      </div>
+      <div style="margin-top:14px">
+        <span style="background:#5a3200;border:1px solid var(--orange);color:var(--orange);
+          font-size:11px;padding:5px 14px;border-radius:6px;font-weight:600;letter-spacing:.5px">→ ABRIR BUSCADOR</span>
+      </div>
+    </div>
+    </a>
+
+    <!-- MÓDULO POLICIAL -->
+    <a href="/policia" style="text-decoration:none">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;
+      cursor:pointer;transition:.2s;position:relative;overflow:hidden;height:100%"
+      onmouseover="this.style.borderColor='var(--red)';this.style.background='#1a0a0a'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),#ff6600)"></div>
+      <div style="font-size:32px;margin-bottom:10px">🚔</div>
+      <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.5px">TERMINAL POLICIAL</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Verificación de DNI y matrículas · Alertas B&amp;C<br>
+        Poner multas · Boletín imprimible · Registro
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#3d0008;color:var(--red);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600;border:1px solid #6b0010">B&amp;C ALERT</span>
+        <span style="background:#3d0008;color:var(--red);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600;border:1px solid #6b0010">MULTAS</span>
+        <span style="background:#3d0008;color:var(--red);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600;border:1px solid #6b0010">BOLETÍN</span>
+      </div>
+      <div style="margin-top:14px">
+        <span style="background:#6b2020;border:1px solid var(--red);color:#fff;
+          font-size:11px;padding:5px 14px;border-radius:6px;font-weight:700;letter-spacing:.5px;
+          animation:pulse 2s infinite">🚨 ACCEDER AL MÓDULO</span>
+      </div>
+    </div>
+    </a>
+
+    <!-- PANEL ADMIN -->
+    <a href="{% if admin %}/admin{% else %}/login{% endif %}" style="text-decoration:none">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;
+      cursor:pointer;transition:.2s;position:relative;overflow:hidden;height:100%"
+      onmouseover="this.style.borderColor='var(--purple)';this.style.background='#14101e'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--blue))"></div>
+      <div style="font-size:32px;margin-bottom:10px">🔧</div>
+      <div style="font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px;letter-spacing:.5px">PANEL ADMIN</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">
+        Crear, editar y eliminar registros.<br>
+        Calculadora DNI/Mat · Auditoría · Usuarios
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#2d1a4d;color:var(--purple);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">CRUD</span>
+        <span style="background:#2d1a4d;color:var(--purple);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">AUDITORÍA</span>
+        <span style="background:#2d1a4d;color:var(--purple);font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">CALCULADORA</span>
+      </div>
+      <div style="margin-top:14px">
+        {% if admin %}
+        <span style="background:#4a1d80;border:1px solid var(--purple);color:#fff;
+          font-size:11px;padding:5px 14px;border-radius:6px;font-weight:600;letter-spacing:.5px">→ IR AL PANEL</span>
+        {% else %}
+        <span style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+          font-size:11px;padding:5px 14px;border-radius:6px;font-weight:600;letter-spacing:.5px">🔐 INICIAR SESIÓN</span>
+        {% endif %}
+      </div>
+    </div>
+    </a>
+
+  </div>
+  <!-- /MÓDULOS -->
 
   <div class="stats-grid" id="statsGrid">
     {% for label, val, cls in [
