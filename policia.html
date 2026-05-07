@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terminal Policial — DGT/Interior</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050810;--bg2:#0a0f1e;--bg3:#111827;--bg4:#1a2233;
+  --border:#1e2d4d;--border2:#2a3f5f;
+  --text:#c8d8f0;--text2:#7a9bc4;--text3:#3d5a7a;
+  --blue:#4a9eff;--blue2:#2d7dd2;
+  --green:#00ff88;--green2:#00cc6a;--green3:#003d1f;
+  --red:#ff3344;--red2:#cc1122;--red3:#3d0008;
+  --orange:#ff8800;--orange2:#cc6600;--orange3:#3d1e00;
+  --yellow:#ffd700;--purple:#9b59b6;
+  --accent:#1a3d6b;
+}
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;font-size:13px;min-height:100vh}
+
+/* SCANLINES effect */
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);
+  pointer-events:none;z-index:9999}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:2px solid var(--blue2);padding:0 20px;height:48px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo-police{display:flex;align-items:center;gap:10px}
+.badge-police{background:var(--yellow);color:#000;font-weight:900;font-size:10px;padding:3px 8px;
+  border-radius:3px;letter-spacing:1px}
+.sys-name{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:3px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.clock{color:var(--text2);font-size:12px;margin-left:auto}
+.topnav a{color:var(--text2);padding:4px 12px;border:1px solid var(--border2);border-radius:4px;
+  font-size:11px;text-decoration:none;letter-spacing:1px;transition:.15s}
+.topnav a:hover{background:var(--accent);color:var(--blue);border-color:var(--blue)}
+.topnav{display:flex;gap:6px}
+
+/* LAYOUT */
+.container{max-width:1400px;margin:0 auto;padding:16px}
+
+/* TABS */
+.maintabs{display:flex;gap:0;border-bottom:2px solid var(--border2);margin-bottom:16px}
+.mtab{padding:10px 20px;font-size:12px;cursor:pointer;color:var(--text3);
+  border-bottom:2px solid transparent;margin-bottom:-2px;letter-spacing:1px;transition:.15s}
+.mtab:hover{color:var(--text2)}
+.mtab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(0,255,136,.05)}
+
+/* PANELS */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:14px;
+  position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2));
+  border-radius:4px 4px 0 0}
+.panel-title{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* SCANNER */
+.scanner-box{background:var(--bg3);border:2px solid var(--blue2);border-radius:4px;padding:20px;
+  text-align:center;position:relative;overflow:hidden}
+.scanner-box::after{content:'';position:absolute;top:-100%;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  animation:scan 3s linear infinite}
+@keyframes scan{0%{top:-5%}100%{top:105%}}
+.scan-input{background:transparent;border:none;border-bottom:2px solid var(--green);
+  color:var(--green);font-family:'Share Tech Mono',monospace;font-size:28px;font-weight:700;
+  text-align:center;width:100%;letter-spacing:6px;outline:none;padding:8px 0;
+  text-transform:uppercase}
+.scan-input::placeholder{color:var(--text3);font-size:18px;letter-spacing:2px}
+.scan-input:focus{border-bottom-color:var(--blue);color:var(--blue)}
+.scan-hint{font-size:10px;color:var(--text3);margin-top:8px;letter-spacing:1px}
+.scan-btn{background:var(--green3);color:var(--green);border:1px solid var(--green2);
+  padding:10px 28px;border-radius:3px;cursor:pointer;font-family:monospace;font-size:13px;
+  font-weight:700;letter-spacing:2px;margin-top:12px;transition:.15s}
+.scan-btn:hover{background:var(--green2);color:#000}
+.scan-btn.red{background:var(--red3);color:var(--red);border-color:var(--red2)}
+.scan-btn.red:hover{background:var(--red2);color:#fff}
+.scan-btn.orange{background:var(--orange3);color:var(--orange);border-color:var(--orange2)}
+.scan-btn.orange:hover{background:var(--orange2);color:#000}
+
+/* RESULTADO POLICIAL */
+.result-ok{background:rgba(0,255,136,.05);border:2px solid var(--green2);border-radius:4px;padding:16px;margin-top:14px}
+.result-alert{background:rgba(255,51,68,.08);border:2px solid var(--red2);border-radius:4px;padding:16px;margin-top:14px;
+  animation:alertpulse 2s infinite}
+@keyframes alertpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,51,68,.4)}50%{box-shadow:0 0 0 8px rgba(255,51,68,0)}}
+.result-warn{background:rgba(255,136,0,.06);border:2px solid var(--orange2);border-radius:4px;padding:16px;margin-top:14px}
+
+.status-banner{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:10px 14px;border-radius:3px}
+.status-banner.ok{background:var(--green3);border:1px solid var(--green2)}
+.status-banner.alert{background:var(--red3);border:1px solid var(--red2)}
+.status-banner.warn{background:var(--orange3);border:1px solid var(--orange2)}
+.status-icon{font-size:24px}
+.status-text h2{font-size:16px;font-weight:700;letter-spacing:2px}
+.status-text p{font-size:11px;margin-top:3px;opacity:.8}
+.status-banner.ok .status-text h2{color:var(--green)}
+.status-banner.alert .status-text h2{color:var(--red)}
+.status-banner.warn .status-text h2{color:var(--orange)}
+
+/* DATA GRID */
+.data-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;margin-top:10px}
+.data-cell{background:var(--bg3);border:1px solid var(--border);padding:7px 10px;border-radius:3px}
+.data-key{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.data-val{font-size:12px;color:var(--text);font-weight:700;margin-top:2px;overflow-wrap:anywhere}
+.data-val.red{color:var(--red)}.data-val.green{color:var(--green)}.data-val.orange{color:var(--orange)}.data-val.blue{color:var(--blue)}.data-val.yellow{color:var(--yellow)}
+.data-sep{grid-column:1/-1;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;
+  font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+
+/* ALERTAS */
+.alert-card{background:var(--red3);border:1px solid var(--red2);border-radius:4px;padding:12px;
+  margin-top:8px;display:flex;gap:12px;align-items:flex-start}
+.alert-icon{font-size:28px;flex-shrink:0}
+.alert-info h3{font-size:13px;font-weight:700;color:var(--red);letter-spacing:1px}
+.alert-info p{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
+.warn-card{background:var(--orange3);border:1px solid var(--orange2);border-radius:4px;padding:12px;
+  margin-top:8px;display:flex;gap:12px;align-items:flex-start}
+.warn-info h3{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:1px}
+.warn-info p{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
+
+/* MATRÍCULA */
+.mat-plate{display:inline-block;background:#fff;border:3px solid #00308F;border-radius:4px;
+  padding:3px 12px;font-weight:900;font-size:22px;color:#00308F;letter-spacing:4px;
+  font-family:'Share Tech Mono',monospace}
+.mat-plate .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:9px;
+  padding:0 3px;border-radius:3px 0 0 3px;margin-right:5px;font-weight:700;letter-spacing:0}
+
+/* PUNTOS CARNET */
+.puntos-bar{display:flex;gap:3px;margin-top:4px}
+.punto{width:18px;height:18px;border-radius:2px;border:1px solid var(--border2)}
+.punto.on{background:var(--green);box-shadow:0 0 4px var(--green)}
+.punto.off{background:var(--red3);border-color:var(--red2)}
+
+/* FORMULARIO MULTA */
+.multa-form{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:16px;margin-top:14px}
+.multa-form h3{font-size:12px;color:var(--orange);letter-spacing:2px;margin-bottom:14px;
+  border-bottom:1px solid var(--border);padding-bottom:8px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.fgroup{display:flex;flex-direction:column;gap:4px}
+.fgroup label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.fgroup input,.fgroup select,.fgroup textarea{
+  background:var(--bg2);border:1px solid var(--border2);color:var(--text);
+  padding:7px 10px;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:12px}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{
+  outline:none;border-color:var(--blue);background:var(--bg4)}
+.fgroup textarea{resize:vertical;min-height:60px}
+.infrac-select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);
+  padding:7px 10px;border-radius:3px;font-family:monospace;font-size:12px;width:100%}
+.infrac-info{background:var(--bg4);border:1px solid var(--border2);border-radius:3px;
+  padding:10px;margin-top:8px;display:none}
+.infrac-info.show{display:block}
+.infrac-info .imp{font-size:20px;font-weight:700;color:var(--orange)}
+.infrac-info .pts{font-size:13px;color:var(--red);margin-left:12px}
+.infrac-info .art{font-size:10px;color:var(--text3);margin-top:4px}
+.infrac-info .grave{font-size:10px;color:var(--red);margin-top:2px;letter-spacing:1px}
+
+/* TABLA MULTAS */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:4px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:'Share Tech Mono',monospace;table-layout:fixed}
+th{background:var(--bg3);padding:8px 8px;text-align:left;font-weight:700;font-size:9px;
+  color:var(--text3);border-bottom:1px solid var(--border2);white-space:nowrap;letter-spacing:1px}
+td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(74,158,255,.04)}
+.pag{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text2)}
+.pag .pi{flex:1;text-align:center}
+.pag button{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);
+  padding:3px 10px;border-radius:3px;cursor:pointer;font-family:monospace;font-size:11px}
+.pag button:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ESTADO BADGES */
+.est{display:inline-block;padding:1px 7px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.5px}
+.est-pend{background:rgba(255,136,0,.2);color:var(--orange);border:1px solid var(--orange2)}
+.est-pag{background:rgba(0,255,136,.1);color:var(--green);border:1px solid var(--green2)}
+.est-rec{background:rgba(155,89,182,.2);color:#c084fc;border:1px solid #7c3aed}
+.est-imp{background:var(--red3);color:var(--red);border:1px solid var(--red2)}
+
+/* CTRL */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.ctrl input,.ctrl select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);
+  font-size:12px;padding:5px 10px;height:32px;border-radius:3px;font-family:monospace}
+.ctrl input{flex:1;min-width:160px}
+.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--blue)}
+.ctrl input::placeholder{color:var(--text3)}
+
+/* LOADING */
+.loading{text-align:center;padding:20px;color:var(--text3);font-size:12px;letter-spacing:2px}
+.error-box{background:var(--red3);border:1px solid var(--red2);border-radius:4px;
+  padding:12px;color:var(--red);font-size:12px;margin-top:10px;letter-spacing:.5px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:2px solid var(--green2);
+  border-radius:4px;padding:12px 20px;font-size:12px;z-index:9999;color:var(--green);
+  transform:translateY(100px);opacity:0;transition:.3s;letter-spacing:1px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{border-color:var(--red2);color:var(--red)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center}
+.scard-n{font-size:24px;font-weight:700;font-family:'Share Tech Mono',monospace}
+.scard-l{font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+.scard-n.g{color:var(--green)}.scard-n.r{color:var(--red)}.scard-n.o{color:var(--orange)}.scard-n.b{color:var(--blue)}.scard-n.y{color:var(--yellow)}
+
+/* HISTORIAL */
+.hist-item{background:var(--bg3);border:1px solid var(--border);border-radius:3px;
+  padding:10px 12px;margin-bottom:6px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:.15s}
+.hist-item:hover{border-color:var(--blue2);background:var(--bg4)}
+.hist-mat{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:2px;min-width:100px}
+.hist-info{flex:1;font-size:11px;color:var(--text2)}
+.hist-imp{font-size:14px;font-weight:700;color:var(--orange)}
+.hist-date{font-size:10px;color:var(--text3)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:2px solid var(--blue2);border-radius:4px;
+  padding:24px;max-width:700px;width:95%;max-height:90vh;overflow-y:auto;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2))}
+.modal h3{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:16px;letter-spacing:2px}
+.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text2);border-radius:3px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:monospace}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+
+/* IMPRIMIR BOLETÍN */
+@media print {
+  .topbar,.maintabs,.no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .boletin{border:2px solid #000;padding:20px;max-width:600px;margin:0 auto}
+}
+.boletin-preview{background:#fff;color:#000;border:2px solid var(--border);
+  border-radius:4px;padding:20px;margin-top:12px;font-family:Arial,sans-serif;font-size:12px}
+.boletin-header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:12px}
+.boletin-logo{font-size:18px;font-weight:700;letter-spacing:2px}
+.boletin-sub{font-size:10px;color:#666;letter-spacing:1px}
+.boletin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.boletin-field{border:1px solid #ccc;padding:5px 8px;border-radius:2px}
+.boletin-fkey{font-size:8px;color:#888;text-transform:uppercase}
+.boletin-fval{font-size:12px;font-weight:600;margin-top:1px}
+.boletin-footer{border-top:2px solid #000;padding-top:10px;margin-top:12px;font-size:10px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo-police">
+    <span class="badge-police">⚖ POLICIA</span>
+    <span class="sys-name">SISTEMA VERIFICACIÓN DGT</span>
+    <span class="status-dot"></span>
+  </div>
+  <nav class="topnav" style="margin-left:20px">
+    <a href="/">INICIO</a>
+    <a href="/buscador">BUSCADOR</a>
+    {% if admin %}<a href="/admin">ADMIN</a><a href="/logout">SALIR</a>{% else %}<a href="/login">ADMIN</a>{% endif %}
+  </nav>
+  <div class="clock" id="clock">--:--:--</div>
+</div>
+
+<div class="container">
+
+  <!-- STATS ROW -->
+  <div class="stats-row" id="statsRow">
+    <div class="scard"><div class="scard-n b" id="sTotal">—</div><div class="scard-l">Total multas</div></div>
+    <div class="scard"><div class="scard-n o" id="sPend">—</div><div class="scard-l">Pendientes pago</div></div>
+    <div class="scard"><div class="scard-n g" id="sPag">—</div><div class="scard-l">Pagadas</div></div>
+    <div class="scard"><div class="scard-n r" id="sImp">—</div><div class="scard-l">Impugnadas</div></div>
+    <div class="scard"><div class="scard-n y" id="sImporte">—</div><div class="scard-l">Importe total (€)</div></div>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="maintabs">
+    <div class="mtab active" onclick="switchTab('verificar')">🔍 VERIFICAR</div>
+    <div class="mtab" onclick="switchTab('multa')">📋 PONER MULTA</div>
+    <div class="mtab" onclick="switchTab('registro')">📂 REGISTRO MULTAS</div>
+    <div class="mtab" onclick="switchTab('boletin')">🖨️ BOLETÍN</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  TAB 1: VERIFICAR                         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-verificar">
+    <div class="panel">
+      <div class="panel-title">⬛ TERMINAL DE VERIFICACIÓN POLICIAL</div>
+      <div class="scanner-box">
+        <div style="font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:16px">
+          INTRODUCE DNI · MATRÍCULA
+        </div>
+        <input class="scan-input" type="text" id="scanInput"
+               placeholder="12345678Z · 1234BBB"
+               maxlength="10"
+               onkeyup="if(event.key==='Enter')verificar()"
+               oninput="this.value=this.value.toUpperCase()">
+        <div class="scan-hint">Pulsa ENTER o el botón para verificar</div>
+        <br>
+        <button class="scan-btn" onclick="verificar()">▶ VERIFICAR AHORA</button>
+      </div>
+      <div id="verResult"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  TAB 2: PONER MULTA                       -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-multa" style="display:none">
+    <div class="panel">
+      <div class="panel-title">📋 NUEVA DENUNCIA / MULTA DE TRÁFICO</div>
+
+      <!-- Paso 1: Identificar vehículo -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px">PASO 1 — IDENTIFICAR VEHÍCULO / CONDUCTOR</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="multa_mat" placeholder="Matrícula (ej: 1234BBB)"
+                 style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+                        padding:8px 12px;border-radius:3px;font-family:monospace;font-size:14px;
+                        font-weight:700;width:160px;text-transform:uppercase;letter-spacing:3px"
+                 oninput="this.value=this.value.toUpperCase()">
+          <input type="text" id="multa_dni" placeholder="DNI (opcional)"
+                 style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+                        padding:8px 12px;border-radius:3px;font-family:monospace;font-size:14px;
+                        width:140px;text-transform:uppercase"
+                 oninput="this.value=this.value.toUpperCase()">
+          <button class="scan-btn" onclick="cargarDatosMulta()">🔍 CARGAR DATOS</button>
+        </div>
+        <div id="multa_check" style="margin-top:8px;font-size:11px;color:var(--text2)"></div>
+      </div>
+
+      <!-- Datos del identificado -->
+      <div id="multa_datos_box" style="display:none;margin-bottom:14px">
+        <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px">DATOS DEL IDENTIFICADO</div>
+        <div class="data-grid" id="multa_datos_grid"></div>
+      </div>
+
+      <!-- Formulario multa -->
+      <div class="multa-form">
+        <h3>📋 DATOS DE LA INFRACCIÓN</h3>
+
+        <!-- Tipo infracción -->
+        <div style="margin-bottom:12px">
+          <div class="fgroup" style="margin-bottom:8px">
+            <label>Tipo de infracción *</label>
+            <select class="infrac-select" id="multa_codigo" onchange="seleccionarInfraccion()">
+              <option value="">— Selecciona la infracción —</option>
+              <optgroup label="🚗 VELOCIDAD">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('VEL') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="🍺 ALCOHOL / DROGAS">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('ALC') or c.startswith('DRG') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="📱 DISTRACCIONES">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('TEL') or c.startswith('DIS') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="🛑 SEÑALES / SEMÁFOROS">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('SEM') or c.startswith('PRI') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="🅿 ESTACIONAMIENTO">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('EST') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="📄 DOCUMENTACIÓN / SEGUROS">
+                {% for c,d,a,i,p,g in tipos_multa if c.startswith('CAR') %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="🚦 OTROS">
+                {% for c,d,a,i,p,g in tipos_multa if not (c.startswith('VEL') or c.startswith('ALC') or c.startswith('DRG') or c.startswith('TEL') or c.startswith('DIS') or c.startswith('SEM') or c.startswith('PRI') or c.startswith('EST') or c.startswith('CAR')) %}
+                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
+                {% endfor %}
+              </optgroup>
+            </select>
+          </div>
+          <div class="infrac-info" id="infrac_info">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:var(--text3)">IMPORTE BASE:</span>
+              <span class="imp" id="inf_imp">—</span>
+              <span class="pts" id="inf_pts"></span>
+              <span id="inf_grave" style="font-size:10px;margin-left:8px"></span>
+            </div>
+            <div class="art" id="inf_art"></div>
+            <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;align-items:center">
+              <span style="font-size:10px;color:var(--text3)">IMPORTE FINAL (editable):</span>
+              <input type="number" id="multa_importe" min="0" style="width:100px;background:var(--bg2);
+                border:1px solid var(--orange2);color:var(--orange);padding:5px;border-radius:3px;
+                font-family:monospace;font-size:16px;font-weight:700">
+              <span style="font-size:9px;color:var(--text3)">(-20% si paga en 20 días: <span id="imp_reducido" style="color:var(--green)">—</span>)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fgrid">
+          <div class="fgroup">
+            <label>Velocidad detectada (km/h)</label>
+            <input type="number" id="multa_vel_det" placeholder="Solo para infracc. velocidad" min="0" max="300">
+          </div>
+          <div class="fgroup">
+            <label>Límite de velocidad (km/h)</label>
+            <input type="number" id="multa_vel_lim" placeholder="ej: 50, 90, 120" min="0" max="300">
+          </div>
+          <div class="fgroup">
+            <label>Fecha y hora *</label>
+            <input type="datetime-local" id="multa_fecha">
+          </div>
+          <div class="fgroup">
+            <label>Municipio *</label>
+            <select id="multa_municipio">
+              <option value="">— Selecciona —</option>
+              {% for m in municipios %}<option>{{m}}</option>{% endfor %}
+              <option value="otro">Otro...</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label>Vía / Lugar</label>
+            <select id="multa_via">
+              <option value="">— Selecciona —</option>
+              {% for v in vias %}<option>{{v}}</option>{% endfor %}
+              <option value="otro">Otro...</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label>Lugar exacto / PK</label>
+            <input type="text" id="multa_lugar" placeholder="ej: Dirección Barcelona, km 45">
+          </div>
+          <div class="fgroup">
+            <label>Tipo de agente denunciante</label>
+            <select id="multa_agente_tipo">
+              {% for a in agentes_tipos %}<option>{{a}}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="fgroup">
+            <label>Nº de agente / placa</label>
+            <input type="text" id="multa_agente_num" placeholder="ej: GC-12345">
+          </div>
+        </div>
+
+        <div class="fgroup" style="margin-bottom:12px">
+          <label>Observaciones / Descripción detallada</label>
+          <textarea id="multa_obs" placeholder="Describe la infracción con detalle: circunstancias, testigos, medios de prueba..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="scan-btn orange" onclick="ponerMulta()">
+            📋 REGISTRAR DENUNCIA
+          </button>
+          <button class="scan-btn" onclick="previsualizar()">
+            🖨️ PREVISUALIZAR BOLETÍN
+          </button>
+          <span id="multa_res" style="font-size:11px;color:var(--green);letter-spacing:1px"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  TAB 3: REGISTRO MULTAS                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-registro" style="display:none">
+    <div class="panel">
+      <div class="panel-title">📂 REGISTRO DE DENUNCIAS</div>
+      <div class="ctrl">
+        <input id="regQ" placeholder="Matrícula, DNI, municipio, código..." oninput="debounce(loadRegistro,300)()">
+        <select id="regEst" onchange="loadRegistro()">
+          <option value="">Todos los estados</option>
+          <option>Pendiente pago</option>
+          <option>Pagada</option>
+          <option>Impugnada</option>
+          <option>Prescrita</option>
+        </select>
+        <button class="scan-btn" style="height:32px;padding:0 14px;font-size:11px" onclick="loadRegistro()">🔄 ACTUALIZAR</button>
+      </div>
+      <div id="reg-detail"></div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th style="width:30px">ID</th>
+          <th style="width:90px">MATRÍCULA</th>
+          <th style="width:85px">DNI</th>
+          <th style="width:90px">CÓDIGO</th>
+          <th style="width:160px">DESCRIPCIÓN</th>
+          <th style="width:70px">IMPORTE</th>
+          <th style="width:35px">PTS</th>
+          <th style="width:80px">MUNICIPIO</th>
+          <th style="width:130px">VÍA</th>
+          <th style="width:110px">FECHA/HORA</th>
+          <th style="width:85px">AGENTE</th>
+          <th style="width:75px">ESTADO</th>
+          <th style="width:110px">ACCIONES</th>
+        </tr></thead>
+        <tbody id="regBody"><tr><td colspan="13" class="loading">CARGANDO REGISTROS...</td></tr></tbody>
+      </table></div>
+      <div class="pag">
+        <button onclick="regPage--;loadRegistro()">◀ ANT.</button>
+        <div class="pi" id="regPI"></div>
+        <button onclick="regPage++;loadRegistro()">SIG. ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  TAB 4: BOLETÍN                           -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="tab-boletin" style="display:none">
+    <div class="panel">
+      <div class="panel-title">🖨️ GENERADOR DE BOLETÍN DE DENUNCIA</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px">
+        Introduce el ID de una multa ya registrada para generar el boletín oficial:
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" id="boletinId" placeholder="ID de la multa"
+               style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+                      padding:8px;border-radius:3px;font-family:monospace;font-size:14px;width:140px">
+        <button class="scan-btn" onclick="generarBoletin()">📄 GENERAR</button>
+        <button class="scan-btn orange no-print" onclick="window.print()" style="display:none" id="printBtn">🖨️ IMPRIMIR</button>
+      </div>
+      <div id="boletinBox" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL detalle multa -->
+<div class="modal-overlay" id="modalMulta">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕ CERRAR</button>
+    <h3>📋 DETALLE DENUNCIA</h3>
+    <div class="data-grid" id="modalMultaGrid"></div>
+    <div style="margin-top:14px">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:8px">CAMBIAR ESTADO</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="scan-btn" onclick="cambiarEstado('Pagada')" style="font-size:11px;padding:5px 12px">✅ MARCAR PAGADA</button>
+        <button class="scan-btn orange" onclick="cambiarEstado('Impugnada')" style="font-size:11px;padding:5px 12px">⚖ IMPUGNADA</button>
+        <button class="scan-btn red" onclick="cambiarEstado('Prescrita')" style="font-size:11px;padding:5px 12px">🗑 PRESCRITA</button>
+        <button class="scan-btn" onclick="cambiarEstado('Pendiente pago')" style="background:var(--bg3);font-size:11px;padding:5px 12px">↩ PENDIENTE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let regPage=0, currentMultaId=null;
+
+// ── Clock ──
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleDateString('es-ES')+' '+n.toLocaleTimeString('es-ES');
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── Debounce ──
+function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+
+// ── Toast ──
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(type==='err'?' err':'');
+  setTimeout(()=>t.className='toast',3500);
+}
+
+// ── Tabs ──
+function switchTab(tab){
+  ['verificar','multa','registro','boletin'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.mtab').forEach((el,i)=>{
+    el.classList.toggle('active',['verificar','multa','registro','boletin'][i]===tab);
+  });
+  if(tab==='registro') loadRegistro();
+  if(tab==='multa'){
+    // Poner fecha actual por defecto
+    const now=new Date();
+    const local=now.toISOString().slice(0,16);
+    document.getElementById('multa_fecha').value=local;
+  }
+}
+
+function closeModal(){document.getElementById('modalMulta').classList.remove('open');}
+
+// ── ESTADÍSTICAS ──
+async function loadStats(){
+  const data=await fetch('/api/policia/multas?page=0').then(r=>r.json());
+  // Hacer petición más grande para stats
+  const all=await fetch('/api/policia/multas?page=0&per=9999').then(r=>r.json()).catch(()=>data);
+  const rows=all.rows||data.rows||[];
+  const total=all.total||data.total||0;
+  const pend=rows.filter(r=>r.estado==='Pendiente pago').length;
+  const pag=rows.filter(r=>r.estado==='Pagada').length;
+  const imp=rows.filter(r=>r.estado==='Impugnada').length;
+  const importe=rows.reduce((s,r)=>s+(r.importe||0),0);
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sPend').textContent=pend;
+  document.getElementById('sPag').textContent=pag;
+  document.getElementById('sImp').textContent=imp;
+  document.getElementById('sImporte').textContent=importe.toLocaleString('es-ES')+'€';
+}
+loadStats();
+
+// ════════════════════════════════════════
+//  VERIFICAR
+// ════════════════════════════════════════
+async function verificar(){
+  const q=document.getElementById('scanInput').value.trim().toUpperCase();
+  if(!q){return;}
+  const box=document.getElementById('verResult');
+  box.innerHTML='<div class="loading">⬛ CONSULTANDO BASE DE DATOS...</div>';
+  const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
+  if(r.error){box.innerHTML=`<div class="error-box">⚠ ${r.error}</div>`;return;}
+  renderVerificacion(r, box);
+}
+
+function renderVerificacion(r, box){
+  const tieneAlerta = r.alertas && r.alertas.length>0;
+  const tieneMultas = (r.multas_pendientes&&r.multas_pendientes.length>0)||(r.multas_pendientes_importe>0);
+  const sinPuntos   = (r.puntos_carnet===0)||(r.ciudadano&&r.ciudadano.puntos_carnet===0);
+  const estado = tieneAlerta?'alert': (tieneMultas||sinPuntos?'warn':'ok');
+  const ciu = r.ciudadano||{};
+  const mat = r.matricula||{};
+  const puntos = r.tipo==='DNI' ? (r.puntos_carnet??ciu.puntos_carnet??15) : (mat.puntos_carnet??15);
+
+  // Banner principal
+  let bannerIcon, bannerTitle, bannerSub;
+  if(tieneAlerta){
+    bannerIcon='🚨';bannerTitle='¡ALERTA POLICIAL ACTIVA!';
+    bannerSub=`${r.alertas.length} alerta(s) activa(s) — ${r.alertas[0].tipo_alerta}`;
+  } else if(tieneMultas){
+    bannerIcon='⚠️';bannerTitle='MULTAS PENDIENTES DE PAGO';
+    bannerSub='Existen multas o infracciones registradas pendientes';
+  } else if(sinPuntos){
+    bannerIcon='⛔';bannerTitle='PERMISO SIN PUNTOS';
+    bannerSub='Carnet con 0 puntos — posible permiso retirado';
+  } else {
+    bannerIcon='✅';bannerTitle='SIN INCIDENCIAS';
+    bannerSub='No se han encontrado alertas ni multas pendientes';
+  }
+
+  // Puntos barra
+  const ptVal = parseInt(puntos)||0;
+  const puntosBar = Array.from({length:15},(_,i)=>
+    `<div class="punto ${i<ptVal?'on':'off'}"></div>`).join('');
+
+  // Datos identificación
+  let idFields=[];
+  if(r.tipo==='DNI'){
+    idFields=[
+      ['DNI', ciu.dni||q],['Nombre', `${ciu.nombre||''} ${ciu.apellido1||''} ${ciu.apellido2||''}`],
+      ['Fecha nac.', ciu.fecha_nac||'—'],['Sexo', ciu.sexo||'—'],
+      ['Provincia', ciu.provincia_residencia||'—'],['Teléfono', ciu.telefono||'—'],
+      ['Profesión', ciu.profesion||'—'],['Nacionalidad', ciu.nacionalidad||'—'],
+      ['Licencia', ciu.licencia_conducir||'—'],['Tipo licencia', ciu.tipo_licencia||'—'],
+      ['Antecedentes', ciu.antecedentes_penales||'No'],
+    ];
+  } else {
+    idFields=[
+      ['Matrícula', mat.matricula||r.query],['Tipo', mat.tipo_vehiculo||'—'],
+      ['Marca/Modelo', `${mat.marca||''} ${mat.modelo||''}`],['Año', mat.año_fab||'—'],
+      ['Color', mat.color||'—'],['Combustible', mat.combustible||'—'],
+      ['Estado', mat.estado||'—'],['ITV', mat.fecha_itv||'—'],
+      ['Seguro hasta', mat.seguro_hasta||'—'],['Compañía seguro', mat.seguro_compañia||'—'],
+      ['Infracciones', mat.num_infracciones??0],
+      ['Propietario', `${ciu.nombre||''} ${ciu.apellido1||''}`],
+      ['DNI propietario', mat.dni||'—'],['Teléfono prop.', mat.telefono||ciu.telefono||'—'],
+    ];
+  }
+
+  // Alertas cards
+  const alertasHtml = (r.alertas||[]).map(a=>`
+    <div class="alert-card">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-info">
+        <h3>⚠ ${a.tipo_alerta.toUpperCase()}</h3>
+        <p>
+          <strong>Motivo:</strong> ${a.motivo||'—'}<br>
+          <strong>Emisor:</strong> ${a.emisor||'—'} &nbsp;|&nbsp;
+          <strong>Expediente:</strong> ${a.num_expediente||'—'}<br>
+          <strong>Juzgado:</strong> ${a.juzgado||'—'}<br>
+          <strong>Peligrosidad:</strong> <span style="color:${a.peligrosidad==='Alta'?'var(--red)':a.peligrosidad==='Media'?'var(--orange)':'var(--green)'}">${a.peligrosidad||'—'}</span> &nbsp;|&nbsp;
+          <strong>F.Emisión:</strong> ${a.fecha_emision||'—'} &nbsp;|&nbsp;
+          <strong>Caducidad:</strong> ${a.fecha_caducidad||'—'}<br>
+          <strong>Observaciones:</strong> ${a.observaciones||'—'}
+        </p>
+      </div>
+    </div>`).join('');
+
+  // Multas pendientes
+  const multasHtml = (r.multas_pendientes||[]).map(m=>`
+    <div class="warn-card">
+      <div class="alert-icon">💶</div>
+      <div class="warn-info">
+        <h3>MULTAS PENDIENTES — ${m.matricula}</h3>
+        <p><strong>Importe pendiente:</strong> <span style="color:var(--orange);font-size:16px;font-weight:700">${m.importe_multas||0}€</span>
+        &nbsp;|&nbsp; <strong>Infracciones:</strong> ${m.num_infracciones||0}</p>
+      </div>
+    </div>`).join('');
+
+  const impMat = r.multas_pendientes_importe>0
+    ? `<div class="warn-card"><div class="alert-icon">💶</div><div class="warn-info">
+        <h3>MULTAS PENDIENTES</h3>
+        <p><strong>Importe:</strong> <span style="color:var(--orange);font-size:16px;font-weight:700">${r.multas_pendientes_importe}€</span>
+        &nbsp;|&nbsp; <strong>Infracciones:</strong> ${r.num_infracciones||0}</p>
+       </div></div>` : '';
+
+  box.innerHTML=`
+    <div class="result-${estado}">
+      <div class="status-banner ${estado}">
+        <div class="status-icon">${bannerIcon}</div>
+        <div class="status-text">
+          <h2>${bannerTitle}</h2>
+          <p>${bannerSub}</p>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:9px;color:var(--text3);letter-spacing:1px">PUNTOS CARNET</div>
+          <div style="font-size:22px;font-weight:700;color:${ptVal<=0?'var(--red)':ptVal<=6?'var(--orange)':'var(--green)'}">${ptVal}/15</div>
+          <div class="puntos-bar">${puntosBar}</div>
+        </div>
+      </div>
+
+      ${r.tipo==='MATRICULA'?`<div style="margin-bottom:10px"><span class="mat-plate"><span class="eu">E</span>${mat.matricula||r.query}</span></div>`:''}
+
+      <div class="data-grid">
+        ${idFields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('')}
+      </div>
+
+      ${alertasHtml}
+      ${multasHtml}
+      ${impMat}
+
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="scan-btn orange" onclick="
+          switchTab('multa');
+          document.getElementById('multa_mat').value='${r.tipo==='MATRICULA'?(mat.matricula||''):''}';
+          document.getElementById('multa_dni').value='${r.tipo==='DNI'?(ciu.dni||''):(mat.dni||'')}';
+          cargarDatosMulta();
+        ">📋 PONER MULTA A ESTE VEHÍCULO</button>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+//  PONER MULTA
+// ════════════════════════════════════════
+async function cargarDatosMulta(){
+  const mat=document.getElementById('multa_mat').value.trim().toUpperCase();
+  const dni=document.getElementById('multa_dni').value.trim().toUpperCase();
+  const q=mat||dni;
+  if(!q){document.getElementById('multa_check').textContent='Introduce matrícula o DNI';return;}
+  document.getElementById('multa_check').textContent='🔍 Consultando...';
+  const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
+  if(r.error){document.getElementById('multa_check').innerHTML=`<span style="color:var(--red)">${r.error}</span>`;return;}
+  const ciu=r.ciudadano||{};
+  const matd=r.matricula||{};
+  // Rellenar DNI si vino por matrícula
+  if(r.tipo==='MATRICULA'&&matd.dni&&!document.getElementById('multa_dni').value){
+    document.getElementById('multa_dni').value=matd.dni;
+  }
+  const tieneAlerta=r.alertas&&r.alertas.length>0;
+  document.getElementById('multa_check').innerHTML=
+    tieneAlerta?`<span style="color:var(--red);font-size:12px;letter-spacing:1px">⚠ ¡ALERTA POLICIAL ACTIVA: ${r.alertas[0].tipo_alerta}!</span>`
+    :`<span style="color:var(--green);font-size:11px">✓ Identificado correctamente</span>`;
+  const box=document.getElementById('multa_datos_box');
+  const grid=document.getElementById('multa_datos_grid');
+  const ptVal=ciu.puntos_carnet??matd.puntos_carnet??15;
+  const fields=[
+    ['Nombre completo',`${ciu.nombre||'—'} ${ciu.apellido1||''}`],
+    ['DNI',ciu.dni||matd.dni||'—'],
+    ['Matrícula',r.tipo==='MATRICULA'?`<span class="mat-plate" style="font-size:13px"><span class="eu">E</span>${matd.matricula||''}</span>`:'—'],
+    ['Vehículo',r.tipo==='MATRICULA'?`${matd.marca||''} ${matd.modelo||''} (${matd.año_fab||''})`:'—'],
+    ['Color / Uso',`${matd.color||'—'} / ${matd.uso||'—'}`],
+    ['Puntos carnet',`<span style="color:${ptVal<=0?'var(--red)':ptVal<=6?'var(--orange)':'var(--green)'}; font-weight:700">${ptVal}/15</span>`],
+    ['Licencia',`${ciu.licencia_conducir||'—'} ${ciu.tipo_licencia||''}`],
+    ['Estado alerta',tieneAlerta?`<span style="color:var(--red);font-weight:700">⚠ ${r.alertas[0].tipo_alerta}</span>`:'<span style="color:var(--green)">✓ Sin alertas</span>'],
+    ['Multas previas',(matd.num_infracciones||ciu.num_infracciones||0)+' infracciones'],
+    ['Seguro',r.tipo==='MATRICULA'?(matd.seguro_compañia||'—'):'—'],
+    ['ITV',r.tipo==='MATRICULA'?(matd.fecha_itv||'—'):'—'],
+  ];
+  grid.innerHTML=fields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('');
+  box.style.display='block';
+}
+
+function seleccionarInfraccion(){
+  const sel=document.getElementById('multa_codigo');
+  const opt=sel.options[sel.selectedIndex];
+  const info=document.getElementById('infrac_info');
+  if(!opt.value){info.classList.remove('show');return;}
+  const imp=parseInt(opt.dataset.imp)||0;
+  const pts=parseInt(opt.dataset.pts)||0;
+  const art=opt.dataset.art||'';
+  const grave=opt.dataset.grave==='True';
+  document.getElementById('inf_imp').textContent=imp+'€';
+  document.getElementById('inf_pts').textContent=pts>0?`— ${pts} puntos`:'Sin retirada de puntos';
+  document.getElementById('inf_art').textContent=art;
+  document.getElementById('inf_grave').innerHTML=grave
+    ?'<span style="color:var(--red);font-weight:700;letter-spacing:1px">▲ INFRACCIÓN GRAVE</span>'
+    :'<span style="color:var(--orange)">INFRACCIÓN LEVE</span>';
+  document.getElementById('multa_importe').value=imp;
+  document.getElementById('imp_reducido').textContent=Math.round(imp*0.8)+'€';
+  info.classList.add('show');
+}
+
+document.getElementById('multa_importe')?.addEventListener('input',function(){
+  const v=parseInt(this.value)||0;
+  document.getElementById('imp_reducido').textContent=Math.round(v*0.8)+'€';
+});
+
+async function ponerMulta(){
+  const codigo=document.getElementById('multa_codigo').value;
+  const mat=document.getElementById('multa_mat').value.trim().toUpperCase();
+  const dni=document.getElementById('multa_dni').value.trim().toUpperCase();
+  if(!codigo){toast('⚠ Selecciona el tipo de infracción','err');return;}
+  if(!mat&&!dni){toast('⚠ Introduce matrícula o DNI','err');return;}
+  if(!document.getElementById('multa_fecha').value){toast('⚠ Introduce la fecha y hora','err');return;}
+  // Normalizar matrícula
+  let matNorm=mat;
+  if(mat.length===7&&!mat.includes(' '))matNorm=mat.slice(0,4)+' '+mat.slice(4);
+  const importe=parseInt(document.getElementById('multa_importe').value)||0;
+  const sel=document.getElementById('multa_codigo').options[document.getElementById('multa_codigo').selectedIndex];
+  const pts=parseInt(sel.dataset.pts)||0;
+  const data={
+    matricula:matNorm, dni,
+    codigo_infraccion:codigo,
+    importe_final:importe,
+    puntos_retirar:pts,
+    velocidad_detectada:document.getElementById('multa_vel_det').value||null,
+    velocidad_limite:document.getElementById('multa_vel_lim').value||null,
+    fecha_hora:document.getElementById('multa_fecha').value,
+    municipio:document.getElementById('multa_municipio').value,
+    via:document.getElementById('multa_via').value,
+    lugar:document.getElementById('multa_lugar').value,
+    agente_tipo:document.getElementById('multa_agente_tipo').value,
+    agente_num:document.getElementById('multa_agente_num').value,
+    observaciones:document.getElementById('multa_obs').value,
+  };
+  const r=await fetch('/api/policia/multa/nueva',{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
+  }).then(x=>x.json());
+  if(r.ok){
+    toast(`✓ DENUNCIA REGISTRADA — ID #${r.id} — ${r.importe}€${r.puntos>0?' — -'+r.puntos+' pts':''}`);
+    document.getElementById('multa_res').textContent=`✓ Multa #${r.id} registrada — ${r.importe}€`;
+    loadStats();
+    // Preguntar si generar boletín
+    if(confirm(`✅ Denuncia registrada con ID #${r.id}\n\n¿Generar boletín imprimible?`)){
+      document.getElementById('boletinId').value=r.id;
+      switchTab('boletin');
+      generarBoletin();
+    }
+  } else {
+    toast('⚠ ERROR: '+JSON.stringify(r),'err');
+  }
+}
+
+// ════════════════════════════════════════
+//  REGISTRO
+// ════════════════════════════════════════
+async function loadRegistro(){
+  const q=document.getElementById('regQ').value;
+  const est=document.getElementById('regEst').value;
+  if(regPage<0)regPage=0;
+  const data=await fetch(`/api/policia/multas?q=${encodeURIComponent(q)}&estado=${encodeURIComponent(est)}&page=${regPage}`).then(r=>r.json());
+  const total=data.total,pages=Math.ceil(total/20);
+  document.getElementById('regPI').textContent=`Pág ${regPage+1}/${pages||1} | ${total} denuncias`;
+  const estClass={'Pendiente pago':'est-pend','Pagada':'est-pag','Impugnada':'est-rec','Prescrita':'est-imp'};
+  document.getElementById('regBody').innerHTML=data.rows.map(r=>`
+    <tr style="cursor:pointer" onclick="abrirMulta(${r.id})">
+      <td style="color:var(--blue);font-weight:700">#${r.id}</td>
+      <td><span style="color:var(--blue);font-weight:700;letter-spacing:2px">${r.matricula||'—'}</span></td>
+      <td style="color:var(--text2)">${r.dni||'—'}</td>
+      <td style="color:var(--orange);font-size:10px">${r.codigo_infraccion||'—'}</td>
+      <td title="${r.descripcion||''}" style="color:var(--text2)">${(r.descripcion||'—').substring(0,22)}</td>
+      <td style="color:var(--orange);font-weight:700">${r.importe||0}€</td>
+      <td style="color:${(r.puntos_retirados||0)>0?'var(--red)':'var(--text3)'}">${r.puntos_retirados||0}</td>
+      <td>${r.municipio||'—'}</td>
+      <td title="${r.via||''}">${(r.via||'—').substring(0,18)}</td>
+      <td style="color:var(--text2)">${r.fecha_hora||'—'}</td>
+      <td style="color:var(--text3)">${r.agente_tipo?r.agente_tipo.substring(0,10)+'…':'—'}</td>
+      <td><span class="est ${estClass[r.estado]||'est-pend'}">${r.estado||'—'}</span></td>
+      <td>
+        <button class="scan-btn" style="font-size:9px;padding:2px 6px;height:22px" onclick="event.stopPropagation();cambiarEstadoDirecto(${r.id},'Pagada')">✅</button>
+        <button class="scan-btn orange" style="font-size:9px;padding:2px 6px;height:22px" onclick="event.stopPropagation();abrirMulta(${r.id})">✏️</button>
+      </td>
+    </tr>`).join('')||'<tr><td colspan="13" class="loading">SIN REGISTROS</td></tr>';
+}
+
+async function abrirMulta(id){
+  currentMultaId=id;
+  const data=await fetch(`/api/policia/multas?q=${id}&page=0`).then(r=>r.json());
+  const r=data.rows[0]||{};
+  const fields=[
+    ['ID',r.id],['Matrícula',r.matricula||'—'],['DNI',r.dni||'—'],
+    ['Código',r.codigo_infraccion],['Descripción',r.descripcion||'—'],
+    ['Artículo',r.articulo||'—'],['Importe',(r.importe||0)+'€'],
+    ['Puntos retirados',r.puntos_retirados||0],
+    ['Municipio',r.municipio||'—'],['Vía',r.via||'—'],['Lugar',r.lugar||'—'],
+    ['Fecha/Hora',r.fecha_hora||'—'],
+    ['Agente tipo',r.agente_tipo||'—'],['Nº agente',r.agente_num||'—'],
+    ['Vel. detectada',r.velocidad_detectada?r.velocidad_detectada+'km/h':'—'],
+    ['Vel. límite',r.velocidad_limite?r.velocidad_limite+'km/h':'—'],
+    ['Observaciones',r.observaciones||'—'],['Estado',r.estado||'—'],
+    ['Creado por',r.creado_por||'—'],['Fecha registro',r.created_at||'—'],
+  ];
+  document.getElementById('modalMultaGrid').innerHTML=
+    fields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('');
+  document.getElementById('modalMulta').classList.add('open');
+}
+
+async function cambiarEstado(est){
+  if(!currentMultaId)return;
+  await cambiarEstadoDirecto(currentMultaId,est);
+  closeModal();
+}
+async function cambiarEstadoDirecto(id,est){
+  const r=await fetch(`/api/policia/multa/${id}/estado`,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:est})
+  }).then(x=>x.json());
+  if(r.ok){toast(`✓ Estado → ${est}`);loadRegistro();loadStats();}
+  else toast('⚠ Error','err');
+}
+
+// ════════════════════════════════════════
+//  BOLETÍN
+// ════════════════════════════════════════
+async function generarBoletin(){
+  const id=document.getElementById('boletinId').value;
+  if(!id){return;}
+  const data=await fetch(`/api/policia/multas?q=${id}&page=0`).then(r=>r.json());
+  const r=data.rows[0];
+  if(!r){document.getElementById('boletinBox').innerHTML='<div class="error-box">⚠ Multa no encontrada</div>';return;}
+  // Buscar datos ciudadano
+  let nombre='—',prov='—',dir='—';
+  if(r.dni){
+    const num=parseInt(r.dni.slice(0,8));
+    const c=await fetch(`/api/resolver/dni/${num}`).then(x=>x.json());
+    nombre=`${c.nombre||''} ${c.apellido1||''} ${c.apellido2||''}`.trim();
+    prov=c.provincia_residencia||'—';
+    dir=c.direccion||'—';
+  }
+  const reduc=Math.round((r.importe||0)*0.8);
+  document.getElementById('boletinBox').innerHTML=`
+    <div class="boletin-preview">
+      <div class="boletin-header">
+        <div class="boletin-logo">🚔 DENUNCIA DE TRÁFICO</div>
+        <div class="boletin-sub">DIRECCIÓN GENERAL DE TRÁFICO — BASE DE DATOS FICTICIA EDUCATIVA</div>
+        <div style="font-size:10px;margin-top:4px">Expediente nº: DGT-${String(r.id).padStart(8,'0')} &nbsp;|&nbsp; Fecha emisión: ${new Date().toLocaleDateString('es-ES')}</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:#333">DATOS DEL DENUNCIADO</div>
+      <div class="boletin-grid">
+        <div class="boletin-field"><div class="boletin-fkey">Nombre completo</div><div class="boletin-fval">${nombre}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">DNI / NIF</div><div class="boletin-fval">${r.dni||'—'}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Provincia de residencia</div><div class="boletin-fval">${prov}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Dirección</div><div class="boletin-fval">${dir}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Matrícula vehículo</div><div class="boletin-fval" style="font-size:16px;font-weight:900;letter-spacing:3px;color:#00308F">${r.matricula||'—'}</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;margin:10px 0 6px;color:#333">DATOS DE LA INFRACCIÓN</div>
+      <div class="boletin-grid">
+        <div class="boletin-field"><div class="boletin-fkey">Código infracción</div><div class="boletin-fval">${r.codigo_infraccion||'—'}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Artículo</div><div class="boletin-fval">${r.articulo||'—'}</div></div>
+        <div class="boletin-field" style="grid-column:1/-1"><div class="boletin-fkey">Descripción</div><div class="boletin-fval">${r.descripcion||'—'}</div></div>
+        ${r.velocidad_detectada?`<div class="boletin-field"><div class="boletin-fkey">Velocidad detectada</div><div class="boletin-fval">${r.velocidad_detectada} km/h</div></div>`:''}
+        ${r.velocidad_limite?`<div class="boletin-field"><div class="boletin-fkey">Límite de velocidad</div><div class="boletin-fval">${r.velocidad_limite} km/h</div></div>`:''}
+        <div class="boletin-field"><div class="boletin-fkey">Fecha y hora</div><div class="boletin-fval">${r.fecha_hora||'—'}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Municipio</div><div class="boletin-fval">${r.municipio||'—'}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Vía / Lugar</div><div class="boletin-fval">${r.via||r.lugar||'—'}</div></div>
+        <div class="boletin-field"><div class="boletin-fkey">Agente denunciante</div><div class="boletin-fval">${r.agente_tipo||'—'} ${r.agente_num?'nº '+r.agente_num:''}</div></div>
+      </div>
+      ${r.observaciones?`<div class="boletin-field" style="margin-top:6px"><div class="boletin-fkey">Observaciones</div><div class="boletin-fval">${r.observaciones}</div></div>`:''}
+      <div style="background:#f8f8f8;border:2px solid #333;border-radius:4px;padding:12px;margin:12px 0;text-align:center">
+        <div style="font-size:11px;font-weight:700;color:#333;margin-bottom:4px">IMPORTE DE LA SANCIÓN</div>
+        <div style="font-size:28px;font-weight:900;color:#c62828">${r.importe||0} €</div>
+        ${r.puntos_retirados>0?`<div style="font-size:13px;font-weight:700;color:#e65100;margin-top:4px">RETIRADA DE ${r.puntos_retirados} PUNTO(S) DE CARNET</div>`:''}
+        <div style="font-size:11px;color:#555;margin-top:8px;border-top:1px solid #ccc;padding-top:8px">
+          Reducción del 20% si paga en los <strong>20 días hábiles</strong> siguientes a la notificación:
+          <strong style="color:#2e7d32;font-size:15px"> ${reduc} €</strong>
+        </div>
+      </div>
+      <div class="boletin-footer">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <strong>FORMA DE PAGO:</strong> Sede electrónica DGT · dgt.es · Entidad bancaria colaboradora<br>
+            <strong>PLAZO ALEGACIONES:</strong> 20 días hábiles desde notificación
+          </div>
+          <div style="text-align:right">
+            Nº Expediente: <strong>DGT-${String(r.id).padStart(8,'0')}</strong><br>
+            Estado: <strong>${r.estado||'Pendiente pago'}</strong>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:#999;border-top:1px solid #ccc;padding-top:6px">
+          ⚠️ DOCUMENTO GENERADO CON FINES EXCLUSIVAMENTE EDUCATIVOS — BASE DE DATOS FICTICIA — NO TIENE VALIDEZ LEGAL
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('printBtn').style.display='inline-block';
+}
+
+async function previsualizar(){
+  const id=parseInt(document.getElementById('multa_res').textContent.match(/#(\d+)/)?.[1]||0);
+  if(!id){toast('⚠ Registra la multa primero','err');return;}
+  document.getElementById('boletinId').value=id;
+  switchTab('boletin');
+  generarBoletin();
+}
+
+// Init
+loadStats();
+</script>
+</body>
+</html>
