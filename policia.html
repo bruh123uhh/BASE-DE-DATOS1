@@ -347,37 +347,37 @@ tr:hover td{background:rgba(74,158,255,.04)}
             <select class="infrac-select" id="multa_codigo" onchange="seleccionarInfraccion()">
               <option value="">— Selecciona la infracción —</option>
               <optgroup label="🚗 VELOCIDAD">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('VEL') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('VEL') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="🍺 ALCOHOL / DROGAS">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('ALC') or c.startswith('DRG') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('ALC') or c.startswith('DRG') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="📱 DISTRACCIONES">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('TEL') or c.startswith('DIS') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('TEL') or c.startswith('DIS') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="🛑 SEÑALES / SEMÁFOROS">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('SEM') or c.startswith('PRI') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('SEM') or c.startswith('PRI') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="🅿 ESTACIONAMIENTO">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('EST') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('EST') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="📄 DOCUMENTACIÓN / SEGUROS">
-                {% for c,d,a,i,p,g in tipos_multa if c.startswith('CAR') %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('CAR') %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
               <optgroup label="🚦 OTROS">
-                {% for c,d,a,i,p,g in tipos_multa if not (c.startswith('VEL') or c.startswith('ALC') or c.startswith('DRG') or c.startswith('TEL') or c.startswith('DIS') or c.startswith('SEM') or c.startswith('PRI') or c.startswith('EST') or c.startswith('CAR')) %}
+                {% for c,d,a,i,p,g,cat in tipos_multa if not (c.startswith('VEL') or c.startswith('ALC') or c.startswith('DRG') or c.startswith('TEL') or c.startswith('DIS') or c.startswith('SEM') or c.startswith('PRI') or c.startswith('EST') or c.startswith('CAR')) %}
                 <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
                 {% endfor %}
               </optgroup>
