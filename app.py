@@ -1129,53 +1129,85 @@ MULTAS_DICT = {c: {"codigo":c,"descripcion":d,"articulo":a,"importe":i,
 #  TABLA MULTAS (creación garantizada al inicio)
 # ──────────────────────────────────────────────
 def ensure_multas_table():
-    """Crea la tabla si no existe y añade columnas nuevas si faltan."""
+    """Crea la tabla si no existe. Si ya existe con esquema viejo,
+    añade las columnas que falten una a una (SQLite no admite ADD COLUMN múltiple)."""
     db = sqlite3.connect(DB_PATH)
-    db.executescript("""
-    CREATE TABLE IF NOT EXISTS multas_registro (
-        id                    INTEGER PRIMARY KEY AUTOINCREMENT,
-        expediente            TEXT UNIQUE,
-        matricula             TEXT,
-        dni                   TEXT,
-        nombre_denunciado     TEXT,
-        codigo_infraccion     TEXT NOT NULL,
-        descripcion           TEXT,
-        articulo              TEXT,
-        categoria             TEXT,
-        importe               INTEGER NOT NULL DEFAULT 0,
-        importe_reducido      INTEGER,
-        puntos_retirados      INTEGER DEFAULT 0,
-        lugar                 TEXT,
-        via                   TEXT,
-        municipio             TEXT,
-        agente_tipo           TEXT,
-        agente_num            TEXT,
-        agente_nombre         TEXT,
-        fecha_hora            TEXT,
-        velocidad_detectada   INTEGER,
-        velocidad_limite      TEXT,
-        tasa_alcohol_aire     TEXT,
-        tasa_alcohol_sangre   TEXT,
-        droga_tipo            TEXT,
-        droga_resultado       TEXT,
-        num_pasajeros         INTEGER,
-        condiciones_via       TEXT,
-        condiciones_clima     TEXT,
-        testigos              TEXT,
-        observaciones         TEXT,
-        pruebas               TEXT,
-        estado                TEXT DEFAULT 'Pendiente pago',
-        fecha_notificacion    TEXT,
-        fecha_pago            TEXT,
-        creado_por            TEXT,
-        created_at            TEXT DEFAULT (datetime('now')),
-        updated_at            TEXT DEFAULT (datetime('now'))
-    );
-    CREATE INDEX IF NOT EXISTS idx_multa_mat ON multas_registro(matricula);
-    CREATE INDEX IF NOT EXISTS idx_multa_dni ON multas_registro(dni);
-    CREATE INDEX IF NOT EXISTS idx_multa_exp ON multas_registro(expediente);
+
+    # 1) Crear tabla básica si no existe (esquema mínimo compatible con versiones viejas)
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS multas_registro (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            matricula         TEXT,
+            dni               TEXT,
+            codigo_infraccion TEXT,
+            descripcion       TEXT,
+            articulo          TEXT,
+            importe           INTEGER DEFAULT 0,
+            puntos_retirados  INTEGER DEFAULT 0,
+            lugar             TEXT,
+            via               TEXT,
+            municipio         TEXT,
+            agente_tipo       TEXT,
+            agente_num        TEXT,
+            fecha_hora        TEXT,
+            velocidad_detectada INTEGER,
+            velocidad_limite  TEXT,
+            observaciones     TEXT,
+            estado            TEXT DEFAULT 'Pendiente pago',
+            creado_por        TEXT,
+            created_at        TEXT DEFAULT (datetime('now'))
+        )
     """)
     db.commit()
+
+    # 2) Detectar columnas existentes
+    existing = {row[1] for row in db.execute("PRAGMA table_info(multas_registro)").fetchall()}
+
+    # 3) Columnas nuevas que hay que añadir si no están
+    nuevas = [
+        ("expediente",          "TEXT"),
+        ("nombre_denunciado",   "TEXT"),
+        ("categoria",           "TEXT"),
+        ("importe_reducido",    "INTEGER"),
+        ("agente_nombre",       "TEXT"),
+        ("tasa_alcohol_aire",   "TEXT"),
+        ("tasa_alcohol_sangre", "TEXT"),
+        ("droga_tipo",          "TEXT"),
+        ("droga_resultado",     "TEXT"),
+        ("num_pasajeros",       "INTEGER"),
+        ("condiciones_via",     "TEXT"),
+        ("condiciones_clima",   "TEXT"),
+        ("testigos",            "TEXT"),
+        ("pruebas",             "TEXT"),
+        ("fecha_notificacion",  "TEXT"),
+        ("fecha_pago",          "TEXT"),
+        ("updated_at",          "TEXT"),
+    ]
+    for col, tipo in nuevas:
+        if col not in existing:
+            try:
+                db.execute(f"ALTER TABLE multas_registro ADD COLUMN {col} {tipo}")
+                db.commit()
+            except Exception:
+                pass  # ya existe o no se puede añadir — ignorar
+
+    # 4) Índices
+    for sql in [
+        "CREATE INDEX IF NOT EXISTS idx_multa_mat ON multas_registro(matricula)",
+        "CREATE INDEX IF NOT EXISTS idx_multa_dni ON multas_registro(dni)",
+    ]:
+        try:
+            db.execute(sql); db.commit()
+        except Exception:
+            pass
+
+    # 5) Índice único en expediente sólo si la columna existe y está vacía
+    try:
+        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_multa_exp ON multas_registro(expediente)")
+        db.commit()
+    except Exception:
+        pass
+
     db.close()
 
 # ──────────────────────────────────────────────
