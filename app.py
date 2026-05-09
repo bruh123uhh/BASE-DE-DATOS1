@@ -622,6 +622,46 @@ def api_stats():
         "por_año":      group("SELECT año_fab, COUNT(*) FROM matriculas GROUP BY año_fab ORDER BY año_fab"),
     })
 
+# ── API STATS GLOBAL — un solo endpoint para todas las páginas ──
+@app.route("/api/global_stats")
+def api_global_stats():
+    """Devuelve todas las estadísticas del sistema en una sola llamada.
+    Usado por la barra de navegación compartida y las páginas de inicio."""
+    def n(sql): return get_db().execute(sql).fetchone()[0] or 0
+    return jsonify({
+        # Matrículas
+        "matriculas_total":   n("SELECT COUNT(*) FROM matriculas"),
+        "matriculas_activas": n("SELECT COUNT(*) FROM matriculas WHERE estado='Activa'"),
+        "matriculas_baja":    n("SELECT COUNT(*) FROM matriculas WHERE estado='Baja'"),
+        "electricos":         n("SELECT COUNT(*) FROM matriculas WHERE combustible='Eléctrico'"),
+        # Ciudadanos
+        "ciudadanos_total":   n("SELECT COUNT(*) FROM ciudadanos"),
+        "ciudadanos_hombre":  n("SELECT COUNT(*) FROM ciudadanos WHERE sexo='Hombre'"),
+        "ciudadanos_mujer":   n("SELECT COUNT(*) FROM ciudadanos WHERE sexo='Mujer'"),
+        "con_licencia":       n("SELECT COUNT(*) FROM ciudadanos WHERE licencia_conducir='Sí'"),
+        "sin_puntos":         n("SELECT COUNT(*) FROM ciudadanos WHERE puntos_carnet=0"),
+        "antecedentes":       n("SELECT COUNT(*) FROM ciudadanos WHERE antecedentes_penales='Sí'"),
+        # Alertas
+        "alertas_total":      n("SELECT COUNT(*) FROM alertas_policiales WHERE activa=1"),
+        "busca_captura":      n("SELECT COUNT(*) FROM alertas_policiales WHERE tipo_alerta='Busca y Captura' AND activa=1"),
+        "requisitoria":       n("SELECT COUNT(*) FROM alertas_policiales WHERE tipo_alerta='Requisitoria Judicial' AND activa=1"),
+        "vigilancia":         n("SELECT COUNT(*) FROM alertas_policiales WHERE tipo_alerta='Vigilancia Especial' AND activa=1"),
+        "multas_admin":       n("SELECT COUNT(*) FROM alertas_policiales WHERE tipo_alerta='Multas Pendientes' AND activa=1"),
+        # Multas
+        "multas_total":           n("SELECT COUNT(*) FROM multas_registro"),
+        "multas_pendientes":      n("SELECT COUNT(*) FROM multas_registro WHERE estado='Pendiente pago'"),
+        "multas_pagadas":         n("SELECT COUNT(*) FROM multas_registro WHERE estado='Pagada'"),
+        "multas_impugnadas":      n("SELECT COUNT(*) FROM multas_registro WHERE estado='Impugnada'"),
+        "multas_importe_total":   n("SELECT COALESCE(SUM(importe),0) FROM multas_registro"),
+        "multas_importe_pendiente": n("SELECT COALESCE(SUM(importe),0) FROM multas_registro WHERE estado='Pendiente pago'"),
+        "multas_importe_cobrado": n("SELECT COALESCE(SUM(importe),0) FROM multas_registro WHERE estado='Pagada'"),
+        "multas_puntos_retirados": n("SELECT COALESCE(SUM(puntos_retirados),0) FROM multas_registro"),
+        # Últimas multas (para mostrar actividad reciente)
+        "ultimas_multas": [dict(r) for r in get_db().execute(
+            "SELECT id,expediente,matricula,dni,codigo_infraccion,importe,estado,fecha_hora,municipio FROM multas_registro ORDER BY id DESC LIMIT 5"
+        ).fetchall()],
+    })
+
 # ──────────────────────────────────────────────
 #  PANEL ADMIN - LOGIN
 # ──────────────────────────────────────────────
