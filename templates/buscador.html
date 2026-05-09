@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscador Universal — DGT/Interior</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--blue:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px}
+.logo{font-size:14px;font-weight:700;letter-spacing:2px;color:#fff}.logo span{color:var(--blue)}
+.topnav a{color:var(--text2);padding:4px 10px;border-radius:6px;font-size:12px;text-decoration:none}
+.topnav a:hover{background:var(--bg3);color:var(--text)}.ml-auto{margin-left:auto}
+.container{max-width:1000px;margin:0 auto;padding:20px}
+.hero{text-align:center;padding:24px 0 16px}
+.hero h1{font-size:20px;font-weight:700;color:var(--text);letter-spacing:1px}
+.hero p{font-size:11px;color:var(--text2);margin-top:6px}
+.tabs{display:flex;gap:4px;justify-content:center;margin:16px 0}
+.tab{padding:8px 20px;font-size:12px;cursor:pointer;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:monospace;background:var(--bg2)}
+.tab:hover{color:var(--text)}.tab.active{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700}
+/* DNI panel */
+.search-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.search-panel h2{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;letter-spacing:.5px;text-transform:uppercase}
+.input-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.big-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:monospace;font-size:16px;flex:1;min-width:200px}
+.big-input:focus{outline:none;border-color:var(--blue)}
+.btn{background:#1f6feb;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-family:monospace;height:40px}
+.btn:hover{background:#388bfd}.btn-green{background:#1a3d20}.btn-green:hover{background:#2a5c30}
+.btn-orange{background:#4d2800}.btn-orange:hover{background:#6b3c00}
+.slider-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.slider-wrap input[type=range]{flex:1;min-width:200px;accent-color:var(--blue)}
+.range-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.range-inputs input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:monospace;font-size:13px;width:120px}
+/* Ficha resultado */
+.ficha{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:14px}
+.ficha.alerta{border-color:#6b2020}
+.ficha h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px}
+.ficha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.frow{background:var(--bg3);border-radius:6px;padding:7px 10px;border:1px solid var(--border)}
+.fkey{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.fval{font-size:12px;color:var(--text);font-weight:500;margin-top:1px;overflow-wrap:anywhere}
+.fsep{grid-column:1/-1;border-top:1px solid var(--border);padding-top:6px;margin-top:2px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.badge-ok{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:#1a3d20;color:#3fb950}
+.badge-alert{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:#6b2020;color:#ff6b6b;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.badge-bd{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;background:#1a2d4d;color:#58a6ff}
+.badge-gen{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;background:#3d2a00;color:#d29922}
+.mat-plate{display:inline-block;background:#fff;border:2px solid #00308F;border-radius:3px;padding:2px 10px;font-weight:700;font-size:18px;color:#00308F;letter-spacing:3px}
+.mat-plate .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:8px;padding:0 2px;border-radius:2px 0 0 2px;margin-right:4px;font-weight:700}
+/* Rango */
+.rango-table{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:monospace}
+th{background:var(--bg3);padding:7px 8px;text-align:left;font-weight:600;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border)}
+td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.al-bc{background:#6b2020;color:#ff6b6b;font-size:9px;padding:1px 5px;border-radius:99px;font-weight:700}
+.al-ok{color:var(--text3);font-size:9px}
+.loading{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+.error-box{background:#3d1a1a;border:1px solid #6b2020;border-radius:8px;padding:12px;color:var(--red);font-size:12px;margin-top:10px}
+.mat-input-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.mat-num{width:80px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-family:monospace;font-size:16px;font-weight:700;text-align:center}
+.mat-sep{font-size:20px;color:var(--text3);font-weight:700}
+.mat-let{width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 4px;border-radius:6px;font-family:monospace;font-size:16px;font-weight:700;text-align:center}
+.preview-mat{font-size:24px;font-weight:700;color:var(--blue);font-family:monospace;letter-spacing:3px;min-width:120px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">⬛ <span>DGT</span>/INTERIOR</div>
+  <nav class="topnav" style="display:flex;gap:4px">
+    <a href="/">🏠 Inicio</a>
+    <a href="/">🗄️ Base Datos</a>
+    <a href="/buscador" style="background:var(--bg3);color:var(--text)">🔍 Buscador</a>
+    <a href="/policia" style="color:#f85149;background:#1a0505;border:1px solid #3d1a1a;border-radius:6px;padding:4px 10px">🚔 Policía</a>
+    {% if admin %}<a href="/admin" style="color:#bc8cff">🔧 Admin</a><a href="/logout">Salir</a>{% else %}<a href="/login">🔐 Login</a>{% endif %}
+  </nav>
+  <!-- Mini stats en topbar -->
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0">
+    <span id="tb_bc" style="font-size:10px;padding:2px 8px;border-radius:99px;background:#3d0008;color:#f85149;border:1px solid #6b2020;font-weight:700;animation:pulse 2s infinite">⚠ ...</span>
+    <span id="tb_mul" style="font-size:10px;padding:2px 8px;border-radius:99px;background:#3d1e00;color:#ff8800;border:1px solid #5a3000;font-weight:700">📋 ...</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>🔍 BUSCADOR UNIVERSAL</h1>
+    <p>Resuelve cualquier DNI <strong style="color:var(--orange)">00000001A → 99999999Z</strong>
+       y cualquier matrícula <strong style="color:var(--orange)">0001 BBB → 9999 NZZ</strong><br>
+       100 millones de DNIs · 72 millones de matrículas · Datos ficticios reproducibles</p>
+    <!-- Stats en tiempo real -->
+    <div id="busStats" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dni')">🪪 Buscar DNI</div>
+    <div class="tab" onclick="switchTab('matricula')">🚗 Buscar Matrícula</div>
+    <div class="tab" onclick="switchTab('rango')">📋 Rango de DNIs</div>
+    <div class="tab" onclick="switchTab('info')">📚 Cómo funciona</div>
+  </div>
+
+  <!-- DNI -->
+  <div id="panel-dni">
+    <div class="search-panel">
+      <h2>🪪 Consultar DNI por número</h2>
+      <div class="slider-wrap">
+        <span style="font-size:11px;color:var(--text2)">Número:</span>
+        <input type="range" id="dniSlider" min="1" max="99999999" value="12345678" oninput="syncDNI('slider')">
+        <span style="font-size:14px;font-weight:700;color:var(--blue);min-width:80px" id="sliderVal">12.345.678</span>
+      </div>
+      <div class="input-row" style="margin-top:10px">
+        <input class="big-input" type="number" id="dniNum" min="1" max="99999999" value="12345678"
+               placeholder="Número (1 - 99999999)" oninput="syncDNI('input')">
+        <span style="font-size:20px;font-weight:700;color:var(--blue);min-width:110px;font-family:monospace" id="dniPreview">12345678Z</span>
+        <button class="btn" onclick="buscarDNI()">🔍 Consultar</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">
+        Fórmula letra: <code style="color:var(--orange)">número % 23 → "TRWAGMYFPDXBNJZSQVHLCKE"</code>
+      </div>
+    </div>
+    <div id="dni-result"></div>
+  </div>
+
+  <!-- MATRÍCULA -->
+  <div id="panel-matricula" style="display:none">
+    <div class="search-panel">
+      <h2>🚗 Consultar matrícula</h2>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:12px">
+        Letras válidas: <code style="color:var(--orange)">B C D F G H J K L M N P R S T V W X Y Z</code> (sin vocales ni Ñ Q U V)
+      </p>
+      <div class="mat-input-row">
+        <input class="mat-num" type="number" id="matNum" min="1" max="9999" value="1234" oninput="updateMatPreview()">
+        <div class="mat-sep">·</div>
+        <select class="mat-let" id="matL1" onchange="updateMatPreview()">
+          {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+        </select>
+        <select class="mat-let" id="matL2" onchange="updateMatPreview()">
+          {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+        </select>
+        <select class="mat-let" id="matL3" onchange="updateMatPreview()">
+          {% for l in 'BCDFGHJKLMNPRSTUVWXYZ' %}<option>{{l}}</option>{% endfor %}
+        </select>
+        <div class="mat-sep">→</div>
+        <span class="mat-plate" id="matPlatePreview"><span class="eu">E</span>1234 BBB</span>
+        <button class="btn" onclick="buscarMatricula()">🔍 Consultar</button>
+      </div>
+      <div style="margin-top:10px">
+        <span style="font-size:11px;color:var(--text2)">O escribe directamente: </span>
+        <input type="text" id="matText" placeholder="ej: 5678KLM o 5678 KLM"
+               style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-family:monospace;font-size:13px;width:180px"
+               oninput="syncMatText()">
+      </div>
+    </div>
+    <div id="mat-result"></div>
+  </div>
+
+  <!-- RANGO DNIs -->
+  <div id="panel-rango" style="display:none">
+    <div class="search-panel">
+      <h2>📋 Consultar rango de DNIs (máx. 200)</h2>
+      <div class="range-inputs">
+        <span style="font-size:11px;color:var(--text2)">Desde:</span>
+        <input type="number" id="rangoDesde" min="1" max="99999998" value="1" placeholder="1">
+        <span style="font-size:11px;color:var(--text2)">Hasta:</span>
+        <input type="number" id="rangoHasta" min="2" max="99999999" value="50" placeholder="50">
+        <button class="btn" onclick="buscarRango()">🔍 Consultar rango</button>
+        <span style="font-size:11px;color:var(--text3)">(máx. 200 DNIs por consulta)</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text3)">
+        💡 Los marcados en rojo tienen alguna alerta policial en el sistema ficticio.
+      </div>
+    </div>
+    <div id="rango-result"></div>
+  </div>
+
+  <!-- INFO -->
+  <div id="panel-info" style="display:none">
+    <div class="search-panel">
+      <h2>📚 Cómo funciona el sistema</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;font-size:12px;color:var(--text2);line-height:1.8">
+
+        <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:8px;font-size:13px">🪪 CÓMO SE CALCULA LA LETRA DEL DNI</div>
+          <code style="color:var(--blue);font-size:13px">letra = "TRWAGMYFPDXBNJZSQVHLCKE"[numero % 23]</code>
+          <div style="margin-top:8px">
+            Ejemplo: <code style="color:var(--green)">12345678 % 23 = 14 → letra "Z" → 12345678Z</code><br>
+            Rango total: <code style="color:var(--orange)">00000001A → 99999999Z</code> = <strong style="color:#fff">99.999.999 DNIs posibles</strong>
+          </div>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px" id="tablaLetras"></div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:8px;font-size:13px">🚗 FORMATO DE MATRÍCULA ESPAÑOLA (desde 2000)</div>
+          <code style="color:var(--blue);font-size:13px">NNNN LLL  (4 dígitos + espacio + 3 letras)</code>
+          <div style="margin-top:8px">
+            Letras válidas (20): <code style="color:var(--green)">B C D F G H J K L M N P R S T V W X Y Z</code><br>
+            <span style="color:var(--text3)">Se excluyen: A E I O U (vocales) + Ñ Q U V (ambigüedad visual/fonética)</span><br>
+            Primera matrícula: <code style="color:var(--orange)">0000 BBB</code> → Última teórica: <code style="color:var(--orange)">9999 ZZZ</code><br>
+            Total combinaciones: <code style="color:var(--green)">10.000 × 20³ = <strong>80.000.000 matrículas</strong></code>
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:8px;font-size:13px">🔧 CÓMO FUNCIONA ESTE BUSCADOR</div>
+          <div style="color:var(--text2)">
+            • <strong style="color:#fff">Si el DNI o matrícula está en la BD</strong> → devuelve los datos guardados (badge azul <span class="badge-bd">EN BD</span>)<br>
+            • <strong style="color:#fff">Si NO está en la BD</strong> → genera datos ficticios al vuelo usando el número como semilla aleatoria (<span class="badge-gen">GENERADO</span>)<br>
+            • Los datos generados son <strong style="color:var(--orange)">reproducibles</strong>: el mismo número siempre produce el mismo resultado<br>
+            • Las alertas policiales se calculan determinísticamente: <code>numero % 100 &lt; 7 → Busca y Captura</code>, etc.
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:8px;font-size:13px">🛠 API ENDPOINTS DISPONIBLES</div>
+          <div style="font-family:monospace;font-size:11px;display:flex;flex-direction:column;gap:4px">
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/resolver/dni/&lt;numero&gt;</span> <span style="color:var(--text3)">→ Ficha completa de cualquier DNI</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/resolver/matricula/&lt;matricula&gt;</span> <span style="color:var(--text3)">→ Ficha de cualquier matrícula</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/resolver/rango_dni?desde=1&hasta=50</span> <span style="color:var(--text3)">→ Rango de DNIs (máx 200)</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/matriculas</span> <span style="color:var(--text3)">→ Lista paginada con filtros</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/ciudadanos</span> <span style="color:var(--text3)">→ Lista paginada de ciudadanos</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/alertas</span> <span style="color:var(--text3)">→ Alertas policiales</span></div>
+            <div><span style="color:var(--green)">GET</span> <span style="color:var(--blue)">/api/stats/graficas</span> <span style="color:var(--text3)">→ Estadísticas agregadas</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const LETDNI = 'TRWAGMYFPDXBNJZSQVHLCKE';
+const LETS_MAT = 'BCDFGHJKLMNPRSTUVWXYZ';
+
+function calcLetra(n){ return LETDNI[n % 23]; }
+function fmtNum(n){ return n.toLocaleString('es-ES'); }
+
+// ── TABS ──
+function switchTab(tab){
+  ['dni','matricula','rango','info'].forEach(t=>{
+    document.getElementById('panel-'+t).style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active', ['dni','matricula','rango','info'][i]===tab);
+  });
+  if(tab==='info') buildTablaLetras();
+}
+
+// ── DNI sync ──
+function syncDNI(src){
+  const slider = document.getElementById('dniSlider');
+  const input  = document.getElementById('dniNum');
+  if(src==='slider') input.value = slider.value;
+  else slider.value = input.value;
+  const n = parseInt(input.value||0);
+  document.getElementById('sliderVal').textContent = fmtNum(n);
+  document.getElementById('dniPreview').textContent = n>=1&&n<=99999999
+    ? String(n).padStart(8,'0') + calcLetra(n) : '—';
+}
+
+async function buscarDNI(){
+  const n = parseInt(document.getElementById('dniNum').value||0);
+  if(n<1||n>99999999){ showError('dni-result','Número fuera de rango (1 - 99.999.999)'); return; }
+  document.getElementById('dni-result').innerHTML = '<div class="loading">🔍 Consultando...</div>';
+  const r = await fetch(`/api/resolver/dni/${n}`).then(x=>x.json());
+  renderFichaDNI(r, 'dni-result');
+}
+
+function renderFichaDNI(r, targetId){
+  const alertaClass = r.alerta_policial && r.alerta_policial!='Sin alertas' ? 'alerta' : '';
+  const bdBadge = r.en_bd
+    ? '<span class="badge-bd">📦 EN BASE DE DATOS</span>'
+    : '<span class="badge-gen">⚡ GENERADO AL VUELO</span>';
+  const alertaBadge = r.alerta_policial && r.alerta_policial!='Sin alertas'
+    ? `<span class="badge-alert">⚠ ${r.alerta_policial}</span>`
+    : '<span class="badge-ok">✓ Sin alertas</span>';
+  const edad = r.fecha_nac
+    ? Math.floor((new Date('2025-06-01')-new Date(r.fecha_nac))/31557600000) : '—';
+  const mats = (r.matriculas||[]).map(m=>m.matricula).join(', ') || '—';
+  const fields = [
+    ['IDENTIFICACIÓN','sep'],
+    ['DNI/NIF', r.dni], ['Nombre', r.nombre], ['1er Apellido', r.apellido1],
+    ['2º Apellido', r.apellido2||'—'], ['Sexo', r.sexo||'—'],
+    ['Fecha nacimiento', r.fecha_nac||'—'], ['Edad', edad+' años'],
+    ['Nacionalidad', r.nacionalidad||'—'], ['Nº pasaporte', r.num_pasaporte||'—'],
+    ['F. expedición DNI', r.fecha_exp_dni||'—'], ['Caducidad DNI', r.fecha_cad_dni||'—'],
+    ['RESIDENCIA','sep'],
+    ['Provincia', r.provincia_residencia||'—'], ['Municipio', r.municipio||'—'],
+    ['Dirección', r.direccion||'—'], ['Número', r.numero_via||'—'],
+    ['Piso', r.piso||'—'], ['Código postal', r.codigo_postal||'—'],
+    ['CONTACTO','sep'],
+    ['Teléfono', r.telefono||'—'], ['Email', r.email||'—'],
+    ['SITUACIÓN PERSONAL','sep'],
+    ['Estado civil', r.estado_civil||'—'], ['Nº hijos', r.num_hijos??0],
+    ['Profesión', r.profesion||'—'], ['Situación laboral', r.situacion_laboral||'—'],
+    ['Nivel estudios', r.nivel_estudios||'—'],
+    ['Ingresos anuales est.', r.ingresos_anuales ? r.ingresos_anuales.toLocaleString('es-ES')+'€' : '—'],
+    ['Banco', r.banco_ref||'—'], ['Num. cuenta', r.num_cuenta||'—'],
+    ['PERMISOS','sep'],
+    ['Licencia conducir', r.licencia_conducir||'—'], ['Tipo licencia', r.tipo_licencia||'—'],
+    ['Puntos carnet', r.puntos_carnet??'—'], ['Antecedentes penales', r.antecedentes_penales||'No'],
+    ['VEHÍCULOS','sep'],
+    ['Matrículas registradas', mats],
+    ['ESTADO POLICIAL','sep'],
+    ['Alerta policial', r.alerta_policial||'Sin alertas'],
+    ...((r.alertas||[]).flatMap(a=>[
+      ['Tipo alerta',a.tipo_alerta],['Motivo',a.motivo||'—'],
+      ['Emisor',a.emisor||'—'],['Expediente',a.num_expediente||'—'],
+      ['Peligrosidad',a.peligrosidad||'—'],
+    ])),
+  ];
+  const html = fields.map(([k,v])=>
+    v==='sep'
+      ? `<div class="fsep">${k}</div>`
+      : `<div class="frow"><div class="fkey">${k}</div><div class="fval">${v}</div></div>`
+  ).join('');
+  document.getElementById(targetId).innerHTML = `
+    <div class="ficha ${alertaClass}">
+      <h3>${bdBadge} &nbsp; ${alertaBadge} &nbsp; — &nbsp;
+        <span style="color:var(--blue);font-size:18px;letter-spacing:2px">${r.dni}</span>
+        &nbsp; ${r.nombre} ${r.apellido1}
+      </h3>
+      <div class="ficha-grid">${html}</div>
+    </div>`;
+}
+
+// ── MATRÍCULA ──
+function updateMatPreview(){
+  const num = String(parseInt(document.getElementById('matNum').value||1)).padStart(4,'0');
+  const l1=document.getElementById('matL1').value;
+  const l2=document.getElementById('matL2').value;
+  const l3=document.getElementById('matL3').value;
+  const mat=`${num} ${l1}${l2}${l3}`;
+  document.getElementById('matPlatePreview').innerHTML=`<span class="eu">E</span>${mat}`;
+  document.getElementById('matText').value=mat;
+}
+
+function syncMatText(){
+  const raw=document.getElementById('matText').value.toUpperCase().replace(/\s+/,' ').trim();
+  if(raw.length>=7){
+    let num,lets;
+    if(raw.includes(' ')){const p=raw.split(' ');num=p[0];lets=p[1]||'';}
+    else{num=raw.slice(0,4);lets=raw.slice(4);}
+    if(/^\d{1,4}$/.test(num)){document.getElementById('matNum').value=parseInt(num);}
+    if(lets.length>=1&&LETS_MAT.includes(lets[0]))document.getElementById('matL1').value=lets[0];
+    if(lets.length>=2&&LETS_MAT.includes(lets[1]))document.getElementById('matL2').value=lets[1];
+    if(lets.length>=3&&LETS_MAT.includes(lets[2]))document.getElementById('matL3').value=lets[2];
+    updateMatPreview();
+  }
+}
+
+async function buscarMatricula(){
+  const raw=document.getElementById('matText').value.toUpperCase().replace(/\s+/,' ').trim()||
+    document.getElementById('matPlatePreview').textContent.replace('E','').trim();
+  const mat=raw.replace(/\s+/,' ').trim();
+  if(!mat){ showError('mat-result','Introduce una matrícula'); return; }
+  document.getElementById('mat-result').innerHTML='<div class="loading">🔍 Consultando...</div>';
+  const r=await fetch(`/api/resolver/matricula/${encodeURIComponent(mat)}`).then(x=>x.json());
+  if(r.error){ showError('mat-result',r.error); return; }
+  renderFichaMat(r,'mat-result');
+}
+
+function renderFichaMat(r, targetId){
+  const bdBadge=r.en_bd?'<span class="badge-bd">📦 EN BD</span>':'<span class="badge-gen">⚡ GENERADO</span>';
+  const alertaBadge=r.alerta_policial&&r.alerta_policial!='Sin alertas'
+    ?`<span class="badge-alert">⚠ ${r.alerta_policial}</span>`:'<span class="badge-ok">✓ Sin alertas</span>';
+  const fields=[
+    ['VEHÍCULO','sep'],
+    ['Matrícula',r.matricula],['Tipo',r.tipo_vehiculo||'—'],['Marca',r.marca||'—'],
+    ['Modelo',r.modelo||'—'],['Año fabricación',r.año_fab||'—'],
+    ['F. matriculación',r.fecha_mat||'—'],['Estado',r.estado||'—'],
+    ['Combustible',r.combustible||'—'],['CV',r.cv||'—'],['CO₂ g/km',(r.co2_grkg||0)+'g'],
+    ['Color',r.color||'—'],['Uso',r.uso||'—'],
+    ['Km',r.km!=null?r.km.toLocaleString('es-ES')+' km':'—'],
+    ['Nº plazas',r.num_plazas||'—'],['Nº puertas',r.num_puertas||'—'],
+    ['Bastidor',r.bastidor||'—'],['Próx. ITV',r.fecha_itv||'—'],
+    ['Seguro compañía',r.seguro_compañia||'—'],['Póliza',r.seguro_poliza||'—'],
+    ['Seguro hasta',r.seguro_hasta||'—'],
+    ['Infracciones',r.num_infracciones??0],['Multas pendientes',(r.importe_multas||0)+'€'],
+    ['PROPIETARIO','sep'],
+    ['DNI',r.dni||'—'],['Nombre',`${r.nombre||''} ${r.apellido1||''} ${r.apellido2||''}`],
+    ['Provincia',r.provincia_residencia||'—'],['Teléfono',r.telefono||'—'],
+    ['Email',r.email||'—'],['Profesión',r.profesion||'—'],
+    ['Puntos carnet',r.puntos_carnet??'—'],['Alerta policial',r.alerta_policial||'Sin alertas'],
+  ];
+  const html=fields.map(([k,v])=>v==='sep'?`<div class="fsep">${k}</div>`:`<div class="frow"><div class="fkey">${k}</div><div class="fval">${v}</div></div>`).join('');
+  document.getElementById(targetId).innerHTML=`
+    <div class="ficha ${r.alerta_policial&&r.alerta_policial!='Sin alertas'?'alerta':''}">
+      <h3>${bdBadge} &nbsp; ${alertaBadge}<br>
+        <span class="mat-plate" style="margin-top:8px;display:inline-block"><span class="eu">E</span>${r.matricula}</span>
+        &nbsp; ${r.marca||''} ${r.modelo||''} (${r.año_fab||''})
+      </h3>
+      <div class="ficha-grid">${html}</div>
+    </div>`;
+}
+
+// ── RANGO ──
+async function buscarRango(){
+  const desde=parseInt(document.getElementById('rangoDesde').value||1);
+  const hasta=parseInt(document.getElementById('rangoHasta').value||50);
+  if(desde<1||hasta>99999999||desde>=hasta){showError('rango-result','Rango inválido');return;}
+  document.getElementById('rango-result').innerHTML='<div class="loading">🔍 Consultando rango...</div>';
+  const r=await fetch(`/api/resolver/rango_dni?desde=${desde}&hasta=${hasta}`).then(x=>x.json());
+  const amap={'Busca y Captura':'al-bc','Requisitoria Judicial':'al-bc','Vigilancia Especial':'al-bc','Multas Pendientes':'al-bc'};
+  document.getElementById('rango-result').innerHTML=`
+    <div class="rango-table">
+      <table>
+        <thead><tr>
+          <th>DNI</th><th>Nombre completo</th><th>Fecha nac.</th><th>Provincia</th>
+          <th>Profesión</th><th>Puntos</th><th>Ant.</th><th>Alerta</th><th>En BD</th>
+        </tr></thead>
+        <tbody>${r.map(c=>`<tr>
+          <td style="font-weight:700;color:var(--blue)">${c.dni}</td>
+          <td>${c.nombre} ${c.apellido1} ${c.apellido2||''}</td>
+          <td>${c.fecha_nac||'—'}</td>
+          <td>${c.provincia_residencia||'—'}</td>
+          <td>${(c.profesion||'—').substring(0,16)}</td>
+          <td>${c.puntos_carnet??'—'}</td>
+          <td style="color:${c.antecedentes_penales==='Sí'?'var(--red)':'var(--text3)'}">${c.antecedentes_penales||'No'}</td>
+          <td>${c.alerta_policial&&c.alerta_policial!='Sin alertas'?`<span class="al-bc">${c.alerta_policial.substring(0,6)}</span>`:'<span class="al-ok">—</span>'}</td>
+          <td>${c.en_bd?'<span style="color:var(--blue)">BD</span>':'<span style="color:var(--text3)">Gen</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <p style="font-size:10px;color:var(--text3);margin-top:6px">${r.length} DNIs · Rango ${desde.toLocaleString('es-ES')} → ${Math.min(hasta,desde+199).toLocaleString('es-ES')}</p>`;
+}
+
+function showError(id, msg){
+  document.getElementById(id).innerHTML=`<div class="error-box">⚠ ${msg}</div>`;
+}
+
+function buildTablaLetras(){
+  const el=document.getElementById('tablaLetras');
+  if(!el||el.innerHTML)return;
+  el.innerHTML=Array.from(LETDNI).map((l,i)=>
+    `<span style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:11px;font-family:monospace">
+      <span style="color:var(--text3)">${i}→</span><span style="color:var(--orange);font-weight:700">${l}</span>
+    </span>`).join('');
+}
+
+// Init
+syncDNI('input');
+updateMatPreview();
+
+// Cargar stats globales desde la BD compartida
+async function loadBusStats(){
+  try{
+    const s = await fetch('/api/global_stats').then(r=>r.json());
+    // Topbar
+    const bc = document.getElementById('tb_bc');
+    const mul = document.getElementById('tb_mul');
+    if(bc)  bc.textContent  = `⚠ ${s.busca_captura||0} B&C`;
+    if(mul) mul.textContent = `📋 ${s.multas_pendientes||0} multas pend.`;
+    // Hero stats
+    const box = document.getElementById('busStats');
+    if(box){
+      const items = [
+        [s.ciudadanos_total,     '👤 ciudadanos en BD',  '#1a2d4d','#58a6ff'],
+        [s.matriculas_total,     '🚗 matrículas en BD',  '#1a2d4d','#58a6ff'],
+        [s.busca_captura,        '🚨 Busca y Captura',   '#3d0008','#f85149'],
+        [s.alertas_total,        '⚠ alertas activas',   '#3d1e00','#ff8800'],
+        [s.multas_pendientes,    '📋 multas pendientes', '#3d1e00','#ff8800'],
+        [(s.multas_importe_pendiente||0).toLocaleString('es-ES')+'€', '💶 pendiente cobro', '#1a3d20','#3fb950'],
+      ];
+      box.innerHTML = items.map(([v,l,bg,col])=>
+        `<span style="font-size:10px;padding:3px 10px;border-radius:99px;font-weight:700;
+          background:${bg};color:${col};border:1px solid ${col}40">${v} ${l}</span>`
+      ).join('');
+    }
+  }catch(e){}
+}
+loadBusStats();
+setInterval(loadBusStats, 30000);
+</script>
+</body>
+</html>

@@ -264,13 +264,19 @@ tr:hover td{background:rgba(74,158,255,.04)}
 
 <div class="container">
 
-  <!-- STATS ROW -->
+  <!-- STATS ROW — conectados a la BD en tiempo real -->
   <div class="stats-row" id="statsRow">
-    <div class="scard"><div class="scard-n b" id="sTotal">—</div><div class="scard-l">Total multas</div></div>
-    <div class="scard"><div class="scard-n o" id="sPend">—</div><div class="scard-l">Pendientes pago</div></div>
-    <div class="scard"><div class="scard-n g" id="sPag">—</div><div class="scard-l">Pagadas</div></div>
-    <div class="scard"><div class="scard-n r" id="sImp">—</div><div class="scard-l">Impugnadas</div></div>
-    <div class="scard"><div class="scard-n y" id="sImporte">—</div><div class="scard-l">Importe total (€)</div></div>
+    <div class="scard b"><div class="scard-n b" id="sTotal">—</div><div class="scard-l">Total multas</div></div>
+    <div class="scard o"><div class="scard-n o" id="sPend">—</div><div class="scard-l">Pendientes pago</div></div>
+    <div class="scard g"><div class="scard-n g" id="sPag">—</div><div class="scard-l">Pagadas</div></div>
+    <div class="scard p"><div class="scard-n p" id="sImp">—</div><div class="scard-l">Impugnadas</div></div>
+    <div class="scard y"><div class="scard-n y" id="sImporte">—</div><div class="scard-l">€ total multas</div></div>
+    <div class="scard o"><div class="scard-n o" id="sPendEur">—</div><div class="scard-l">€ pendiente cobro</div></div>
+    <div class="scard g"><div class="scard-n g" id="sCobrado">—</div><div class="scard-l">€ cobrado</div></div>
+    <div class="scard r"><div class="scard-n r" id="sPuntos">—</div><div class="scard-l">Puntos retirados</div></div>
+    <div class="scard r"><div class="scard-n r" id="sBC">—</div><div class="scard-l">Busca y Captura</div></div>
+    <div class="scard b"><div class="scard-n b" id="sCiudadanos">—</div><div class="scard-l">Ciudadanos BD</div></div>
+    <div class="scard b"><div class="scard-n b" id="sMatriculas">—</div><div class="scard-l">Matrículas BD</div></div>
   </div>
 
   <!-- MAIN TABS -->
@@ -590,24 +596,30 @@ function switchTab(tab){
 
 function closeModal(){document.getElementById('modalMulta').classList.remove('open');}
 
-// ── ESTADÍSTICAS ──
+// ── ESTADÍSTICAS — usa /api/global_stats para estar sincronizado con toda la app ──
 async function loadStats(){
-  const data=await fetch('/api/policia/multas?page=0').then(r=>r.json());
-  // Hacer petición más grande para stats
-  const all=await fetch('/api/policia/multas?page=0&per=9999').then(r=>r.json()).catch(()=>data);
-  const rows=all.rows||data.rows||[];
-  const total=all.total||data.total||0;
-  const pend=rows.filter(r=>r.estado==='Pendiente pago').length;
-  const pag=rows.filter(r=>r.estado==='Pagada').length;
-  const imp=rows.filter(r=>r.estado==='Impugnada').length;
-  const importe=rows.reduce((s,r)=>s+(r.importe||0),0);
-  document.getElementById('sTotal').textContent=total;
-  document.getElementById('sPend').textContent=pend;
-  document.getElementById('sPag').textContent=pag;
-  document.getElementById('sImp').textContent=imp;
-  document.getElementById('sImporte').textContent=importe.toLocaleString('es-ES')+'€';
+  try{
+    const [gs, ms] = await Promise.all([
+      fetch('/api/global_stats').then(r=>r.json()),
+      fetch('/api/policia/multas/stats').then(r=>r.json()),
+    ]);
+    const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+    set('sTotal',      ms.total||0);
+    set('sPend',       ms.pendiente||0);
+    set('sPag',        ms.pagada||0);
+    set('sImp',        ms.impugnada||0);
+    set('sImporte',    (ms.importe_total||0).toLocaleString('es-ES')+'€');
+    set('sPendEur',    (ms.importe_pendiente||0).toLocaleString('es-ES')+'€');
+    set('sCobrado',    (ms.importe_cobrado||0).toLocaleString('es-ES')+'€');
+    set('sPuntos',     ms.puntos_retirados||0);
+    set('sBC',         gs.busca_captura||0);
+    set('sCiudadanos', gs.ciudadanos_total||0);
+    set('sMatriculas', gs.matriculas_total||0);
+  }catch(e){ console.warn('Stats error:', e); }
 }
 loadStats();
+// Refrescar cada 20 segundos
+setInterval(loadStats, 20000);
 
 // ════════════════════════════════════════
 //  VERIFICAR
@@ -1011,8 +1023,7 @@ async function previsualizar(){
   generarBoletin();
 }
 
-// Init
-loadStats();
+
 </script>
 </body>
 </html>

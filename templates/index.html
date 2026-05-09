@@ -289,21 +289,36 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <div id="sec-db"></div>
 
-  <div class="stats-grid" id="statsGrid">
-    {% for label, val, cls in [
-      ('Matrículas',stats.matriculas,'blue'),
-      ('Ciudadanos',stats.ciudadanos,'blue'),
-      ('Alertas activas',stats.alertas,'red'),
-      ('Busca y Captura',stats.bc,'red'),
-      ('Matrículas activas',stats.activas,'green'),
-      ('Eléctricos',stats.electricos,'green'),
-      ('Con antecedentes',stats.antecedentes,'orange'),
-    ] %}
-    <div class="stat">
-      <div class="stat-n {{cls}}">{{val}}</div>
-      <div class="stat-l">{{label}}</div>
-    </div>
+  <!-- STATS EN TIEMPO REAL (se cargan del API) -->
+  <div id="statsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px">
+    <!-- Skeleton mientras carga -->
+    {% for i in range(8) %}
+    <div class="stat"><div class="stat-n blue" style="opacity:.3">…</div><div class="stat-l">Cargando</div></div>
     {% endfor %}
+  </div>
+
+  <!-- ACTIVIDAD RECIENTE: multas + alertas -->
+  <div id="actividadReciente" style="display:none;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <!-- Últimas multas -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--orange);letter-spacing:1px;margin-bottom:10px;
+          display:flex;align-items:center;gap:8px">
+          📋 ÚLTIMAS MULTAS REGISTRADAS
+          <a href="/policia" style="margin-left:auto;font-size:10px;color:var(--blue)">Ver todas →</a>
+        </div>
+        <div id="ultMultas" style="display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+      <!-- Últimas alertas -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--red);letter-spacing:1px;margin-bottom:10px;
+          display:flex;align-items:center;gap:8px">
+          🚨 ALERTAS POLICIALES ACTIVAS
+          <a href="#" onclick="switchTab('alertas');return false" style="margin-left:auto;font-size:10px;color:var(--blue)">Ver todas →</a>
+        </div>
+        <div id="ultAlertas" style="display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+    </div>
   </div>
 
   <div class="tabs">
@@ -944,12 +959,91 @@ function switchTab(tab){
 async function init(){
   await loadProvincias();
   loadMat();
-  // Cargar contador B&C
-  fetch('/api/alertas?tipo=Busca%20y%20Captura&page=0').then(r=>r.json()).then(d=>{
-    document.getElementById('bcCount').textContent=`⚠ ${d.total} B&C activos`;
-  });
+  loadGlobalStats();
 }
+
+async function loadGlobalStats(){
+  try{
+    const s = await fetch('/api/global_stats').then(r=>r.json());
+
+    // Actualizar badge B&C en topbar
+    const bcEl = document.getElementById('bcCount');
+    if(bcEl) bcEl.textContent = `⚠ ${s.busca_captura} B&C activos`;
+
+    // Actualizar stats grid completo
+    const grid = document.getElementById('statsGrid');
+    if(grid){
+      const items = [
+        ['Matrículas totales',    s.matriculas_total,        'blue'],
+        ['Matrículas activas',    s.matriculas_activas,      'green'],
+        ['Ciudadanos',            s.ciudadanos_total,        'blue'],
+        ['Con licencia',          s.con_licencia,            'green'],
+        ['Sin puntos carnet',     s.sin_puntos,              'orange'],
+        ['Con antecedentes',      s.antecedentes,            'orange'],
+        ['Alertas activas',       s.alertas_total,           'red'],
+        ['Busca y Captura',       s.busca_captura,           'red'],
+        ['Multas pendientes',     s.multas_pendientes,       'orange'],
+        ['Multas pagadas',        s.multas_pagadas,          'green'],
+        ['€ pendiente cobro',     s.multas_importe_pendiente.toLocaleString('es-ES')+'€', 'orange'],
+        ['€ total recaudado',     s.multas_importe_cobrado.toLocaleString('es-ES')+'€',  'green'],
+      ];
+      grid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(120px,1fr))';
+      grid.innerHTML = items.map(([l,v,c])=>`
+        <div class="stat">
+          <div class="stat-n ${c}">${v}</div>
+          <div class="stat-l">${l}</div>
+        </div>`).join('');
+    }
+
+    // Últimas multas
+    const ultMultas = document.getElementById('ultMultas');
+    if(ultMultas && s.ultimas_multas){
+      if(s.ultimas_multas.length === 0){
+        ultMultas.innerHTML = '<div style="font-size:11px;color:var(--text3);text-align:center;padding:8px">Sin multas registradas aún</div>';
+      } else {
+        ultMultas.innerHTML = s.ultimas_multas.map(m=>`
+          <div style="display:flex;gap:8px;align-items:center;padding:5px 8px;
+            background:var(--bg3);border-radius:4px;border:1px solid var(--border);font-size:10px">
+            <span style="color:var(--blue);font-weight:700;min-width:70px;letter-spacing:2px">${m.matricula||'—'}</span>
+            <span style="color:var(--orange);font-weight:700;min-width:55px">${m.codigo_infraccion||'—'}</span>
+            <span style="flex:1;color:var(--text2)">${m.municipio||'—'}</span>
+            <span style="color:var(--orange);font-weight:700">${m.importe||0}€</span>
+            <span style="font-size:9px;padding:1px 5px;border-radius:99px;font-weight:700;
+              ${m.estado==='Pagada'?'background:#1a3d20;color:#3fb950':m.estado==='Pendiente pago'?'background:#3d1e00;color:#ff8800':'background:#3d0008;color:#f85149'}">${m.estado||'—'}</span>
+            <a href="/policia" style="font-size:9px;color:var(--blue)">→</a>
+          </div>`).join('');
+      }
+      document.getElementById('actividadReciente').style.display = 'block';
+    }
+
+    // Últimas alertas B&C
+    const ultAlertas = document.getElementById('ultAlertas');
+    if(ultAlertas){
+      fetch('/api/alertas?page=0').then(r=>r.json()).then(d=>{
+        const rows = (d.rows||[]).filter(a=>a.activa).slice(0,5);
+        if(!rows.length){
+          ultAlertas.innerHTML = '<div style="font-size:11px;color:var(--text3);text-align:center;padding:8px">Sin alertas activas</div>';
+          return;
+        }
+        const amap = {'Busca y Captura':'background:#3d0008;color:#f85149','Requisitoria Judicial':'background:#3d1e00;color:#ff8800','Vigilancia Especial':'background:#2d1a4d;color:#bc8cff','Multas Pendientes':'background:#1a2d4d;color:#58a6ff'};
+        ultAlertas.innerHTML = rows.map(a=>`
+          <div style="display:flex;gap:8px;align-items:center;padding:5px 8px;
+            background:var(--bg3);border-radius:4px;border:1px solid var(--border);font-size:10px">
+            <span style="color:var(--text2);min-width:80px">${a.dni||'—'}</span>
+            <span style="flex:1;color:var(--text)">${(a.nombre_completo||'—').substring(0,16)}</span>
+            <span style="font-size:9px;padding:1px 6px;border-radius:99px;font-weight:700;${amap[a.tipo_alerta]||''}">${a.tipo_alerta?.substring(0,8)||'—'}</span>
+          </div>`).join('');
+        document.getElementById('actividadReciente').style.display = 'block';
+      }).catch(()=>{});
+    }
+  }catch(e){
+    console.warn('Global stats error:', e);
+  }
+}
+
 init();
+// Refrescar stats cada 30 segundos para que se actualicen en tiempo real
+setInterval(loadGlobalStats, 30000);
 </script>
 </body>
 </html>
