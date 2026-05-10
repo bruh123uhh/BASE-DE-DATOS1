@@ -10,545 +10,730 @@
   --bg:#050810;--bg2:#0a0f1e;--bg3:#111827;--bg4:#1a2233;
   --border:#1e2d4d;--border2:#2a3f5f;
   --text:#c8d8f0;--text2:#7a9bc4;--text3:#3d5a7a;
-  --blue:#4a9eff;--blue2:#2d7dd2;
+  --blue:#4a9eff;--blue2:#2d7dd2;--blue3:#1a4a80;
   --green:#00ff88;--green2:#00cc6a;--green3:#003d1f;
   --red:#ff3344;--red2:#cc1122;--red3:#3d0008;
   --orange:#ff8800;--orange2:#cc6600;--orange3:#3d1e00;
   --yellow:#ffd700;--purple:#9b59b6;
-  --accent:#1a3d6b;
 }
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;font-size:13px;min-height:100vh}
-
-/* SCANLINES effect */
-body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px);
   pointer-events:none;z-index:9999}
 
-/* TOP BAR */
-.topbar{background:var(--bg2);border-bottom:2px solid var(--blue2);padding:0 20px;height:48px;
-  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
-.logo-police{display:flex;align-items:center;gap:10px}
-.badge-police{background:var(--yellow);color:#000;font-weight:900;font-size:10px;padding:3px 8px;
-  border-radius:3px;letter-spacing:1px}
-.sys-name{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:3px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:2px solid var(--blue2);padding:0 16px;height:50px;
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;overflow-x:auto}
+.badge-police{background:var(--yellow);color:#000;font-weight:900;font-size:10px;padding:3px 8px;border-radius:3px;letter-spacing:1px;white-space:nowrap;flex-shrink:0}
+.sys-name{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:2px;white-space:nowrap;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.clock{color:var(--text2);font-size:12px;margin-left:auto}
-.topnav a{color:var(--text2);padding:4px 12px;border:1px solid var(--border2);border-radius:4px;
-  font-size:11px;text-decoration:none;letter-spacing:1px;transition:.15s}
-.topnav a:hover{background:var(--accent);color:var(--blue);border-color:var(--blue)}
-.topnav{display:flex;gap:6px}
+.clock{color:var(--text2);font-size:10px;white-space:nowrap;flex-shrink:0}
+.topnav{display:flex;gap:4px;flex-shrink:0}
+.topnav a{color:var(--text2);padding:4px 8px;border:1px solid var(--border2);border-radius:4px;font-size:10px;text-decoration:none;white-space:nowrap}
+.topnav a:hover{background:var(--blue3);color:var(--blue)}
+.ml-auto{margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0}
+.tb-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;white-space:nowrap}
 
 /* LAYOUT */
-.container{max-width:1400px;margin:0 auto;padding:16px}
+.wrap{max-width:1500px;margin:0 auto;padding:14px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-bottom:14px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px;text-align:center;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.sc.b::after{background:var(--blue)}.sc.g::after{background:var(--green)}.sc.r::after{background:var(--red)}.sc.o::after{background:var(--orange)}.sc.y::after{background:var(--yellow)}.sc.p::after{background:var(--purple)}
+.scn{font-size:20px;font-weight:700;font-family:monospace}
+.scn.b{color:var(--blue)}.scn.g{color:var(--green)}.scn.r{color:var(--red)}.scn.o{color:var(--orange)}.scn.y{color:var(--yellow)}.scn.p{color:var(--purple)}
+.scl{font-size:8px;color:var(--text3);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
 
 /* TABS */
-.maintabs{display:flex;gap:0;border-bottom:2px solid var(--border2);margin-bottom:16px}
-.mtab{padding:10px 20px;font-size:12px;cursor:pointer;color:var(--text3);
-  border-bottom:2px solid transparent;margin-bottom:-2px;letter-spacing:1px;transition:.15s}
-.mtab:hover{color:var(--text2)}
-.mtab.active{color:var(--green);border-bottom-color:var(--green);background:rgba(0,255,136,.05)}
+.maintabs{display:flex;gap:0;border-bottom:2px solid var(--border2);margin-bottom:14px;flex-wrap:wrap}
+.mtab{padding:8px 14px;font-size:10px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-2px;letter-spacing:.5px;transition:.15s;white-space:nowrap}
+.mtab:hover{color:var(--text2)}.mtab.active{color:var(--green);border-bottom-color:var(--green)}
 
-/* PANELS */
-.panel{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:14px;
-  position:relative}
-.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2));
-  border-radius:4px 4px 0 0}
-.panel-title{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;
-  margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.panel-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2));border-radius:6px 6px 0 0}
+.ptitle{font-size:10px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ptitle::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* SCANNER */
-.scanner-box{background:var(--bg3);border:2px solid var(--blue2);border-radius:4px;padding:20px;
-  text-align:center;position:relative;overflow:hidden}
-.scanner-box::after{content:'';position:absolute;top:-100%;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,transparent,var(--green),transparent);
-  animation:scan 3s linear infinite}
+.scanner-box{background:var(--bg3);border:2px solid var(--blue2);border-radius:4px;padding:18px;text-align:center;position:relative;overflow:hidden}
+.scanner-box::after{content:'';position:absolute;top:-5%;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 3s linear infinite;pointer-events:none}
 @keyframes scan{0%{top:-5%}100%{top:105%}}
-.scan-input{background:transparent;border:none;border-bottom:2px solid var(--green);
-  color:var(--green);font-family:'Share Tech Mono',monospace;font-size:28px;font-weight:700;
-  text-align:center;width:100%;letter-spacing:6px;outline:none;padding:8px 0;
-  text-transform:uppercase}
-.scan-input::placeholder{color:var(--text3);font-size:18px;letter-spacing:2px}
-.scan-input:focus{border-bottom-color:var(--blue);color:var(--blue)}
-.scan-hint{font-size:10px;color:var(--text3);margin-top:8px;letter-spacing:1px}
-.scan-btn{background:var(--green3);color:var(--green);border:1px solid var(--green2);
-  padding:10px 28px;border-radius:3px;cursor:pointer;font-family:monospace;font-size:13px;
-  font-weight:700;letter-spacing:2px;margin-top:12px;transition:.15s}
-.scan-btn:hover{background:var(--green2);color:#000}
-.scan-btn.red{background:var(--red3);color:var(--red);border-color:var(--red2)}
-.scan-btn.red:hover{background:var(--red2);color:#fff}
-.scan-btn.orange{background:var(--orange3);color:var(--orange);border-color:var(--orange2)}
-.scan-btn.orange:hover{background:var(--orange2);color:#000}
+.scan-input{background:transparent;border:none;border-bottom:2px solid var(--green);color:var(--green);font-family:monospace;font-size:26px;font-weight:700;text-align:center;width:100%;letter-spacing:6px;outline:none;padding:8px 0;text-transform:uppercase}
+.scan-input::placeholder{color:var(--text3);font-size:14px;letter-spacing:2px}
 
-/* RESULTADO POLICIAL */
-.result-ok{background:rgba(0,255,136,.05);border:2px solid var(--green2);border-radius:4px;padding:16px;margin-top:14px}
-.result-alert{background:rgba(255,51,68,.08);border:2px solid var(--red2);border-radius:4px;padding:16px;margin-top:14px;
-  animation:alertpulse 2s infinite}
-@keyframes alertpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,51,68,.4)}50%{box-shadow:0 0 0 8px rgba(255,51,68,0)}}
-.result-warn{background:rgba(255,136,0,.06);border:2px solid var(--orange2);border-radius:4px;padding:16px;margin-top:14px}
+/* BOTONES */
+.btn{background:var(--blue3);color:var(--blue);border:1px solid var(--blue2);padding:7px 16px;border-radius:4px;cursor:pointer;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:.5px;transition:.15s;white-space:nowrap}
+.btn:hover{background:var(--blue2);color:#fff}
+.btn.g{background:var(--green3);color:var(--green);border-color:var(--green2)}.btn.g:hover{background:var(--green2);color:#000}
+.btn.r{background:var(--red3);color:var(--red);border-color:var(--red2)}.btn.r:hover{background:var(--red2);color:#fff}
+.btn.o{background:var(--orange3);color:var(--orange);border-color:var(--orange2)}.btn.o:hover{background:var(--orange2);color:#000}
+.btn.y{background:#3d2f00;color:var(--yellow);border-color:#806000}.btn.y:hover{background:#806000;color:#000}
+.btn.p{background:#2d1040;color:#c084fc;border-color:var(--purple)}.btn.p:hover{background:var(--purple);color:#fff}
+.btn.sm{padding:3px 8px;font-size:9px;height:22px}
+.btn.pulse{animation:bpulse 2s infinite}
+@keyframes bpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,136,0,.5)}50%{box-shadow:0 0 0 6px rgba(255,136,0,0)}}
 
-.status-banner{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:10px 14px;border-radius:3px}
-.status-banner.ok{background:var(--green3);border:1px solid var(--green2)}
-.status-banner.alert{background:var(--red3);border:1px solid var(--red2)}
-.status-banner.warn{background:var(--orange3);border:1px solid var(--orange2)}
-.status-icon{font-size:24px}
-.status-text h2{font-size:16px;font-weight:700;letter-spacing:2px}
-.status-text p{font-size:11px;margin-top:3px;opacity:.8}
-.status-banner.ok .status-text h2{color:var(--green)}
-.status-banner.alert .status-text h2{color:var(--red)}
-.status-banner.warn .status-text h2{color:var(--orange)}
+/* RESULTADO VERIFICAR */
+.res-ok{background:rgba(0,255,136,.04);border:2px solid var(--green2);border-radius:6px;padding:14px;margin-top:12px}
+.res-alert{background:rgba(255,51,68,.07);border:2px solid var(--red2);border-radius:6px;padding:14px;margin-top:12px;animation:alp 2s infinite}
+@keyframes alp{0%,100%{box-shadow:0 0 0 0 rgba(255,51,68,.3)}50%{box-shadow:0 0 0 8px rgba(255,51,68,0)}}
+.res-warn{background:rgba(255,136,0,.05);border:2px solid var(--orange2);border-radius:6px;padding:14px;margin-top:12px}
+.sbanner{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;margin-bottom:10px}
+.sbanner.ok{background:var(--green3);border:1px solid var(--green2)}.sbanner.alert{background:var(--red3);border:1px solid var(--red2)}.sbanner.warn{background:var(--orange3);border:1px solid var(--orange2)}
+.sicon{font-size:22px;flex-shrink:0}.stxt h2{font-size:14px;font-weight:700;letter-spacing:.5px}.stxt p{font-size:10px;margin-top:2px;opacity:.8}
+.sbanner.ok .stxt h2{color:var(--green)}.sbanner.alert .stxt h2{color:var(--red)}.sbanner.warn .stxt h2{color:var(--orange)}
 
 /* DATA GRID */
-.data-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;margin-top:10px}
-.data-cell{background:var(--bg3);border:1px solid var(--border);padding:7px 10px;border-radius:3px}
-.data-key{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
-.data-val{font-size:12px;color:var(--text);font-weight:700;margin-top:2px;overflow-wrap:anywhere}
-.data-val.red{color:var(--red)}.data-val.green{color:var(--green)}.data-val.orange{color:var(--orange)}.data-val.blue{color:var(--blue)}.data-val.yellow{color:var(--yellow)}
-.data-sep{grid-column:1/-1;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;
-  font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px;margin-top:8px}
+.dcell{background:var(--bg3);border:1px solid var(--border);padding:6px 9px;border-radius:3px}
+.dkey{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.dval{font-size:11px;color:var(--text);font-weight:700;margin-top:1px;overflow-wrap:anywhere}
+.dval.r{color:var(--red)}.dval.g{color:var(--green)}.dval.o{color:var(--orange)}.dval.b{color:var(--blue)}.dval.y{color:var(--yellow)}
 
-/* ALERTAS */
-.alert-card{background:var(--red3);border:1px solid var(--red2);border-radius:4px;padding:12px;
-  margin-top:8px;display:flex;gap:12px;align-items:flex-start}
-.alert-icon{font-size:28px;flex-shrink:0}
-.alert-info h3{font-size:13px;font-weight:700;color:var(--red);letter-spacing:1px}
-.alert-info p{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
-.warn-card{background:var(--orange3);border:1px solid var(--orange2);border-radius:4px;padding:12px;
-  margin-top:8px;display:flex;gap:12px;align-items:flex-start}
-.warn-info h3{font-size:13px;font-weight:700;color:var(--orange);letter-spacing:1px}
-.warn-info p{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
+/* ALERTA CARD */
+.acard{background:var(--red3);border:1px solid var(--red2);border-radius:4px;padding:10px 12px;margin-top:6px;display:flex;gap:10px}
+.aicon{font-size:22px;flex-shrink:0;line-height:1}
+.ainfo h3{font-size:11px;font-weight:700;color:var(--red)}.ainfo p{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.6}
+.wcard{background:var(--orange3);border:1px solid var(--orange2);border-radius:4px;padding:10px 12px;margin-top:6px;display:flex;gap:10px}
+.winfo h3{font-size:11px;font-weight:700;color:var(--orange)}.winfo p{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.6}
 
 /* MATRÍCULA */
-.mat-plate{display:inline-block;background:#fff;border:3px solid #00308F;border-radius:4px;
-  padding:3px 12px;font-weight:900;font-size:22px;color:#00308F;letter-spacing:4px;
-  font-family:'Share Tech Mono',monospace}
-.mat-plate .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:9px;
-  padding:0 3px;border-radius:3px 0 0 3px;margin-right:5px;font-weight:700;letter-spacing:0}
+.mat{display:inline-block;background:#fff;border:3px solid #00308F;border-radius:4px;padding:2px 10px;font-weight:900;font-size:18px;color:#00308F;letter-spacing:4px}
+.mat .eu{display:inline-block;background:#00308F;color:#FFD700;font-size:8px;padding:0 2px;border-radius:3px 0 0 3px;margin-right:4px;font-weight:700;letter-spacing:0}
 
-/* PUNTOS CARNET */
-.puntos-bar{display:flex;gap:3px;margin-top:4px}
-.punto{width:18px;height:18px;border-radius:2px;border:1px solid var(--border2)}
-.punto.on{background:var(--green);box-shadow:0 0 4px var(--green)}
-.punto.off{background:var(--red3);border-color:var(--red2)}
+/* PUNTOS */
+.pts-bar{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.pt{width:15px;height:15px;border-radius:2px;border:1px solid var(--border2)}
+.pt.on{background:var(--green);box-shadow:0 0 3px var(--green)}.pt.off{background:var(--red3);border-color:var(--red2)}
 
-/* FORMULARIO MULTA */
-.multa-form{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:16px;margin-top:14px}
-.multa-form h3{font-size:12px;color:var(--orange);letter-spacing:2px;margin-bottom:14px;
-  border-bottom:1px solid var(--border);padding-bottom:8px}
-.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px}
-.fgroup{display:flex;flex-direction:column;gap:4px}
-.fgroup label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
-.fgroup input,.fgroup select,.fgroup textarea{
-  background:var(--bg2);border:1px solid var(--border2);color:var(--text);
-  padding:7px 10px;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:12px}
-.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{
-  outline:none;border-color:var(--blue);background:var(--bg4)}
-.fgroup textarea{resize:vertical;min-height:60px}
-.infrac-select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);
-  padding:7px 10px;border-radius:3px;font-family:monospace;font-size:12px;width:100%}
-.infrac-info{background:var(--bg4);border:1px solid var(--border2);border-radius:3px;
-  padding:10px;margin-top:8px;display:none}
-.infrac-info.show{display:block}
-.infrac-info .imp{font-size:20px;font-weight:700;color:var(--orange)}
-.infrac-info .pts{font-size:13px;color:var(--red);margin-left:12px}
-.infrac-info .art{font-size:10px;color:var(--text3);margin-top:4px}
-.infrac-info .grave{font-size:10px;color:var(--red);margin-top:2px;letter-spacing:1px}
+/* SECCIÓN TÍTULO */
+.sec{font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border2);padding-bottom:6px;margin-bottom:10px;font-weight:700}
 
-/* TABLA MULTAS */
-.tw{overflow-x:auto;border:1px solid var(--border);border-radius:4px;margin-top:10px}
-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'Share Tech Mono',monospace;table-layout:fixed}
-th{background:var(--bg3);padding:8px 8px;text-align:left;font-weight:700;font-size:9px;
-  color:var(--text3);border-bottom:1px solid var(--border2);white-space:nowrap;letter-spacing:1px}
-td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* FORM */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:6px 9px;border-radius:3px;font-family:monospace;font-size:12px;transition:.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--blue)}
+.fg textarea{resize:vertical;min-height:55px}
+.fg select option{background:var(--bg2)}
+.fg input.hi{border-color:var(--orange)}
+
+/* INFRACCION PREVIEW */
+.inf-prev{background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:10px;margin:6px 0;display:none}
+.inf-prev.show{display:block}
+
+/* ═══════════ COLA DE MULTAS ═══════════ */
+.queue-box{background:var(--bg4);border:2px solid var(--orange2);border-radius:6px;padding:12px;margin:12px 0}
+.queue-title{font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:8px}
+.queue-empty{font-size:11px;color:var(--text3);text-align:center;padding:12px;font-style:italic}
+.q-item{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;margin-bottom:4px;font-size:11px}
+.q-num{color:var(--text3);font-size:9px;min-width:16px;font-weight:700}
+.q-cod{color:var(--orange);font-weight:700;min-width:65px;font-size:10px}
+.q-desc{flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.q-imp{color:var(--orange);font-weight:700;min-width:50px;text-align:right}
+.q-pts{color:var(--red);min-width:40px;text-align:right;font-size:9px}
+.q-del{background:none;border:1px solid var(--red2);color:var(--red);padding:1px 6px;border-radius:2px;cursor:pointer;font-size:9px;font-family:monospace;flex-shrink:0}
+.q-del:hover{background:var(--red3)}
+.q-total{border-top:1px solid var(--border2);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.q-total-imp{font-size:16px;font-weight:700;color:var(--orange)}
+.q-total-pts{font-size:13px;font-weight:700;color:var(--red)}
+
+/* BLOQUES ESPECIALES */
+.spec-box{border-radius:4px;padding:12px;margin:8px 0;display:none}
+.spec-box.show{display:block}
+.alc-box{background:rgba(255,136,0,.07);border:1px solid var(--orange2)}
+.drg-box{background:rgba(155,89,182,.07);border:1px solid #7c3aed}
+.vel-box{background:rgba(74,158,255,.07);border:1px solid var(--blue2)}
+.det-box{background:rgba(255,51,68,.07);border:1px solid var(--red2)}
+
+/* TABLA */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:10px;font-family:monospace;table-layout:fixed}
+th{background:var(--bg3);padding:7px 6px;text-align:left;font-weight:700;font-size:9px;color:var(--text3);border-bottom:1px solid var(--border2);white-space:nowrap;letter-spacing:.5px}
+td{padding:5px 6px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(74,158,255,.04)}
-.pag{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--text2)}
+tr:hover td{background:rgba(74,158,255,.03)}
+.pag{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)}
 .pag .pi{flex:1;text-align:center}
-.pag button{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);
-  padding:3px 10px;border-radius:3px;cursor:pointer;font-family:monospace;font-size:11px}
+.pag button{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:3px 9px;border-radius:3px;cursor:pointer;font-family:monospace;font-size:10px}
 .pag button:hover{border-color:var(--blue);color:var(--blue)}
-
-/* ESTADO BADGES */
-.est{display:inline-block;padding:1px 7px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.5px}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.ctrl input,.ctrl select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-size:11px;padding:5px 9px;height:30px;border-radius:3px;font-family:monospace}
+.ctrl input{flex:1;min-width:140px}.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--blue)}
+.ctrl input::placeholder{color:var(--text3)}
+.est{display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;font-weight:700;white-space:nowrap}
 .est-pend{background:rgba(255,136,0,.2);color:var(--orange);border:1px solid var(--orange2)}
 .est-pag{background:rgba(0,255,136,.1);color:var(--green);border:1px solid var(--green2)}
 .est-rec{background:rgba(155,89,182,.2);color:#c084fc;border:1px solid #7c3aed}
 .est-imp{background:var(--red3);color:var(--red);border:1px solid var(--red2)}
 
-/* CTRL */
-.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
-.ctrl input,.ctrl select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);
-  font-size:12px;padding:5px 10px;height:32px;border-radius:3px;font-family:monospace}
-.ctrl input{flex:1;min-width:160px}
-.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--blue)}
-.ctrl input::placeholder{color:var(--text3)}
-
-/* LOADING */
-.loading{text-align:center;padding:20px;color:var(--text3);font-size:12px;letter-spacing:2px}
-.error-box{background:var(--red3);border:1px solid var(--red2);border-radius:4px;
-  padding:12px;color:var(--red);font-size:12px;margin-top:10px;letter-spacing:.5px}
-.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:2px solid var(--green2);
-  border-radius:4px;padding:12px 20px;font-size:12px;z-index:9999;color:var(--green);
-  transform:translateY(100px);opacity:0;transition:.3s;letter-spacing:1px}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.err{border-color:var(--red2);color:var(--red)}
-
-/* STATS ROW */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
-.scard{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px;text-align:center}
-.scard-n{font-size:24px;font-weight:700;font-family:'Share Tech Mono',monospace}
-.scard-l{font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
-.scard-n.g{color:var(--green)}.scard-n.r{color:var(--red)}.scard-n.o{color:var(--orange)}.scard-n.b{color:var(--blue)}.scard-n.y{color:var(--yellow)}
-
-/* HISTORIAL */
-.hist-item{background:var(--bg3);border:1px solid var(--border);border-radius:3px;
-  padding:10px 12px;margin-bottom:6px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:.15s}
-.hist-item:hover{border-color:var(--blue2);background:var(--bg4)}
-.hist-mat{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:2px;min-width:100px}
-.hist-info{flex:1;font-size:11px;color:var(--text2)}
-.hist-imp{font-size:14px;font-weight:700;color:var(--orange)}
-.hist-date{font-size:10px;color:var(--text3)}
+/* BOLETÍN */
+.boletin{background:#fff;color:#111;border:2px solid var(--border);border-radius:6px;padding:22px;margin-top:12px;font-family:Arial,sans-serif;font-size:12px;max-width:700px}
+.bh{border-bottom:3px solid #1a1a1a;padding-bottom:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.bh-logo{font-size:15px;font-weight:900;letter-spacing:2px;color:#00308F}
+.bh-sub{font-size:9px;color:#666;letter-spacing:1px;margin-top:2px}
+.bsec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;background:#f0f0f0;padding:4px 8px;margin:8px 0 5px;border-left:3px solid #00308F}
+.bg2col{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:6px 0}
+.bg3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:6px 0}
+.bf{border:1px solid #ccc;padding:5px 8px;border-radius:2px}
+.bfk{font-size:8px;color:#888;text-transform:uppercase}.bfv{font-size:12px;font-weight:600;margin-top:1px}
+.b-importe{background:#f8f0e0;border:2px solid #c62828;border-radius:4px;padding:12px;text-align:center;margin:10px 0}
+.b-imp-n{font-size:30px;font-weight:900;color:#c62828}
+.b-imp-r{font-size:12px;color:#2e7d32;margin-top:5px;font-weight:700}
+.b-imp-p{font-size:12px;font-weight:700;color:#e65100;margin-top:3px}
+.b-pay{background:#e8f5e9;border:1px solid #4caf50;border-radius:4px;padding:8px;margin:8px 0}
+.b-firmas{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:12px}
+.b-firma{border-top:1px solid #aaa;padding-top:5px;font-size:9px;color:#666;text-align:center;min-height:45px}
+.b-footer{border-top:2px solid #ccc;margin-top:10px;padding-top:8px;font-size:9px;color:#999}
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:2px solid var(--blue2);border-radius:4px;
-  padding:24px;max-width:700px;width:95%;max-height:90vh;overflow-y:auto;position:relative}
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2))}
-.modal h3{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:16px;letter-spacing:2px}
-.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);
-  color:var(--text2);border-radius:3px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:monospace}
-.modal-close:hover{border-color:var(--red);color:var(--red)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:2px solid var(--blue2);border-radius:6px;padding:20px;max-width:720px;width:95%;max-height:90vh;overflow-y:auto;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue2),var(--green2),var(--blue2))}
+.modal h3{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;letter-spacing:1px}
+.mcls{position:absolute;top:10px;right:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:3px;padding:2px 8px;cursor:pointer;font-size:10px;font-family:monospace}
+.mcls:hover{border-color:var(--red);color:var(--red)}
 
-/* IMPRIMIR BOLETÍN */
-@media print {
-  .topbar,.maintabs,.no-print{display:none!important}
-  body{background:#fff;color:#000}
-  .boletin{border:2px solid #000;padding:20px;max-width:600px;margin:0 auto}
-}
-.boletin-preview{background:#fff;color:#000;border:2px solid var(--border);
-  border-radius:4px;padding:20px;margin-top:12px;font-family:Arial,sans-serif;font-size:12px}
-.boletin-header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:12px}
-.boletin-logo{font-size:18px;font-weight:700;letter-spacing:2px}
-.boletin-sub{font-size:10px;color:#666;letter-spacing:1px}
-.boletin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.boletin-field{border:1px solid #ccc;padding:5px 8px;border-radius:2px}
-.boletin-fkey{font-size:8px;color:#888;text-transform:uppercase}
-.boletin-fval{font-size:12px;font-weight:600;margin-top:1px}
-.boletin-footer{border-top:2px solid #000;padding-top:10px;margin-top:12px;font-size:10px}
+/* DETENCION */
+.det-card{background:var(--red3);border:2px solid var(--red2);border-radius:6px;padding:14px;margin-top:10px}
+.det-card h3{color:var(--red);font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--bg3);border:2px solid var(--green2);border-radius:6px;padding:10px 16px;font-size:11px;z-index:9999;color:var(--green);transform:translateY(100px);opacity:0;transition:.3s;letter-spacing:.3px;max-width:380px}
+.toast.show{transform:translateY(0);opacity:1}.toast.err{border-color:var(--red2);color:var(--red)}.toast.warn{border-color:var(--orange2);color:var(--orange)}
+.loading{text-align:center;padding:18px;color:var(--text3);font-size:11px;letter-spacing:1px}
+.ebox{background:var(--red3);border:1px solid var(--red2);border-radius:4px;padding:10px 12px;color:var(--red);font-size:11px;margin-top:8px}
+
+@media print{.topbar,.maintabs,.no-print,.overlay,body::before{display:none!important}body{background:#fff}.boletin{border:none;padding:0;max-width:100%}}
 </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo-police">
-    <span class="badge-police">⚖ POLICIA</span>
-    <span class="sys-name">SISTEMA VERIFICACIÓN DGT</span>
-    <span class="status-dot"></span>
-  </div>
-  <nav class="topnav" style="margin-left:20px">
-    <a href="/">INICIO</a>
-    <a href="/buscador">BUSCADOR</a>
-    {% if admin %}<a href="/admin">ADMIN</a><a href="/logout">SALIR</a>{% else %}<a href="/login">ADMIN</a>{% endif %}
+  <span class="badge-police">⚖ DGT</span>
+  <span class="sys-name">TERMINAL POLICIAL</span>
+  <span class="dot"></span>
+  <nav class="topnav">
+    <a href="/">🏠</a>
+    <a href="/buscador">🔍</a>
+    {% if admin %}<a href="/admin">🔧</a><a href="/logout">Salir</a>{% else %}<a href="/login" style="color:var(--orange)">🔐</a>{% endif %}
   </nav>
-  <div class="clock" id="clock">--:--:--</div>
+  <div class="ml-auto">
+    <span class="tb-badge" id="tb_bc" style="background:var(--red3);color:var(--red);border:1px solid var(--red2);animation:blink 2s infinite">⚠ —</span>
+    <span class="tb-badge" id="tb_mul" style="background:var(--orange3);color:var(--orange);border:1px solid var(--orange2)">📋 —</span>
+    <span class="clock" id="clock">--:--</span>
+  </div>
 </div>
 
-<div class="container">
+<div class="wrap">
 
-  <!-- STATS ROW — conectados a la BD en tiempo real -->
+  <!-- STATS -->
   <div class="stats-row" id="statsRow">
-    <div class="scard b"><div class="scard-n b" id="sTotal">—</div><div class="scard-l">Total multas</div></div>
-    <div class="scard o"><div class="scard-n o" id="sPend">—</div><div class="scard-l">Pendientes pago</div></div>
-    <div class="scard g"><div class="scard-n g" id="sPag">—</div><div class="scard-l">Pagadas</div></div>
-    <div class="scard p"><div class="scard-n p" id="sImp">—</div><div class="scard-l">Impugnadas</div></div>
-    <div class="scard y"><div class="scard-n y" id="sImporte">—</div><div class="scard-l">€ total multas</div></div>
-    <div class="scard o"><div class="scard-n o" id="sPendEur">—</div><div class="scard-l">€ pendiente cobro</div></div>
-    <div class="scard g"><div class="scard-n g" id="sCobrado">—</div><div class="scard-l">€ cobrado</div></div>
-    <div class="scard r"><div class="scard-n r" id="sPuntos">—</div><div class="scard-l">Puntos retirados</div></div>
-    <div class="scard r"><div class="scard-n r" id="sBC">—</div><div class="scard-l">Busca y Captura</div></div>
-    <div class="scard b"><div class="scard-n b" id="sCiudadanos">—</div><div class="scard-l">Ciudadanos BD</div></div>
-    <div class="scard b"><div class="scard-n b" id="sMatriculas">—</div><div class="scard-l">Matrículas BD</div></div>
+    <div class="sc b"><div class="scn b" id="sTotal">—</div><div class="scl">Multas total</div></div>
+    <div class="sc o"><div class="scn o" id="sPend">—</div><div class="scl">Pendientes</div></div>
+    <div class="sc g"><div class="scn g" id="sPag">—</div><div class="scl">Pagadas</div></div>
+    <div class="sc p"><div class="scn p" id="sImp">—</div><div class="scl">Impugnadas</div></div>
+    <div class="sc y"><div class="scn y" id="sImporte">—</div><div class="scl">€ total</div></div>
+    <div class="sc o"><div class="scn o" id="sPendEur">—</div><div class="scl">€ pendiente</div></div>
+    <div class="sc g"><div class="scn g" id="sCobrado">—</div><div class="scl">€ cobrado</div></div>
+    <div class="sc r"><div class="scn r" id="sPuntos">—</div><div class="scl">Puntos ret.</div></div>
+    <div class="sc r"><div class="scn r" id="sBC">—</div><div class="scl">B&amp;C activos</div></div>
+    <div class="sc b"><div class="scn b" id="sCit">—</div><div class="scl">Ciudadanos</div></div>
+    <div class="sc b"><div class="scn b" id="sMat">—</div><div class="scl">Matrículas</div></div>
+    <div class="sc r"><div class="scn r" id="sDet">—</div><div class="scl">Detenidos hoy</div></div>
   </div>
 
-  <!-- MAIN TABS -->
+  <!-- TABS -->
   <div class="maintabs">
-    <div class="mtab active" onclick="switchTab('verificar')">🔍 VERIFICAR</div>
-    <div class="mtab" onclick="switchTab('multa')">📋 PONER MULTA</div>
-    <div class="mtab" onclick="switchTab('registro')">📂 REGISTRO MULTAS</div>
-    <div class="mtab" onclick="switchTab('boletin')">🖨️ BOLETÍN</div>
+    <div class="mtab active"  onclick="ST('verificar')">🔍 VERIFICAR</div>
+    <div class="mtab"         onclick="ST('multa')">📋 MULTAS (+VARIAS)</div>
+    <div class="mtab"         onclick="ST('detencion')">🚨 DETENCIÓN</div>
+    <div class="mtab"         onclick="ST('registro')">📂 REGISTRO</div>
+    <div class="mtab"         onclick="ST('boletin')">🖨️ BOLETÍN</div>
+    <div class="mtab"         onclick="ST('atestado')">📄 ATESTADO</div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!--  TAB 1: VERIFICAR                         -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══════════ VERIFICAR ══════════ -->
   <div id="tab-verificar">
     <div class="panel">
-      <div class="panel-title">⬛ TERMINAL DE VERIFICACIÓN POLICIAL</div>
+      <div class="ptitle">⬛ CONSULTA POLICIAL — DNI / MATRÍCULA</div>
       <div class="scanner-box">
-        <div style="font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:16px">
-          INTRODUCE DNI · MATRÍCULA
-        </div>
-        <input class="scan-input" type="text" id="scanInput"
+        <div style="font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:12px">INTRODUCE DNI · MATRÍCULA (sin espacios)</div>
+        <input class="scan-input" id="scanInput" type="text" maxlength="10"
                placeholder="12345678Z · 1234BBB"
-               maxlength="10"
-               onkeyup="if(event.key==='Enter')verificar()"
-               oninput="this.value=this.value.toUpperCase()">
-        <div class="scan-hint">Pulsa ENTER o el botón para verificar</div>
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter')verificar()">
+        <div style="font-size:10px;color:var(--text3);margin-top:6px">Pulsa ENTER · DNI 00000001A→99999999Z · Matrícula 0001BBB→9999NZZ</div>
         <br>
-        <button class="scan-btn" onclick="verificar()">▶ VERIFICAR AHORA</button>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn g" onclick="verificar()">▶ VERIFICAR</button>
+          <button class="btn o" onclick="verificarYMulta()">📋 VERIFICAR Y MULTAR</button>
+          <button class="btn r" onclick="verificarYDetener()">🚨 VERIFICAR Y DETENER</button>
+        </div>
       </div>
       <div id="verResult"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!--  TAB 2: PONER MULTA                       -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══════════ MULTAS (VARIAS) ══════════ -->
   <div id="tab-multa" style="display:none">
     <div class="panel">
-      <div class="panel-title">📋 NUEVA DENUNCIA / MULTA DE TRÁFICO</div>
+      <div class="ptitle">📋 NUEVA DENUNCIA — PERMITE MÚLTIPLES INFRACCIONES</div>
 
-      <!-- Paso 1: Identificar vehículo -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px">PASO 1 — IDENTIFICAR VEHÍCULO / CONDUCTOR</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input type="text" id="multa_mat" placeholder="Matrícula (ej: 1234BBB)"
-                 style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
-                        padding:8px 12px;border-radius:3px;font-family:monospace;font-size:14px;
-                        font-weight:700;width:160px;text-transform:uppercase;letter-spacing:3px"
-                 oninput="this.value=this.value.toUpperCase()">
-          <input type="text" id="multa_dni" placeholder="DNI (opcional)"
-                 style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
-                        padding:8px 12px;border-radius:3px;font-family:monospace;font-size:14px;
-                        width:140px;text-transform:uppercase"
-                 oninput="this.value=this.value.toUpperCase()">
-          <button class="scan-btn" onclick="cargarDatosMulta()">🔍 CARGAR DATOS</button>
+      <!-- ID vehículo -->
+      <div class="sec">PASO 1 — IDENTIFICAR VEHÍCULO / CONDUCTOR</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+        <div class="fg" style="flex:1;min-width:130px">
+          <label>Matrícula</label>
+          <input type="text" id="m_mat" placeholder="1234BBB" style="font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
         </div>
-        <div id="multa_check" style="margin-top:8px;font-size:11px;color:var(--text2)"></div>
+        <div class="fg" style="flex:1;min-width:120px">
+          <label>DNI del conductor</label>
+          <input type="text" id="m_dni" placeholder="12345678Z" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <button class="btn" onclick="cargarDatos()" style="height:34px;align-self:flex-end">🔍 VERIFICAR</button>
+      </div>
+      <div id="m_check" style="font-size:11px;min-height:16px;margin-bottom:8px"></div>
+      <div id="m_datos_box" style="display:none;margin-bottom:10px">
+        <div class="sec">DATOS IDENTIFICADO</div>
+        <div class="dgrid" id="m_datos_grid"></div>
       </div>
 
-      <!-- Datos del identificado -->
-      <div id="multa_datos_box" style="display:none;margin-bottom:14px">
-        <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px">DATOS DEL IDENTIFICADO</div>
-        <div class="data-grid" id="multa_datos_grid"></div>
+      <!-- SELECTOR INFRACCIÓN -->
+      <div class="sec">PASO 2 — AÑADIR INFRACCIONES (puedes añadir varias antes de enviar)</div>
+      <div class="fgrid">
+        <div class="fg" style="grid-column:span 2">
+          <label>Tipo de infracción *</label>
+          <select id="m_cod" onchange="selInfrac()">
+            <option value="">— Selecciona infracción —</option>
+            <optgroup label="🚗 VELOCIDAD">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('VEL') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🍺 ALCOHOL">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('ALC') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="💊 DROGAS">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('DRG') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="📱 DISTRACCIONES">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('DIS') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🦺 PROTECCIÓN">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('CIN') or c.startswith('CAS') or c.startswith('SRI') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🛑 SEÑALES / SEMÁFOROS">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('SEM') or c.startswith('PRI') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🅿 ESTACIONAMIENTO">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('EST') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="📄 DOCUMENTACIÓN">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('CAR') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🚦 ADELANTAMIENTO">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('ADV') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="🔧 TÉCNICA / OTROS">
+              {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('TEC') or c.startswith('OTR') %}
+              <option value="{{c}}" data-i="{{i}}" data-p="{{p}}" data-a="{{a}}" data-g="{{g}}" data-cat="{{cat}}">{{c}} — {{d}} ({{i}}€{% if p %} −{{p}}pts{% endif %})</option>
+              {% endfor %}
+            </optgroup>
+          </select>
+        </div>
       </div>
 
-      <!-- Formulario multa -->
-      <div class="multa-form">
-        <h3>📋 DATOS DE LA INFRACCIÓN</h3>
-
-        <!-- Tipo infracción -->
-        <div style="margin-bottom:12px">
-          <div class="fgroup" style="margin-bottom:8px">
-            <label>Tipo de infracción *</label>
-            <select class="infrac-select" id="multa_codigo" onchange="seleccionarInfraccion()">
-              <option value="">— Selecciona la infracción —</option>
-              <optgroup label="🚗 VELOCIDAD">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('VEL') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="🍺 ALCOHOL / DROGAS">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('ALC') or c.startswith('DRG') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="📱 DISTRACCIONES">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('TEL') or c.startswith('DIS') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="🛑 SEÑALES / SEMÁFOROS">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('SEM') or c.startswith('PRI') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="🅿 ESTACIONAMIENTO">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('EST') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="📄 DOCUMENTACIÓN / SEGUROS">
-                {% for c,d,a,i,p,g,cat in tipos_multa if c.startswith('CAR') %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-              <optgroup label="🚦 OTROS">
-                {% for c,d,a,i,p,g,cat in tipos_multa if not (c.startswith('VEL') or c.startswith('ALC') or c.startswith('DRG') or c.startswith('TEL') or c.startswith('DIS') or c.startswith('SEM') or c.startswith('PRI') or c.startswith('EST') or c.startswith('CAR')) %}
-                <option value="{{c}}" data-imp="{{i}}" data-pts="{{p}}" data-art="{{a}}" data-grave="{{g}}">{{c}} — {{d}} ({{i}}€{% if p %}, -{{p}}pts{% endif %})</option>
-                {% endfor %}
-              </optgroup>
-            </select>
-          </div>
-          <div class="infrac-info" id="infrac_info">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:11px;color:var(--text3)">IMPORTE BASE:</span>
-              <span class="imp" id="inf_imp">—</span>
-              <span class="pts" id="inf_pts"></span>
-              <span id="inf_grave" style="font-size:10px;margin-left:8px"></span>
-            </div>
-            <div class="art" id="inf_art"></div>
-            <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;align-items:center">
-              <span style="font-size:10px;color:var(--text3)">IMPORTE FINAL (editable):</span>
-              <input type="number" id="multa_importe" min="0" style="width:100px;background:var(--bg2);
-                border:1px solid var(--orange2);color:var(--orange);padding:5px;border-radius:3px;
-                font-family:monospace;font-size:16px;font-weight:700">
-              <span style="font-size:9px;color:var(--text3)">(-20% si paga en 20 días: <span id="imp_reducido" style="color:var(--green)">—</span>)</span>
-            </div>
-          </div>
+      <!-- Preview infracción -->
+      <div class="inf-prev" id="inf_prev">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <span style="font-size:22px;font-weight:700;color:var(--orange)" id="inf_imp">—</span>
+          <span style="font-size:12px;color:var(--red);font-weight:700" id="inf_pts"></span>
+          <span style="font-size:10px;font-weight:700" id="inf_grav"></span>
+          <span style="font-size:10px;color:var(--text3)" id="inf_art"></span>
         </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:9px;color:var(--text3)">IMPORTE FINAL:</span>
+          <input type="number" id="m_importe" min="0" style="width:90px;font-size:15px;font-weight:700;color:var(--orange);border-color:var(--orange2)">
+          <span style="font-size:9px;color:var(--text3)">PUNTOS:</span>
+          <input type="number" id="m_puntos" min="0" max="6" style="width:50px;font-size:13px;font-weight:700;color:var(--red);border-color:var(--red2)">
+          <span style="font-size:9px;color:var(--green)">-20% pronto pago: <strong id="imp_red">—</strong></span>
+        </div>
+      </div>
 
+      <!-- Velocidad -->
+      <div class="spec-box vel-box" id="vel_box">
+        <div class="sec" style="color:var(--blue)">DATOS VELOCIDAD</div>
         <div class="fgrid">
-          <div class="fgroup">
-            <label>Velocidad detectada (km/h)</label>
-            <input type="number" id="multa_vel_det" placeholder="Solo para infracc. velocidad" min="0" max="300">
-          </div>
-          <div class="fgroup">
-            <label>Límite de velocidad (km/h)</label>
-            <input type="number" id="multa_vel_lim" placeholder="ej: 50, 90, 120" min="0" max="300">
-          </div>
-          <div class="fgroup">
-            <label>Fecha y hora *</label>
-            <input type="datetime-local" id="multa_fecha">
-          </div>
-          <div class="fgroup">
-            <label>Municipio *</label>
-            <select id="multa_municipio">
-              <option value="">— Selecciona —</option>
-              {% for m in municipios %}<option>{{m}}</option>{% endfor %}
-              <option value="otro">Otro...</option>
-            </select>
-          </div>
-          <div class="fgroup">
-            <label>Vía / Lugar</label>
-            <select id="multa_via">
-              <option value="">— Selecciona —</option>
-              {% for v in vias %}<option>{{v}}</option>{% endfor %}
-              <option value="otro">Otro...</option>
-            </select>
-          </div>
-          <div class="fgroup">
-            <label>Lugar exacto / PK</label>
-            <input type="text" id="multa_lugar" placeholder="ej: Dirección Barcelona, km 45">
-          </div>
-          <div class="fgroup">
-            <label>Tipo de agente denunciante</label>
-            <select id="multa_agente_tipo">
-              {% for a in agentes_tipos %}<option>{{a}}</option>{% endfor %}
-            </select>
-          </div>
-          <div class="fgroup">
-            <label>Nº de agente / placa</label>
-            <input type="text" id="multa_agente_num" placeholder="ej: GC-12345">
-          </div>
-        </div>
-
-        <div class="fgroup" style="margin-bottom:12px">
-          <label>Observaciones / Descripción detallada</label>
-          <textarea id="multa_obs" placeholder="Describe la infracción con detalle: circunstancias, testigos, medios de prueba..."></textarea>
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <button class="scan-btn orange" onclick="ponerMulta()">
-            📋 REGISTRAR DENUNCIA
-          </button>
-          <button class="scan-btn" onclick="previsualizar()">
-            🖨️ PREVISUALIZAR BOLETÍN
-          </button>
-          <span id="multa_res" style="font-size:11px;color:var(--green);letter-spacing:1px"></span>
+          <div class="fg"><label>Velocidad detectada (km/h)</label><input type="number" id="m_vdet" placeholder="ej: 89" min="0" max="300" class="hi" oninput="calcExceso()"></div>
+          <div class="fg"><label>Límite de velocidad (km/h)</label><input type="number" id="m_vlim" placeholder="ej: 50" min="0" max="300" class="hi" oninput="calcExceso()"></div>
+          <div class="fg"><label>Exceso calculado</label><input type="text" id="m_vexc" readonly style="color:var(--orange);font-weight:700"></div>
+          <div class="fg"><label>Medio de detección</label>
+            <select id="m_vmedio">
+              <option>Radar fijo homologado</option><option>Radar móvil / Pegasus</option>
+              <option>Cámara de tráfico</option><option>Constatado visualmente</option>
+              <option>Helicóptero / dron</option>
+            </select></div>
         </div>
       </div>
+
+      <!-- Alcohol -->
+      <div class="spec-box alc-box" id="alc_box">
+        <div class="sec" style="color:var(--orange)">PRUEBA ALCOHOLEMIA</div>
+        <div class="fgrid">
+          <div class="fg"><label>1ª prueba aire espirado (mg/l)</label><input type="text" id="m_a1" placeholder="ej: 0.45" class="hi" oninput="calcAlc()"></div>
+          <div class="fg"><label>2ª prueba aire espirado (mg/l)</label><input type="text" id="m_a2" placeholder="ej: 0.43" oninput="calcAlc()"></div>
+          <div class="fg"><label>Media / Equivalencia sangre</label><input type="text" id="m_aeq" readonly style="color:var(--orange);font-weight:700"></div>
+          <div class="fg"><label>Tasa en sangre (g/l) — si análisis</label><input type="text" id="m_asg" placeholder="ej: 0.95"></div>
+          <div class="fg"><label>Resultado</label>
+            <select id="m_ares">
+              <option>Positivo — supera límite sancionable (0.25)</option>
+              <option>Positivo — supera límite penal (0.60)</option>
+              <option>Conductor novel/profesional — límite 0.15</option>
+              <option>Negativa a la prueba</option>
+            </select></div>
+          <div class="fg"><label>Nº etilómetro / Test</label><input type="text" id="m_atest" placeholder="ej: ETI-2024-00123"></div>
+        </div>
+      </div>
+
+      <!-- Drogas -->
+      <div class="spec-box drg-box" id="drg_box">
+        <div class="sec" style="color:#c084fc">PRUEBA DETECCIÓN DROGAS</div>
+        <div class="fgrid">
+          <div class="fg"><label>Sustancia detectada *</label>
+            <select id="m_dtype" class="hi">
+              <option value="">— Selecciona sustancia —</option>
+              <option>THC — Cannabis / Marihuana / Hachís</option>
+              <option>COC — Cocaína / Crack</option>
+              <option>AMF — Anfetaminas / Speed</option>
+              <option>MDMA — Éxtasis / Pastillas</option>
+              <option>OPI — Opiáceos / Heroína / Morfina</option>
+              <option>BZD — Benzodiacepinas (Valium, Orfidal...)</option>
+              <option>KET — Ketamina</option>
+              <option>MET — Metanfetamina / Crystal</option>
+              <option>LSD — Alucinógenos</option>
+              <option>GHB — Gamma-hidroxibutirato</option>
+              <option>Policonsumo — Varias sustancias simultáneas</option>
+              <option>Negativa a la prueba</option>
+            </select></div>
+          <div class="fg"><label>Método de detección</label>
+            <select id="m_dmet">
+              <option>Test rápido saliva — positivo</option><option>Test rápido orina — positivo</option>
+              <option>Análisis sangre — positivo confirmado</option><option>Análisis laboratorio — pendiente</option>
+            </select></div>
+          <div class="fg"><label>Síntomas observados</label>
+            <select id="m_dsint">
+              <option>Pupilas dilatadas / mióticas</option><option>Comportamiento errático o agresivo</option>
+              <option>Somnolencia / torpeza motora</option><option>Habla pastosa / incoherente</option>
+              <option>Euforia / desinhibición marcada</option><option>Temblores / sudoración excesiva</option>
+              <option>Alucinaciones aparentes</option><option>Sin síntomas visibles</option>
+            </select></div>
+          <div class="fg"><label>Resultado general</label>
+            <select id="m_dres">
+              <option>POSITIVO — presencia confirmada</option>
+              <option>POSITIVO — pendiente confirmación lab.</option>
+              <option>NEGATIVA A PRUEBA</option>
+            </select></div>
+          <div class="fg"><label>Nº kit / prueba</label><input type="text" id="m_dkit" placeholder="ej: DRG-2024-00456"></div>
+        </div>
+      </div>
+
+      <!-- Botón añadir a cola -->
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <button class="btn g" onclick="addQueue()">➕ AÑADIR INFRACCIÓN A LA DENUNCIA</button>
+        <span style="font-size:10px;color:var(--text3)">Puedes añadir todas las que necesites antes de enviar</span>
+      </div>
+
+      <!-- COLA DE MULTAS PENDIENTES -->
+      <div class="queue-box" id="queue_box">
+        <div class="queue-title">
+          📋 INFRACCIONES EN ESTA DENUNCIA
+          <span id="queue_count" style="background:var(--orange3);color:var(--orange);border:1px solid var(--orange2);border-radius:99px;padding:1px 8px;font-size:10px">0</span>
+          <button class="btn sm r" onclick="clearQueue()" style="margin-left:auto">🗑 VACIAR TODO</button>
+        </div>
+        <div id="queue_list">
+          <div class="queue-empty">No hay infracciones añadidas. Selecciona una arriba y pulsa ➕</div>
+        </div>
+        <div class="q-total" id="queue_total_row" style="display:none">
+          <span style="font-size:10px;color:var(--text2)">TOTAL IMPORTE:</span>
+          <span class="q-total-imp" id="queue_total_imp">0€</span>
+          <span style="font-size:10px;color:var(--text2);margin-left:12px">PUNTOS A RETIRAR:</span>
+          <span class="q-total-pts" id="queue_total_pts">0</span>
+          <span style="font-size:10px;color:var(--green);margin-left:12px">-20%: <strong id="queue_red">0€</strong></span>
+        </div>
+      </div>
+
+      <!-- PASO 3: CIRCUNSTANCIAS -->
+      <div class="sec" style="margin-top:12px">PASO 3 — CIRCUNSTANCIAS DEL HECHO</div>
+      <div class="fgrid">
+        <div class="fg"><label>Fecha y hora *</label><input type="datetime-local" id="m_fecha"></div>
+        <div class="fg"><label>Municipio *</label>
+          <select id="m_mun">
+            <option value="">— Selecciona —</option>
+            {% for m in municipios %}<option>{{m}}</option>{% endfor %}
+            <option value="__otro">Otro municipio...</option>
+          </select></div>
+        <div class="fg"><label>Otro municipio (si aplica)</label><input type="text" id="m_mun2" placeholder="Escribir si seleccionaste Otro"></div>
+        <div class="fg"><label>Vía / Carretera</label>
+          <select id="m_via">
+            <option value="">— Selecciona —</option>
+            {% for v in vias %}<option>{{v}}</option>{% endfor %}
+            <option value="__otro">Otra vía...</option>
+          </select></div>
+        <div class="fg"><label>Lugar exacto / PK / Referencia</label><input type="text" id="m_lugar" placeholder="ej: Sentido Barcelona, carril derecho"></div>
+        <div class="fg"><label>Estado de la vía</label>
+          <select id="m_cvia">
+            <option>Buen estado</option><option>Pavimento mojado</option><option>Hielo / nieve</option>
+            <option>Obras en calzada</option><option>Visibilidad reducida</option>
+          </select></div>
+        <div class="fg"><label>Condiciones meteorológicas</label>
+          <select id="m_clima">
+            <option>Despejado / seco</option><option>Nublado</option><option>Lluvia</option>
+            <option>Niebla</option><option>Nieve</option><option>Noche / oscuridad</option>
+          </select></div>
+        <div class="fg"><label>Nº ocupantes en el vehículo</label><input type="number" id="m_ocup" value="1" min="1" max="60"></div>
+      </div>
+
+      <div class="sec">AGENTE DENUNCIANTE</div>
+      <div class="fgrid">
+        <div class="fg"><label>Cuerpo / Tipo *</label>
+          <select id="m_agtp">{% for a in agentes_tipos %}<option>{{a}}</option>{% endfor %}</select></div>
+        <div class="fg"><label>Nº de agente / Placa *</label><input type="text" id="m_agnum" placeholder="ej: GC-12345" class="hi"></div>
+        <div class="fg"><label>Nombre del agente</label><input type="text" id="m_agnombre" placeholder="Nombre y apellidos"></div>
+        <div class="fg"><label>Medios de prueba usados</label>
+          <select id="m_pruebas">
+            <option>Constatado visualmente — sin aparatos</option>
+            <option>Radar fijo homologado</option><option>Radar móvil / Pegasus</option>
+            <option>Cámara de tráfico DGT</option><option>Bodycam del agente</option>
+            <option>Testigos presenciales</option><option>Grabación de terceros</option>
+          </select></div>
+      </div>
+      <div class="fg" style="margin-bottom:8px"><label>Testigos / Nº atestado policial</label>
+        <input type="text" id="m_testigos" placeholder="Nombres testigos o nº atestado"></div>
+      <div class="fg" style="margin-bottom:12px"><label>Observaciones / Descripción detallada</label>
+        <textarea id="m_obs" rows="3" placeholder="Describe la infracción: comportamiento, reincidencia, circunstancias..."></textarea></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn o pulse" onclick="enviarDenuncia()" id="btn_enviar">
+          📋 REGISTRAR DENUNCIA COMPLETA
+        </button>
+        <button class="btn y" onclick="previewBoletin()">🖨️ PREVISUALIZAR</button>
+        <button class="btn r" onclick="limpiarFormulario()">🗑 LIMPIAR TODO</button>
+        <span id="m_res" style="font-size:11px;color:var(--green)"></span>
+      </div>
+      <div id="m_err" style="margin-top:6px"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!--  TAB 3: REGISTRO MULTAS                   -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══════════ DETENCIÓN ══════════ -->
+  <div id="tab-detencion" style="display:none">
+    <div class="panel">
+      <div class="ptitle">🚨 REGISTRO DE DETENCIÓN / ATESTADO POLICIAL</div>
+      <div style="background:var(--red3);border:1px solid var(--red2);border-radius:4px;padding:10px;margin-bottom:12px;font-size:11px;color:var(--red)">
+        ⚠ AVISO LEGAL: La detención sólo puede practicarse cuando existan indicios suficientes de comisión de delito (Art. 492 LECrim). Toda detención debe notificarse al Juzgado de Guardia.
+      </div>
+
+      <div class="sec">IDENTIFICACIÓN DEL DETENIDO</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+        <div class="fg" style="flex:1;min-width:120px"><label>DNI / Matrícula</label>
+          <input type="text" id="det_q" placeholder="12345678Z o 1234BBB" oninput="this.value=this.value.toUpperCase()"></div>
+        <button class="btn" onclick="cargarDet()" style="height:34px;align-self:flex-end">🔍 CARGAR</button>
+      </div>
+      <div id="det_datos_box" style="display:none;margin-bottom:10px">
+        <div class="dgrid" id="det_datos_grid"></div>
+      </div>
+      <div class="fgrid">
+        <div class="fg"><label>DNI / NIF *</label><input type="text" id="det_dni" placeholder="12345678Z" class="hi"></div>
+        <div class="fg"><label>Nombre completo *</label><input type="text" id="det_nombre" placeholder="Nombre y apellidos"></div>
+        <div class="fg"><label>Fecha nacimiento</label><input type="date" id="det_fnac"></div>
+        <div class="fg"><label>Nacionalidad</label><input type="text" id="det_nac" value="Española"></div>
+        <div class="fg"><label>Domicilio</label><input type="text" id="det_dom" placeholder="Dirección completa"></div>
+        <div class="fg"><label>Teléfono</label><input type="text" id="det_tel" placeholder="+34 600 000 000"></div>
+      </div>
+
+      <div class="sec">DATOS DE LA DETENCIÓN</div>
+      <div class="fgrid">
+        <div class="fg"><label>Motivo de detención *</label>
+          <select id="det_motivo">
+            <option>Flagrante delito</option>
+            <option>Orden judicial de detención</option>
+            <option>Busca y Captura activa</option>
+            <option>Requisitoria judicial</option>
+            <option>Resistencia a la autoridad</option>
+            <option>Delito contra la seguridad vial — Art. 379 CP</option>
+            <option>Conducción temeraria — Art. 380 CP</option>
+            <option>Negativa prueba alcoholemia — Art. 383 CP</option>
+            <option>Tráfico de drogas</option>
+            <option>Robo / Hurto</option>
+            <option>Agresión / Lesiones</option>
+            <option>Violencia de género</option>
+            <option>Orden de alejamiento incumplida</option>
+            <option>Tenencia ilícita de armas</option>
+            <option>Otros delitos</option>
+          </select></div>
+        <div class="fg"><label>Delito presunto (Código Penal)</label><input type="text" id="det_delito" placeholder="ej: Art. 379 CP — delito vial"></div>
+        <div class="fg"><label>Fecha y hora de detención *</label><input type="datetime-local" id="det_fecha"></div>
+        <div class="fg"><label>Lugar de detención</label><input type="text" id="det_lugar" placeholder="Dirección o nombre del lugar"></div>
+        <div class="fg"><label>Agente que detiene *</label><input type="text" id="det_agente" placeholder="Nº placa, nombre"></div>
+        <div class="fg"><label>Cuerpo policial</label>
+          <select id="det_cuerpo">{% for a in agentes_tipos %}<option>{{a}}</option>{% endfor %}</select></div>
+        <div class="fg"><label>Derechos leídos (Miranda)</label>
+          <select id="det_derechos">
+            <option>Sí — derechos leídos en castellano</option>
+            <option>Sí — derechos leídos con intérprete</option>
+            <option>No ha sido posible — detenido inconsciente</option>
+          </select></div>
+        <div class="fg"><label>Abogado solicitado</label>
+          <select id="det_abogado">
+            <option>Sí — abogado de oficio solicitado</option>
+            <option>Sí — abogado particular</option>
+            <option>No ha solicitado abogado</option>
+            <option>Renuncia expresamente</option>
+          </select></div>
+        <div class="fg"><label>¿Se ha notificado al juzgado?</label>
+          <select id="det_juzgado">
+            <option>Sí — Juzgado de Guardia notificado</option>
+            <option>En trámite</option>
+            <option>Pendiente notificación</option>
+          </select></div>
+        <div class="fg"><label>Centro de detención / Dependencias</label><input type="text" id="det_centro" placeholder="ej: Comisaría Policía Nacional Madrid Centro"></div>
+        <div class="fg"><label>¿Portaba arma u objetos peligrosos?</label>
+          <select id="det_arma">
+            <option>No</option><option>Sí — arma blanca</option><option>Sí — arma de fuego</option>
+            <option>Sí — objeto contundente</option><option>Sí — sustancias estupefacientes</option>
+          </select></div>
+        <div class="fg"><label>Estado del detenido</label>
+          <select id="det_estado">
+            <option>Colaborador / tranquilo</option><option>Resistencia pasiva</option>
+            <option>Resistencia activa</option><option>Bajo efectos del alcohol</option>
+            <option>Bajo efectos de drogas</option><option>Estado médico — atendido</option>
+          </select></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label>Observaciones / Relato de los hechos</label>
+        <textarea id="det_obs" rows="4" placeholder="Describe detalladamente los hechos: circunstancias, resistencia, testigos, pruebas recogidas..."></textarea></div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn r pulse" onclick="registrarDetencion()">🚨 REGISTRAR DETENCIÓN</button>
+        <button class="btn o" onclick="imprimirActa()">🖨️ IMPRIMIR ACTA</button>
+        <span id="det_res" style="font-size:11px;color:var(--green);align-self:center"></span>
+      </div>
+      <div id="det_err" style="margin-top:6px"></div>
+      <div id="det_acta_box" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ REGISTRO ══════════ -->
   <div id="tab-registro" style="display:none">
     <div class="panel">
-      <div class="panel-title">📂 REGISTRO DE DENUNCIAS</div>
+      <div class="ptitle">📂 REGISTRO DE DENUNCIAS</div>
       <div class="ctrl">
-        <input id="regQ" placeholder="Matrícula, DNI, municipio, código..." oninput="debounce(loadRegistro,300)()">
-        <select id="regEst" onchange="loadRegistro()">
-          <option value="">Todos los estados</option>
-          <option>Pendiente pago</option>
-          <option>Pagada</option>
-          <option>Impugnada</option>
-          <option>Prescrita</option>
+        <input id="rQ" placeholder="Matrícula, DNI, municipio, expediente, código..." oninput="deb(loadReg,300)()">
+        <select id="rEst" onchange="loadReg()">
+          <option value="">Todos estados</option>
+          <option>Pendiente pago</option><option>Pagada</option><option>Impugnada</option><option>Prescrita</option>
         </select>
-        <button class="scan-btn" style="height:32px;padding:0 14px;font-size:11px" onclick="loadRegistro()">🔄 ACTUALIZAR</button>
+        <select id="rCat" onchange="loadReg()">
+          <option value="">Todas categorías</option>
+          {% for cat in categorias %}<option>{{cat}}</option>{% endfor %}
+        </select>
+        <button class="btn sm" onclick="loadReg()">🔄</button>
       </div>
-      <div id="reg-detail"></div>
+      <div id="reg_det"></div>
       <div class="tw"><table>
         <thead><tr>
           <th style="width:30px">ID</th>
-          <th style="width:90px">MATRÍCULA</th>
-          <th style="width:85px">DNI</th>
-          <th style="width:90px">CÓDIGO</th>
-          <th style="width:160px">DESCRIPCIÓN</th>
-          <th style="width:70px">IMPORTE</th>
-          <th style="width:35px">PTS</th>
-          <th style="width:80px">MUNICIPIO</th>
-          <th style="width:130px">VÍA</th>
-          <th style="width:110px">FECHA/HORA</th>
-          <th style="width:85px">AGENTE</th>
-          <th style="width:75px">ESTADO</th>
-          <th style="width:110px">ACCIONES</th>
+          <th style="width:85px">EXPEDIENTE</th>
+          <th style="width:80px">MATRÍCULA</th>
+          <th style="width:80px">DNI</th>
+          <th style="width:75px">CÓDIGO</th>
+          <th style="width:145px">DESCRIPCIÓN</th>
+          <th style="width:55px">IMPORTE</th>
+          <th style="width:30px">PTS</th>
+          <th style="width:65px">MUNICIPIO</th>
+          <th style="width:105px">FECHA/HORA</th>
+          <th style="width:65px">AGENTE</th>
+          <th style="width:65px">ESTADO</th>
+          <th style="width:90px">ACCIONES</th>
         </tr></thead>
-        <tbody id="regBody"><tr><td colspan="13" class="loading">CARGANDO REGISTROS...</td></tr></tbody>
+        <tbody id="rBody"><tr><td colspan="13" class="loading">CARGANDO...</td></tr></tbody>
       </table></div>
       <div class="pag">
-        <button onclick="regPage--;loadRegistro()">◀ ANT.</button>
-        <div class="pi" id="regPI"></div>
-        <button onclick="regPage++;loadRegistro()">SIG. ▶</button>
+        <button onclick="rPage--;loadReg()">◀ ANT.</button>
+        <div class="pi" id="rPI"></div>
+        <button onclick="rPage++;loadReg()">SIG. ▶</button>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!--  TAB 4: BOLETÍN                           -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ══════════ BOLETÍN ══════════ -->
   <div id="tab-boletin" style="display:none">
     <div class="panel">
-      <div class="panel-title">🖨️ GENERADOR DE BOLETÍN DE DENUNCIA</div>
+      <div class="ptitle">🖨️ BOLETÍN OFICIAL DE DENUNCIA</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+        <div class="fg"><label>ID de la multa</label><input type="number" id="bolId" placeholder="Nº" style="width:100px"></div>
+        <button class="btn" onclick="genBoletin()" style="height:34px;align-self:flex-end">📄 GENERAR</button>
+        <button class="btn y no-print" id="btnPrint" style="display:none;height:34px;align-self:flex-end" onclick="window.print()">🖨️ IMPRIMIR</button>
+      </div>
+      <div id="bol_box"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ ATESTADO ══════════ -->
+  <div id="tab-atestado" style="display:none">
+    <div class="panel">
+      <div class="ptitle">📄 GENERADOR DE ATESTADO POLICIAL</div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:12px">
-        Introduce el ID de una multa ya registrada para generar el boletín oficial:
+        Genera un atestado completo combinando multas y/o detención para un mismo expediente.
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="number" id="boletinId" placeholder="ID de la multa"
-               style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);
-                      padding:8px;border-radius:3px;font-family:monospace;font-size:14px;width:140px">
-        <button class="scan-btn" onclick="generarBoletin()">📄 GENERAR</button>
-        <button class="scan-btn orange no-print" onclick="window.print()" style="display:none" id="printBtn">🖨️ IMPRIMIR</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="fg"><label>DNI o Matrícula del atestado</label>
+          <input type="text" id="at_q" placeholder="12345678Z o 1234BBB" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+        <button class="btn" onclick="genAtestado()" style="height:34px;align-self:flex-end">📄 GENERAR ATESTADO</button>
+        <button class="btn y no-print" id="btnPrintAt" style="display:none;height:34px;align-self:flex-end" onclick="window.print()">🖨️ IMPRIMIR</button>
       </div>
-      <div id="boletinBox" style="margin-top:14px"></div>
+      <div id="at_box" style="margin-top:12px"></div>
     </div>
   </div>
 
 </div>
 
-<!-- MODAL detalle multa -->
-<div class="modal-overlay" id="modalMulta">
+<!-- MODAL DETALLE MULTA -->
+<div class="overlay" id="modalMul">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕ CERRAR</button>
-    <h3>📋 DETALLE DENUNCIA</h3>
-    <div class="data-grid" id="modalMultaGrid"></div>
-    <div style="margin-top:14px">
-      <div style="font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:8px">CAMBIAR ESTADO</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="scan-btn" onclick="cambiarEstado('Pagada')" style="font-size:11px;padding:5px 12px">✅ MARCAR PAGADA</button>
-        <button class="scan-btn orange" onclick="cambiarEstado('Impugnada')" style="font-size:11px;padding:5px 12px">⚖ IMPUGNADA</button>
-        <button class="scan-btn red" onclick="cambiarEstado('Prescrita')" style="font-size:11px;padding:5px 12px">🗑 PRESCRITA</button>
-        <button class="scan-btn" onclick="cambiarEstado('Pendiente pago')" style="background:var(--bg3);font-size:11px;padding:5px 12px">↩ PENDIENTE</button>
+    <button class="mcls" onclick="document.getElementById('modalMul').classList.remove('open')">✕</button>
+    <h3 id="modTitle">Detalle denuncia</h3>
+    <div class="dgrid" id="modGrid"></div>
+    <div style="margin-top:12px">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:6px">CAMBIAR ESTADO</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm g" onclick="chgEst('Pagada')">✅ PAGADA</button>
+        <button class="btn sm o" onclick="chgEst('Impugnada')">⚖ IMPUGNADA</button>
+        <button class="btn sm r" onclick="chgEst('Prescrita')">🗑 PRESCRITA</button>
+        <button class="btn sm"   onclick="chgEst('Pendiente pago')">↩ PENDIENTE</button>
+        <button class="btn sm y" onclick="bolDesdeModal()">🖨️ BOLETÍN</button>
       </div>
     </div>
   </div>
@@ -557,473 +742,764 @@ tr:hover td{background:rgba(74,158,255,.04)}
 <div class="toast" id="toast"></div>
 
 <script>
-let regPage=0, currentMultaId=null;
+// ══════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════
+let MULTAS_DICT = {};
+let multaQueue  = [];   // cola de infracciones para la denuncia actual
+let rPage = 0, curMulId = null;
+let detencionesHoy = 0; // contador local sesión
 
-// ── Clock ──
-function updateClock(){
-  const n=new Date();
-  document.getElementById('clock').textContent=
-    n.toLocaleDateString('es-ES')+' '+n.toLocaleTimeString('es-ES');
-}
-setInterval(updateClock,1000); updateClock();
-
-// ── Debounce ──
-function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
-
-// ── Toast ──
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+function deb(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
 function toast(msg,type='ok'){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show'+(type==='err'?' err':'');
-  setTimeout(()=>t.className='toast',3500);
+  const t=$('toast');t.textContent=msg;
+  t.className='toast show'+(type==='err'?' err':type==='warn'?' warn':'');
+  setTimeout(()=>t.className='toast',4500);
 }
+function updateClock(){$('clock').textContent=new Date().toLocaleTimeString('es-ES');}
+setInterval(updateClock,1000);updateClock();
 
-// ── Tabs ──
-function switchTab(tab){
-  ['verificar','multa','registro','boletin'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+// ══ TABS ══
+function ST(tab){
+  ['verificar','multa','detencion','registro','boletin','atestado'].forEach(t=>{
+    const el=$('tab-'+t);if(el)el.style.display=t===tab?'block':'none';
   });
   document.querySelectorAll('.mtab').forEach((el,i)=>{
-    el.classList.toggle('active',['verificar','multa','registro','boletin'][i]===tab);
+    el.classList.toggle('active',['verificar','multa','detencion','registro','boletin','atestado'][i]===tab);
   });
-  if(tab==='registro') loadRegistro();
+  if(tab==='registro')loadReg();
   if(tab==='multa'){
-    // Poner fecha actual por defecto
     const now=new Date();
-    const local=now.toISOString().slice(0,16);
-    document.getElementById('multa_fecha').value=local;
+    $('m_fecha').value=now.toISOString().slice(0,16);
+    if(!Object.keys(MULTAS_DICT).length)loadInfracciones();
+  }
+  if(tab==='detencion'){
+    const now=new Date();
+    $('det_fecha').value=now.toISOString().slice(0,16);
   }
 }
 
-function closeModal(){document.getElementById('modalMulta').classList.remove('open');}
+// ══ INFRACCIONES DICT ══
+async function loadInfracciones(){
+  try{
+    const r=await fetch('/api/policia/infracciones').then(x=>x.json());
+    r.forEach(i=>MULTAS_DICT[i.codigo]=i);
+  }catch(e){}
+}
+loadInfracciones();
 
-// ── ESTADÍSTICAS — usa /api/global_stats para estar sincronizado con toda la app ──
+// ══════════════════════════════════════════════
+//  ESTADÍSTICAS (API global)
+// ══════════════════════════════════════════════
 async function loadStats(){
   try{
-    const [gs, ms] = await Promise.all([
+    const [gs,ms]=await Promise.all([
       fetch('/api/global_stats').then(r=>r.json()),
       fetch('/api/policia/multas/stats').then(r=>r.json()),
     ]);
-    const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-    set('sTotal',      ms.total||0);
-    set('sPend',       ms.pendiente||0);
-    set('sPag',        ms.pagada||0);
-    set('sImp',        ms.impugnada||0);
-    set('sImporte',    (ms.importe_total||0).toLocaleString('es-ES')+'€');
-    set('sPendEur',    (ms.importe_pendiente||0).toLocaleString('es-ES')+'€');
-    set('sCobrado',    (ms.importe_cobrado||0).toLocaleString('es-ES')+'€');
-    set('sPuntos',     ms.puntos_retirados||0);
-    set('sBC',         gs.busca_captura||0);
-    set('sCiudadanos', gs.ciudadanos_total||0);
-    set('sMatriculas', gs.matriculas_total||0);
-  }catch(e){ console.warn('Stats error:', e); }
+    const S=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
+    S('sTotal',  ms.total||0);
+    S('sPend',   ms.pendiente||0);
+    S('sPag',    ms.pagada||0);
+    S('sImp',    ms.impugnada||0);
+    S('sImporte',(ms.importe_total||0).toLocaleString('es-ES')+'€');
+    S('sPendEur',(ms.importe_pendiente||0).toLocaleString('es-ES')+'€');
+    S('sCobrado',(ms.importe_cobrado||0).toLocaleString('es-ES')+'€');
+    S('sPuntos', ms.puntos_retirados||0);
+    S('sBC',     gs.busca_captura||0);
+    S('sCit',    gs.ciudadanos_total||0);
+    S('sMat',    gs.matriculas_total||0);
+    S('sDet',    detencionesHoy);
+    // topbar
+    const bc=$('tb_bc'),mul=$('tb_mul');
+    if(bc)  bc.textContent=`⚠ ${gs.busca_captura||0} B&C`;
+    if(mul) mul.textContent=`📋 ${ms.pendiente||0} multas`;
+  }catch(e){}
 }
 loadStats();
-// Refrescar cada 20 segundos
-setInterval(loadStats, 20000);
+setInterval(loadStats,20000);
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  VERIFICAR
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════
 async function verificar(){
-  const q=document.getElementById('scanInput').value.trim().toUpperCase();
-  if(!q){return;}
-  const box=document.getElementById('verResult');
-  box.innerHTML='<div class="loading">⬛ CONSULTANDO BASE DE DATOS...</div>';
-  const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
-  if(r.error){box.innerHTML=`<div class="error-box">⚠ ${r.error}</div>`;return;}
-  renderVerificacion(r, box);
+  const q=$('scanInput').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!q)return;
+  $('verResult').innerHTML='<div class="loading">⬛ CONSULTANDO BASE DE DATOS...</div>';
+  try{
+    const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
+    if(r.error){$('verResult').innerHTML=`<div class="ebox">⚠ ${r.error}</div>`;return;}
+    renderVer(r,$('verResult'));
+  }catch(e){$('verResult').innerHTML=`<div class="ebox">⚠ Error: ${e.message}</div>`;}
 }
 
-function renderVerificacion(r, box){
-  const tieneAlerta = r.alertas && r.alertas.length>0;
-  const tieneMultas = (r.multas_pendientes&&r.multas_pendientes.length>0)||(r.multas_pendientes_importe>0);
-  const sinPuntos   = (r.puntos_carnet===0)||(r.ciudadano&&r.ciudadano.puntos_carnet===0);
-  const estado = tieneAlerta?'alert': (tieneMultas||sinPuntos?'warn':'ok');
-  const ciu = r.ciudadano||{};
-  const mat = r.matricula||{};
-  const puntos = r.tipo==='DNI' ? (r.puntos_carnet??ciu.puntos_carnet??15) : (mat.puntos_carnet??15);
+function verificarYMulta(){
+  const q=$('scanInput').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!q){toast('⚠ Introduce DNI o matrícula','err');return;}
+  verificar();
+  setTimeout(()=>{
+    ST('multa');
+    // Determinar si es mat o DNI
+    if(q.length===9&&q[8].match(/[A-Z]/)){$('m_dni').value=q;}
+    else{$('m_mat').value=q;}
+    cargarDatos();
+  },800);
+}
+function verificarYDetener(){
+  const q=$('scanInput').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!q){toast('⚠ Introduce DNI o matrícula','err');return;}
+  ST('detencion');
+  $('det_q').value=q;
+  cargarDet();
+}
 
-  // Banner principal
-  let bannerIcon, bannerTitle, bannerSub;
-  if(tieneAlerta){
-    bannerIcon='🚨';bannerTitle='¡ALERTA POLICIAL ACTIVA!';
-    bannerSub=`${r.alertas.length} alerta(s) activa(s) — ${r.alertas[0].tipo_alerta}`;
-  } else if(tieneMultas){
-    bannerIcon='⚠️';bannerTitle='MULTAS PENDIENTES DE PAGO';
-    bannerSub='Existen multas o infracciones registradas pendientes';
-  } else if(sinPuntos){
-    bannerIcon='⛔';bannerTitle='PERMISO SIN PUNTOS';
-    bannerSub='Carnet con 0 puntos — posible permiso retirado';
-  } else {
-    bannerIcon='✅';bannerTitle='SIN INCIDENCIAS';
-    bannerSub='No se han encontrado alertas ni multas pendientes';
-  }
+function renderVer(r,box){
+  const tA=r.alertas&&r.alertas.length>0;
+  const tM=(r.multas_historial||[]).some(m=>m.estado==='Pendiente pago')||r.multas_pendientes_importe>0;
+  const s0=r.puntos_carnet===0||(r.ciudadano&&r.ciudadano.puntos_carnet===0);
+  const est=tA?'alert':(tM||s0?'warn':'ok');
+  const ciu=r.ciudadano||{},mat=r.matricula||{};
+  const pts=parseInt(r.tipo==='DNI'?(r.puntos_carnet??ciu.puntos_carnet??15):(mat.puntos_carnet??ciu.puntos_carnet??15))||0;
+  const pBar=Array.from({length:15},(_,i)=>`<div class="pt ${i<pts?'on':'off'}"></div>`).join('');
 
-  // Puntos barra
-  const ptVal = parseInt(puntos)||0;
-  const puntosBar = Array.from({length:15},(_,i)=>
-    `<div class="punto ${i<ptVal?'on':'off'}"></div>`).join('');
+  let bIcon,bTit,bSub;
+  if(tA){bIcon='🚨';bTit='¡ALERTA POLICIAL ACTIVA!';bSub=r.alertas[0].tipo_alerta+(r.alertas.length>1?` (+${r.alertas.length-1} más)`:'')}
+  else if(s0){bIcon='⛔';bTit='PERMISO SIN PUNTOS';bSub='0 puntos — posible permiso retirado'}
+  else if(tM){bIcon='⚠️';bTit='MULTAS PENDIENTES';bSub='Tiene multas sin pagar registradas'}
+  else{bIcon='✅';bTit='SIN INCIDENCIAS';bSub='No se han encontrado alertas ni multas activas'}
 
-  // Datos identificación
-  let idFields=[];
-  if(r.tipo==='DNI'){
-    idFields=[
-      ['DNI', ciu.dni||q],['Nombre', `${ciu.nombre||''} ${ciu.apellido1||''} ${ciu.apellido2||''}`],
-      ['Fecha nac.', ciu.fecha_nac||'—'],['Sexo', ciu.sexo||'—'],
-      ['Provincia', ciu.provincia_residencia||'—'],['Teléfono', ciu.telefono||'—'],
-      ['Profesión', ciu.profesion||'—'],['Nacionalidad', ciu.nacionalidad||'—'],
-      ['Licencia', ciu.licencia_conducir||'—'],['Tipo licencia', ciu.tipo_licencia||'—'],
-      ['Antecedentes', ciu.antecedentes_penales||'No'],
-    ];
-  } else {
-    idFields=[
-      ['Matrícula', mat.matricula||r.query],['Tipo', mat.tipo_vehiculo||'—'],
-      ['Marca/Modelo', `${mat.marca||''} ${mat.modelo||''}`],['Año', mat.año_fab||'—'],
-      ['Color', mat.color||'—'],['Combustible', mat.combustible||'—'],
-      ['Estado', mat.estado||'—'],['ITV', mat.fecha_itv||'—'],
-      ['Seguro hasta', mat.seguro_hasta||'—'],['Compañía seguro', mat.seguro_compañia||'—'],
-      ['Infracciones', mat.num_infracciones??0],
-      ['Propietario', `${ciu.nombre||''} ${ciu.apellido1||''}`],
-      ['DNI propietario', mat.dni||'—'],['Teléfono prop.', mat.telefono||ciu.telefono||'—'],
-    ];
-  }
+  const idf=r.tipo==='DNI'?[
+    ['DNI',ciu.dni||r.query,'b'],['Nombre',`${ciu.nombre||''} ${ciu.apellido1||''} ${ciu.apellido2||''}`,''],
+    ['F.Nac.',ciu.fecha_nac||'—',''],['Sexo',ciu.sexo||'—',''],
+    ['Provincia',ciu.provincia_residencia||'—',''],['Teléfono',ciu.telefono||'—',''],
+    ['Profesión',ciu.profesion||'—',''],['Licencia',`${ciu.licencia_conducir||'—'} ${ciu.tipo_licencia||''}`,''],
+    ['Antecedentes',ciu.antecedentes_penales||'No',ciu.antecedentes_penales==='Sí'?'r':'g'],
+  ]:[
+    ['Matrícula',mat.matricula||r.query,'b'],['Tipo',mat.tipo_vehiculo||'—',''],
+    ['Marca/Modelo',`${mat.marca||''} ${mat.modelo||''} (${mat.año_fab||''})`,''],
+    ['Color',mat.color||'—',''],['Estado',mat.estado||'—',mat.estado==='Activa'?'g':'r'],
+    ['ITV',mat.fecha_itv||'—',''],['Seguro hasta',mat.seguro_hasta||'—',''],
+    ['Propietario',`${ciu.nombre||''} ${ciu.apellido1||''}`,''],
+    ['DNI prop.',mat.dni||'—','b'],['Teléfono',mat.telefono||ciu.telefono||'—',''],
+    ['Infracciones prev.',(mat.num_infracciones||0),(mat.num_infracciones||0)>3?'r':''],
+    ['Antecedentes',ciu.antecedentes_penales||'No',ciu.antecedentes_penales==='Sí'?'r':'g'],
+  ];
 
-  // Alertas cards
-  const alertasHtml = (r.alertas||[]).map(a=>`
-    <div class="alert-card">
-      <div class="alert-icon">🚨</div>
-      <div class="alert-info">
-        <h3>⚠ ${a.tipo_alerta.toUpperCase()}</h3>
-        <p>
-          <strong>Motivo:</strong> ${a.motivo||'—'}<br>
-          <strong>Emisor:</strong> ${a.emisor||'—'} &nbsp;|&nbsp;
-          <strong>Expediente:</strong> ${a.num_expediente||'—'}<br>
-          <strong>Juzgado:</strong> ${a.juzgado||'—'}<br>
-          <strong>Peligrosidad:</strong> <span style="color:${a.peligrosidad==='Alta'?'var(--red)':a.peligrosidad==='Media'?'var(--orange)':'var(--green)'}">${a.peligrosidad||'—'}</span> &nbsp;|&nbsp;
-          <strong>F.Emisión:</strong> ${a.fecha_emision||'—'} &nbsp;|&nbsp;
-          <strong>Caducidad:</strong> ${a.fecha_caducidad||'—'}<br>
-          <strong>Observaciones:</strong> ${a.observaciones||'—'}
-        </p>
-      </div>
-    </div>`).join('');
+  const aCards=(r.alertas||[]).map(a=>`
+    <div class="acard"><div class="aicon">🚨</div><div class="ainfo">
+      <h3>⚠ ${a.tipo_alerta.toUpperCase()}</h3>
+      <p><strong>Motivo:</strong> ${a.motivo||'—'} | <strong>Expediente:</strong> ${a.num_expediente||'—'}<br>
+      <strong>Emisor:</strong> ${a.emisor||'—'} | <strong>Peligrosidad:</strong>
+      <span style="color:${a.peligrosidad==='Alta'?'var(--red)':a.peligrosidad==='Media'?'var(--orange)':'var(--green)'}">${a.peligrosidad||'—'}</span><br>
+      <strong>Juzgado:</strong> ${a.juzgado||'—'} | <strong>Válida hasta:</strong> ${a.fecha_caducidad||'—'}<br>
+      <strong>Observaciones:</strong> ${a.observaciones||'—'}</p>
+    </div></div>`).join('');
 
-  // Multas pendientes
-  const multasHtml = (r.multas_pendientes||[]).map(m=>`
-    <div class="warn-card">
-      <div class="alert-icon">💶</div>
-      <div class="warn-info">
-        <h3>MULTAS PENDIENTES — ${m.matricula}</h3>
-        <p><strong>Importe pendiente:</strong> <span style="color:var(--orange);font-size:16px;font-weight:700">${m.importe_multas||0}€</span>
-        &nbsp;|&nbsp; <strong>Infracciones:</strong> ${m.num_infracciones||0}</p>
-      </div>
-    </div>`).join('');
+  const hist=(r.multas_historial||[]).slice(0,5);
+  const histHtml=hist.length?`<div style="margin-top:8px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:4px">HISTORIAL MULTAS (últimas ${hist.length})</div>
+    ${hist.map(m=>`<div style="display:flex;gap:6px;align-items:center;padding:4px 6px;background:var(--bg3);border-radius:3px;margin-bottom:3px;border:1px solid var(--border);font-size:10px">
+      <span style="color:var(--orange);font-weight:700;min-width:65px">${m.codigo_infraccion||'—'}</span>
+      <span style="flex:1;color:var(--text2)">${(m.descripcion||'—').substring(0,30)}</span>
+      <span style="color:var(--orange);font-weight:700">${m.importe||0}€</span>
+      <span class="est ${m.estado==='Pagada'?'est-pag':m.estado==='Pendiente pago'?'est-pend':'est-rec'}">${m.estado||'—'}</span>
+    </div>`).join('')}
+  </div>`:'';
 
-  const impMat = r.multas_pendientes_importe>0
-    ? `<div class="warn-card"><div class="alert-icon">💶</div><div class="warn-info">
-        <h3>MULTAS PENDIENTES</h3>
-        <p><strong>Importe:</strong> <span style="color:var(--orange);font-size:16px;font-weight:700">${r.multas_pendientes_importe}€</span>
-        &nbsp;|&nbsp; <strong>Infracciones:</strong> ${r.num_infracciones||0}</p>
-       </div></div>` : '';
+  const mat_q=r.tipo==='MATRICULA'?(mat.matricula||'').replace(' ',''):'';
+  const dni_q=r.tipo==='DNI'?(ciu.dni||''):(mat.dni||'');
 
   box.innerHTML=`
-    <div class="result-${estado}">
-      <div class="status-banner ${estado}">
-        <div class="status-icon">${bannerIcon}</div>
-        <div class="status-text">
-          <h2>${bannerTitle}</h2>
-          <p>${bannerSub}</p>
-        </div>
+    <div class="res-${est}">
+      <div class="sbanner ${est}">
+        <div class="sicon">${bIcon}</div>
+        <div class="stxt"><h2>${bTit}</h2><p>${bSub}</p></div>
         <div style="margin-left:auto;text-align:right">
-          <div style="font-size:9px;color:var(--text3);letter-spacing:1px">PUNTOS CARNET</div>
-          <div style="font-size:22px;font-weight:700;color:${ptVal<=0?'var(--red)':ptVal<=6?'var(--orange)':'var(--green)'}">${ptVal}/15</div>
-          <div class="puntos-bar">${puntosBar}</div>
+          <div style="font-size:8px;color:var(--text3)">PUNTOS CARNET</div>
+          <div style="font-size:18px;font-weight:700;color:${pts<=0?'var(--red)':pts<=6?'var(--orange)':'var(--green)'}">${pts}/15</div>
+          <div class="pts-bar" style="justify-content:flex-end">${pBar}</div>
         </div>
       </div>
-
-      ${r.tipo==='MATRICULA'?`<div style="margin-bottom:10px"><span class="mat-plate"><span class="eu">E</span>${mat.matricula||r.query}</span></div>`:''}
-
-      <div class="data-grid">
-        ${idFields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('')}
-      </div>
-
-      ${alertasHtml}
-      ${multasHtml}
-      ${impMat}
-
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="scan-btn orange" onclick="
-          switchTab('multa');
-          document.getElementById('multa_mat').value='${r.tipo==='MATRICULA'?(mat.matricula||''):''}';
-          document.getElementById('multa_dni').value='${r.tipo==='DNI'?(ciu.dni||''):(mat.dni||'')}';
-          cargarDatosMulta();
-        ">📋 PONER MULTA A ESTE VEHÍCULO</button>
+      ${r.tipo==='MATRICULA'?`<div style="margin-bottom:8px"><span class="mat"><span class="eu">E</span>${mat.matricula||r.query}</span></div>`:''}
+      <div class="dgrid">${idf.map(([k,v,c])=>`<div class="dcell"><div class="dkey">${k}</div><div class="dval ${c||''}">${v}</div></div>`).join('')}</div>
+      ${aCards}${histHtml}
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn o" onclick="ST('multa');$('m_mat').value='${mat_q}';$('m_dni').value='${dni_q}';cargarDatos()">📋 PONER MULTA</button>
+        <button class="btn r" onclick="ST('detencion');$('det_q').value='${dni_q||mat_q}';cargarDet()">🚨 DETENER</button>
+        <button class="btn p" onclick="ST('atestado');$('at_q').value='${dni_q||mat_q}';genAtestado()">📄 ATESTADO</button>
       </div>
     </div>`;
 }
 
-// ════════════════════════════════════════
-//  PONER MULTA
-// ════════════════════════════════════════
-async function cargarDatosMulta(){
-  const mat=document.getElementById('multa_mat').value.trim().toUpperCase();
-  const dni=document.getElementById('multa_dni').value.trim().toUpperCase();
+// ══════════════════════════════════════════════
+//  CARGAR DATOS (para multa y detención)
+// ══════════════════════════════════════════════
+async function cargarDatos(){
+  const mat=$('m_mat').value.trim().toUpperCase();
+  const dni=$('m_dni').value.trim().toUpperCase();
   const q=mat||dni;
-  if(!q){document.getElementById('multa_check').textContent='Introduce matrícula o DNI';return;}
-  document.getElementById('multa_check').textContent='🔍 Consultando...';
-  const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
-  if(r.error){document.getElementById('multa_check').innerHTML=`<span style="color:var(--red)">${r.error}</span>`;return;}
-  const ciu=r.ciudadano||{};
-  const matd=r.matricula||{};
-  // Rellenar DNI si vino por matrícula
-  if(r.tipo==='MATRICULA'&&matd.dni&&!document.getElementById('multa_dni').value){
-    document.getElementById('multa_dni').value=matd.dni;
-  }
-  const tieneAlerta=r.alertas&&r.alertas.length>0;
-  document.getElementById('multa_check').innerHTML=
-    tieneAlerta?`<span style="color:var(--red);font-size:12px;letter-spacing:1px">⚠ ¡ALERTA POLICIAL ACTIVA: ${r.alertas[0].tipo_alerta}!</span>`
-    :`<span style="color:var(--green);font-size:11px">✓ Identificado correctamente</span>`;
-  const box=document.getElementById('multa_datos_box');
-  const grid=document.getElementById('multa_datos_grid');
-  const ptVal=ciu.puntos_carnet??matd.puntos_carnet??15;
-  const fields=[
-    ['Nombre completo',`${ciu.nombre||'—'} ${ciu.apellido1||''}`],
-    ['DNI',ciu.dni||matd.dni||'—'],
-    ['Matrícula',r.tipo==='MATRICULA'?`<span class="mat-plate" style="font-size:13px"><span class="eu">E</span>${matd.matricula||''}</span>`:'—'],
-    ['Vehículo',r.tipo==='MATRICULA'?`${matd.marca||''} ${matd.modelo||''} (${matd.año_fab||''})`:'—'],
-    ['Color / Uso',`${matd.color||'—'} / ${matd.uso||'—'}`],
-    ['Puntos carnet',`<span style="color:${ptVal<=0?'var(--red)':ptVal<=6?'var(--orange)':'var(--green)'}; font-weight:700">${ptVal}/15</span>`],
-    ['Licencia',`${ciu.licencia_conducir||'—'} ${ciu.tipo_licencia||''}`],
-    ['Estado alerta',tieneAlerta?`<span style="color:var(--red);font-weight:700">⚠ ${r.alertas[0].tipo_alerta}</span>`:'<span style="color:var(--green)">✓ Sin alertas</span>'],
-    ['Multas previas',(matd.num_infracciones||ciu.num_infracciones||0)+' infracciones'],
-    ['Seguro',r.tipo==='MATRICULA'?(matd.seguro_compañia||'—'):'—'],
-    ['ITV',r.tipo==='MATRICULA'?(matd.fecha_itv||'—'):'—'],
-  ];
-  grid.innerHTML=fields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('');
-  box.style.display='block';
+  if(!q){$('m_check').textContent='Introduce matrícula o DNI';return;}
+  $('m_check').innerHTML='<span style="color:var(--text3)">🔍 Consultando...</span>';
+  try{
+    const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q.replace(/\s/g,''))}`).then(x=>x.json());
+    if(r.error){$('m_check').innerHTML=`<span style="color:var(--red)">${r.error}</span>`;return;}
+    const ciu=r.ciudadano||{},matd=r.matricula||{};
+    if(r.tipo==='MATRICULA'&&matd.dni&&!$('m_dni').value)$('m_dni').value=matd.dni;
+    const tA=r.alertas&&r.alertas.length>0;
+    const pts=parseInt(ciu.puntos_carnet??matd.puntos_carnet??15)||0;
+    $('m_check').innerHTML=tA
+      ?`<span style="color:var(--red);font-weight:700">🚨 ¡ALERTA ACTIVA: ${r.alertas[0].tipo_alerta}!</span>`
+      :`<span style="color:var(--green)">✓ ${ciu.nombre||'—'} ${ciu.apellido1||''} — ${pts}/15 pts</span>`;
+    $('m_datos_grid').innerHTML=[
+      ['Nombre',`${ciu.nombre||'—'} ${ciu.apellido1||''}`,''],
+      ['DNI',ciu.dni||matd.dni||'—','b'],
+      ['Matrícula',r.tipo==='MATRICULA'?matd.matricula||'—':'—','b'],
+      ['Vehículo',r.tipo==='MATRICULA'?`${matd.marca||''} ${matd.modelo||''}`:' — ',''],
+      ['Puntos carnet',`${pts}/15`,pts<=0?'r':pts<=6?'o':'g'],
+      ['Multas previas',(matd.num_infracciones||0)+' infracc.',(matd.num_infracciones||0)>3?'r':''],
+      ['Alerta',tA?r.alertas[0].tipo_alerta:'Sin alertas',tA?'r':'g'],
+    ].map(([k,v,c])=>`<div class="dcell"><div class="dkey">${k}</div><div class="dval ${c}">${v}</div></div>`).join('');
+    $('m_datos_box').style.display='block';
+  }catch(e){$('m_check').innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
 }
 
-function seleccionarInfraccion(){
-  const sel=document.getElementById('multa_codigo');
+async function cargarDet(){
+  const q=$('det_q').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!q)return;
+  try{
+    const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
+    if(r.error)return;
+    const ciu=r.ciudadano||{},matd=r.matricula||{};
+    const dni=ciu.dni||matd.dni||'';
+    if(dni)$('det_dni').value=dni;
+    const nombre=`${ciu.nombre||''} ${ciu.apellido1||''} ${ciu.apellido2||''}`.trim();
+    if(nombre)$('det_nombre').value=nombre;
+    if(ciu.fecha_nac)$('det_fnac').value=ciu.fecha_nac;
+    if(ciu.nacionalidad)$('det_nac').value=ciu.nacionalidad;
+    if(ciu.direccion)$('det_dom').value=ciu.direccion;
+    if(ciu.telefono)$('det_tel').value=ciu.telefono;
+    const tA=r.alertas&&r.alertas.length>0;
+    $('det_datos_grid').innerHTML=[
+      ['DNI',dni,'b'],['Nombre',nombre,''],
+      ['Alerta',tA?r.alertas[0].tipo_alerta:'Sin alertas',tA?'r':'g'],
+      ['Puntos',`${ciu.puntos_carnet??15}/15`,(ciu.puntos_carnet||15)<=0?'r':'g'],
+      ['Antecedentes',ciu.antecedentes_penales||'No',ciu.antecedentes_penales==='Sí'?'r':'g'],
+    ].map(([k,v,c])=>`<div class="dcell"><div class="dkey">${k}</div><div class="dval ${c}">${v}</div></div>`).join('');
+    $('det_datos_box').style.display='block';
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+//  SELECTOR DE INFRACCIÓN
+// ══════════════════════════════════════════════
+function selInfrac(){
+  const sel=$('m_cod');
   const opt=sel.options[sel.selectedIndex];
-  const info=document.getElementById('infrac_info');
-  if(!opt.value){info.classList.remove('show');return;}
-  const imp=parseInt(opt.dataset.imp)||0;
-  const pts=parseInt(opt.dataset.pts)||0;
-  const art=opt.dataset.art||'';
-  const grave=opt.dataset.grave==='True';
-  document.getElementById('inf_imp').textContent=imp+'€';
-  document.getElementById('inf_pts').textContent=pts>0?`— ${pts} puntos`:'Sin retirada de puntos';
-  document.getElementById('inf_art').textContent=art;
-  document.getElementById('inf_grave').innerHTML=grave
-    ?'<span style="color:var(--red);font-weight:700;letter-spacing:1px">▲ INFRACCIÓN GRAVE</span>'
-    :'<span style="color:var(--orange)">INFRACCIÓN LEVE</span>';
-  document.getElementById('multa_importe').value=imp;
-  document.getElementById('imp_reducido').textContent=Math.round(imp*0.8)+'€';
-  info.classList.add('show');
+  if(!opt.value){$('inf_prev').classList.remove('show');hideSpec();return;}
+  const imp=parseInt(opt.dataset.i)||0,pts=parseInt(opt.dataset.p)||0;
+  $('inf_imp').textContent=imp+'€';
+  $('inf_pts').textContent=pts>0?`— ${pts} pts`:'';
+  $('inf_art').textContent=opt.dataset.a||'';
+  $('inf_grav').innerHTML=(opt.dataset.g==='True')
+    ?'<span style="color:var(--red)">▲ GRAVE</span>'
+    :'<span style="color:var(--orange)">LEVE</span>';
+  $('m_importe').value=imp;$('m_puntos').value=pts;
+  $('imp_red').textContent=Math.round(imp*0.8)+'€';
+  $('inf_prev').classList.add('show');
+  hideSpec();
+  const c=opt.value;
+  if(c.startsWith('VEL'))$('vel_box').classList.add('show');
+  if(c.startsWith('ALC'))$('alc_box').classList.add('show');
+  if(c.startsWith('DRG'))$('drg_box').classList.add('show');
 }
+function hideSpec(){['vel_box','alc_box','drg_box'].forEach(id=>$(id).classList.remove('show'));}
 
-document.getElementById('multa_importe')?.addEventListener('input',function(){
-  const v=parseInt(this.value)||0;
-  document.getElementById('imp_reducido').textContent=Math.round(v*0.8)+'€';
+$('m_importe').addEventListener('input',function(){
+  $('imp_red').textContent=Math.round((parseInt(this.value)||0)*0.8)+'€';
 });
 
-async function ponerMulta(){
-  const codigo=document.getElementById('multa_codigo').value;
-  const mat=document.getElementById('multa_mat').value.trim().toUpperCase();
-  const dni=document.getElementById('multa_dni').value.trim().toUpperCase();
-  if(!codigo){toast('⚠ Selecciona el tipo de infracción','err');return;}
-  if(!mat&&!dni){toast('⚠ Introduce matrícula o DNI','err');return;}
-  if(!document.getElementById('multa_fecha').value){toast('⚠ Introduce la fecha y hora','err');return;}
-  // Normalizar matrícula
-  let matNorm=mat;
-  if(mat.length===7&&!mat.includes(' '))matNorm=mat.slice(0,4)+' '+mat.slice(4);
-  const importe=parseInt(document.getElementById('multa_importe').value)||0;
-  const sel=document.getElementById('multa_codigo').options[document.getElementById('multa_codigo').selectedIndex];
-  const pts=parseInt(sel.dataset.pts)||0;
-  const data={
-    matricula:matNorm, dni,
-    codigo_infraccion:codigo,
-    importe_final:importe,
-    puntos_retirar:pts,
-    velocidad_detectada:document.getElementById('multa_vel_det').value||null,
-    velocidad_limite:document.getElementById('multa_vel_lim').value||null,
-    fecha_hora:document.getElementById('multa_fecha').value,
-    municipio:document.getElementById('multa_municipio').value,
-    via:document.getElementById('multa_via').value,
-    lugar:document.getElementById('multa_lugar').value,
-    agente_tipo:document.getElementById('multa_agente_tipo').value,
-    agente_num:document.getElementById('multa_agente_num').value,
-    observaciones:document.getElementById('multa_obs').value,
-  };
-  const r=await fetch('/api/policia/multa/nueva',{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
-  }).then(x=>x.json());
-  if(r.ok){
-    toast(`✓ DENUNCIA REGISTRADA — ID #${r.id} — ${r.importe}€${r.puntos>0?' — -'+r.puntos+' pts':''}`);
-    document.getElementById('multa_res').textContent=`✓ Multa #${r.id} registrada — ${r.importe}€`;
-    loadStats();
-    // Preguntar si generar boletín
-    if(confirm(`✅ Denuncia registrada con ID #${r.id}\n\n¿Generar boletín imprimible?`)){
-      document.getElementById('boletinId').value=r.id;
-      switchTab('boletin');
-      generarBoletin();
-    }
-  } else {
-    toast('⚠ ERROR: '+JSON.stringify(r),'err');
-  }
+function calcExceso(){
+  const d=parseInt($('m_vdet').value)||0,l=parseInt($('m_vlim').value)||0;
+  $('m_vexc').value=d&&l?(d>l?`+${d-l} km/h (${Math.round((d-l)/l*100)}% sobre límite)`:'Dentro del límite'):'';
+}
+function calcAlc(){
+  const v1=parseFloat($('m_a1').value)||0,v2=parseFloat($('m_a2').value)||0;
+  const med=v2?(v1+v2)/2:v1;
+  if(med>0)$('m_aeq').value=`${med.toFixed(3)} mg/l aire ≈ ${(med*2.1).toFixed(2)} g/l sangre`;
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  COLA DE MULTAS
+// ══════════════════════════════════════════════
+function addQueue(){
+  const cod=$('m_cod').value;
+  if(!cod){toast('⚠ Selecciona una infracción primero','err');return;}
+  const imp=parseInt($('m_importe').value)||0;
+  const pts=parseInt($('m_puntos').value)||0;
+  const opt=$('m_cod').options[$('m_cod').selectedIndex];
+  const desc=opt?opt.text.split('—').slice(1).join('—').split('(')[0].trim():cod;
+  const item={
+    cod,desc,imp,pts,
+    velocidad_detectada:$('vel_box').classList.contains('show')?$('m_vdet').value||null:null,
+    velocidad_limite:$('vel_box').classList.contains('show')?$('m_vlim').value||null:null,
+    tasa_alcohol_aire:$('alc_box').classList.contains('show')?
+      [$('m_a1').value,$('m_a2').value].filter(Boolean).join(' / ')||null:null,
+    tasa_alcohol_sangre:$('alc_box').classList.contains('show')?$('m_asg').value||null:null,
+    droga_tipo:$('drg_box').classList.contains('show')?$('m_dtype').value||null:null,
+    droga_resultado:$('drg_box').classList.contains('show')?
+      [$('m_dres').value,$('m_dsint').value].filter(Boolean).join(' | ')||null:null,
+  };
+  multaQueue.push(item);
+  renderQueue();
+  // Reset selector
+  $('m_cod').selectedIndex=0;
+  $('inf_prev').classList.remove('show');
+  hideSpec();
+  // Limpiar campos especiales
+  ['m_vdet','m_vlim','m_vexc','m_a1','m_a2','m_aeq','m_asg','m_atest','m_dkit'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  toast(`✓ ${cod} añadida (${imp}€${pts?', -'+pts+' pts':''})`);
+}
+
+function renderQueue(){
+  const list=$('queue_list'),totRow=$('queue_total_row');
+  $('queue_count').textContent=multaQueue.length;
+  if(!multaQueue.length){
+    list.innerHTML='<div class="queue-empty">No hay infracciones añadidas. Selecciona una arriba y pulsa ➕</div>';
+    totRow.style.display='none';return;
+  }
+  list.innerHTML=multaQueue.map((m,i)=>`
+    <div class="q-item">
+      <span class="q-num">${i+1}</span>
+      <span class="q-cod">${m.cod}</span>
+      <span class="q-desc" title="${m.desc}">${m.desc.substring(0,40)}</span>
+      <span class="q-imp">${m.imp}€</span>
+      <span class="q-pts">${m.pts>0?'-'+m.pts+'pts':''}</span>
+      <button class="q-del" onclick="delQueue(${i})">✕</button>
+    </div>`).join('');
+  const tot=multaQueue.reduce((s,m)=>s+m.imp,0);
+  const totPts=multaQueue.reduce((s,m)=>s+m.pts,0);
+  $('queue_total_imp').textContent=tot.toLocaleString('es-ES')+'€';
+  $('queue_total_pts').textContent=totPts;
+  $('queue_red').textContent=Math.round(tot*0.8).toLocaleString('es-ES')+'€';
+  totRow.style.display='flex';
+}
+
+function delQueue(i){multaQueue.splice(i,1);renderQueue();toast('Infracción eliminada','warn');}
+function clearQueue(){multaQueue=[];renderQueue();toast('Cola vaciada','warn');}
+
+// ══════════════════════════════════════════════
+//  ENVIAR DENUNCIA (array completo)
+// ══════════════════════════════════════════════
+async function enviarDenuncia(){
+  if(!multaQueue.length){toast('⚠ Añade al menos una infracción con ➕','err');return;}
+  const mat=$('m_mat').value.trim().toUpperCase();
+  const dni=$('m_dni').value.trim().toUpperCase();
+  if(!mat&&!dni){toast('⚠ Introduce matrícula o DNI','err');return;}
+  if(!$('m_agnum').value.trim()){toast('⚠ Introduce el nº de agente','err');return;}
+  if(!$('m_fecha').value){toast('⚠ Introduce fecha y hora','err');return;}
+  // Normalizar mat
+  const matN=mat.length===7&&!mat.includes(' ')?mat.slice(0,4)+' '+mat.slice(4):mat;
+  const mun=$('m_mun').value==='__otro'?$('m_mun2').value:$('m_mun').value;
+  const via=$('m_via').value==='__otro'?$('m_lugar').value:$('m_via').value;
+  const comun={
+    matricula:matN,dni,municipio:mun,via,lugar:$('m_lugar').value,
+    agente_tipo:$('m_agtp').value,agente_num:$('m_agnum').value.trim(),
+    agente_nombre:$('m_agnombre').value,fecha_hora:$('m_fecha').value,
+    condiciones_via:$('m_cvia').value,condiciones_clima:$('m_clima').value,
+    num_pasajeros:parseInt($('m_ocup').value)||1,
+    testigos:$('m_testigos').value,observaciones:$('m_obs').value,
+    pruebas:$('m_pruebas').value,
+  };
+  const payload=multaQueue.map(m=>({
+    ...comun,codigo_infraccion:m.cod,importe_final:m.imp,puntos_retirar:m.pts,
+    velocidad_detectada:m.velocidad_detectada||null,velocidad_limite:m.velocidad_limite||null,
+    tasa_alcohol_aire:m.tasa_alcohol_aire||null,tasa_alcohol_sangre:m.tasa_alcohol_sangre||null,
+    droga_tipo:m.droga_tipo||null,droga_resultado:m.droga_resultado||null,
+  }));
+  const btn=$('btn_enviar');
+  btn.disabled=true;btn.textContent='⏳ REGISTRANDO...';
+  $('m_err').innerHTML='';
+  try{
+    const resp=await fetch('/api/policia/multa/nueva',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+    });
+    const data=await resp.json();
+    if(!resp.ok||!data.ok)throw new Error((data.errores||[]).map(e=>e.error).join(', ')||JSON.stringify(data));
+    const ids=data.multas.map(m=>`#${m.id}`).join(', ');
+    toast(`✅ ${data.total_registradas} denuncia(s) registrada(s): ${ids}`);
+    $('m_res').textContent=`✓ ${data.total_registradas} multas registradas | IDs: ${ids}`;
+    if(data.errores&&data.errores.length)$('m_err').innerHTML=`<div class="ebox">⚠ Errores parciales: ${data.errores.map(e=>e.error).join(', ')}</div>`;
+    if(data.multas.length&&confirm(`✅ ${data.total_registradas} denuncia(s) registrada(s).\n¿Generar boletín?`)){
+      $('bolId').value=data.multas[0].id;ST('boletin');genBoletin();
+    }
+    multaQueue=[];renderQueue();loadStats();
+  }catch(e){
+    $('m_err').innerHTML=`<div class="ebox">⚠ ERROR AL GUARDAR: ${e.message}</div>`;
+    toast('⚠ Error: '+e.message,'err');
+  }finally{btn.disabled=false;btn.textContent='📋 REGISTRAR DENUNCIA COMPLETA';}
+}
+
+function previewBoletin(){
+  const id=parseInt(($('m_res').textContent.match(/#(\d+)/)||[])[1]||0);
+  if(!id){toast('⚠ Registra la multa primero','err');return;}
+  $('bolId').value=id;ST('boletin');genBoletin();
+}
+
+function limpiarFormulario(){
+  if(!confirm('¿Limpiar todo el formulario?'))return;
+  ['m_mat','m_dni','m_agnum','m_agnombre','m_mun2','m_lugar','m_testigos','m_obs'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('m_mun').selectedIndex=0;$('m_via').selectedIndex=0;$('m_cod').selectedIndex=0;
+  $('m_datos_box').style.display='none';$('inf_prev').classList.remove('show');hideSpec();
+  multaQueue=[];renderQueue();$('m_check').innerHTML='';$('m_res').textContent='';
+  toast('Formulario limpiado','warn');
+}
+
+// ══════════════════════════════════════════════
+//  DETENCIÓN
+// ══════════════════════════════════════════════
+let detActa=null;
+
+async function registrarDetencion(){
+  const dni=$('det_dni').value.trim();
+  const nombre=$('det_nombre').value.trim();
+  if(!dni||!nombre){toast('⚠ DNI y nombre son obligatorios','err');return;}
+  if(!$('det_agente').value.trim()){toast('⚠ Introduce el agente que detiene','err');return;}
+  // Guardar localmente (en una app real iría a una BD de detenidos)
+  const now=new Date();
+  detActa={
+    id:'DET-'+Date.now(),
+    dni,nombre,
+    fecha_nac:$('det_fnac').value,
+    nacionalidad:$('det_nac').value,
+    domicilio:$('det_dom').value,
+    telefono:$('det_tel').value,
+    motivo:$('det_motivo').value,
+    delito:$('det_delito').value,
+    fecha_hora:$('det_fecha').value||now.toISOString().slice(0,16),
+    lugar:$('det_lugar').value,
+    agente:$('det_agente').value,
+    cuerpo:$('det_cuerpo').value,
+    derechos:$('det_derechos').value,
+    abogado:$('det_abogado').value,
+    juzgado:$('det_juzgado').value,
+    centro:$('det_centro').value,
+    arma:$('det_arma').value,
+    estado:$('det_estado').value,
+    observaciones:$('det_obs').value,
+    fecha_registro:now.toLocaleString('es-ES'),
+  };
+  detencionesHoy++;
+  $('sDet').textContent=detencionesHoy;
+  toast(`🚨 DETENCIÓN REGISTRADA — ${nombre}`,'warn');
+  $('det_res').textContent=`✓ Detenido registrado: ${nombre} | ID: ${detActa.id}`;
+  // Auto mostrar acta
+  mostrarActa(detActa);
+  loadStats();
+}
+
+function mostrarActa(d){
+  $('det_acta_box').innerHTML=`
+    <div class="boletin" id="acta_print">
+      <div class="bh">
+        <div>
+          <div class="bh-logo">🚔 ACTA DE DETENCIÓN</div>
+          <div class="bh-sub">POLICÍA ESPAÑOLA — SISTEMA FICTICIO EDUCATIVO</div>
+        </div>
+        <div style="font-size:10px;text-align:right">
+          ID: <strong>${d.id}</strong><br>
+          Fecha registro: <strong>${d.fecha_registro}</strong>
+        </div>
+      </div>
+      <div class="bsec">DATOS DEL DETENIDO</div>
+      <div class="bg2col">
+        <div class="bf"><div class="bfk">DNI / NIF</div><div class="bfv" style="color:#c62828">${d.dni}</div></div>
+        <div class="bf"><div class="bfk">Nombre completo</div><div class="bfv">${d.nombre}</div></div>
+        <div class="bf"><div class="bfk">Fecha de nacimiento</div><div class="bfv">${d.fecha_nac||'—'}</div></div>
+        <div class="bf"><div class="bfk">Nacionalidad</div><div class="bfv">${d.nacionalidad}</div></div>
+        <div class="bf"><div class="bfk">Domicilio</div><div class="bfv">${d.domicilio||'—'}</div></div>
+        <div class="bf"><div class="bfk">Teléfono</div><div class="bfv">${d.telefono||'—'}</div></div>
+      </div>
+      <div class="bsec">DATOS DE LA DETENCIÓN</div>
+      <div class="bg2col">
+        <div class="bf"><div class="bfk">Motivo legal</div><div class="bfv" style="color:#c62828">${d.motivo}</div></div>
+        <div class="bf"><div class="bfk">Delito presunto</div><div class="bfv">${d.delito||'—'}</div></div>
+        <div class="bf"><div class="bfk">Fecha y hora detención</div><div class="bfv">${d.fecha_hora}</div></div>
+        <div class="bf"><div class="bfk">Lugar</div><div class="bfv">${d.lugar||'—'}</div></div>
+        <div class="bf"><div class="bfk">Agente que detiene</div><div class="bfv">${d.agente}</div></div>
+        <div class="bf"><div class="bfk">Cuerpo policial</div><div class="bfv">${d.cuerpo}</div></div>
+        <div class="bf"><div class="bfk">Centro de detención</div><div class="bfv">${d.centro||'—'}</div></div>
+        <div class="bf"><div class="bfk">Estado del detenido</div><div class="bfv">${d.estado}</div></div>
+      </div>
+      <div class="bsec">GARANTÍAS Y DERECHOS</div>
+      <div class="bg2col">
+        <div class="bf"><div class="bfk">Derechos leídos</div><div class="bfv">${d.derechos}</div></div>
+        <div class="bf"><div class="bfk">Asistencia letrada</div><div class="bfv">${d.abogado}</div></div>
+        <div class="bf"><div class="bfk">Notificación judicial</div><div class="bfv">${d.juzgado}</div></div>
+        <div class="bf"><div class="bfk">Objetos / armas intervenidos</div><div class="bfv">${d.arma}</div></div>
+      </div>
+      ${d.observaciones?`<div class="bf" style="margin:6px 0"><div class="bfk">Relato de los hechos / Observaciones</div><div class="bfv">${d.observaciones}</div></div>`:''}
+      <div class="b-firmas">
+        <div class="b-firma">
+          <div style="font-size:9px;font-weight:700;margin-bottom:3px">FIRMA DEL AGENTE ACTUANTE</div>
+          <div style="font-size:10px;color:#555">${d.cuerpo}<br>${d.agente}</div>
+        </div>
+        <div class="b-firma">
+          <div style="font-size:9px;font-weight:700;margin-bottom:3px">FIRMA DEL DETENIDO</div>
+          <div style="font-size:10px;color:#555">${d.nombre}<br>DNI: ${d.dni}</div>
+        </div>
+      </div>
+      <div class="b-footer">
+        ⚠️ DOCUMENTO FICTICIO — USO EDUCATIVO — SIN VALIDEZ LEGAL | ID: ${d.id}
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn y no-print" onclick="window.print()">🖨️ IMPRIMIR ACTA</button>
+    </div>`;
+}
+
+function imprimirActa(){
+  if(!detActa){toast('⚠ Registra primero la detención','err');return;}
+  mostrarActa(detActa);
+  setTimeout(()=>window.print(),300);
+}
+
+// ══════════════════════════════════════════════
 //  REGISTRO
-// ════════════════════════════════════════
-async function loadRegistro(){
-  const q=document.getElementById('regQ').value;
-  const est=document.getElementById('regEst').value;
-  if(regPage<0)regPage=0;
-  const data=await fetch(`/api/policia/multas?q=${encodeURIComponent(q)}&estado=${encodeURIComponent(est)}&page=${regPage}`).then(r=>r.json());
+// ══════════════════════════════════════════════
+async function loadReg(){
+  const q=$('rQ').value,est=$('rEst').value,cat=$('rCat').value;
+  if(rPage<0)rPage=0;
+  const data=await fetch(`/api/policia/multas?q=${encodeURIComponent(q)}&estado=${encodeURIComponent(est)}&categoria=${encodeURIComponent(cat)}&page=${rPage}`).then(r=>r.json());
   const total=data.total,pages=Math.ceil(total/20);
-  document.getElementById('regPI').textContent=`Pág ${regPage+1}/${pages||1} | ${total} denuncias`;
-  const estClass={'Pendiente pago':'est-pend','Pagada':'est-pag','Impugnada':'est-rec','Prescrita':'est-imp'};
-  document.getElementById('regBody').innerHTML=data.rows.map(r=>`
-    <tr style="cursor:pointer" onclick="abrirMulta(${r.id})">
-      <td style="color:var(--blue);font-weight:700">#${r.id}</td>
-      <td><span style="color:var(--blue);font-weight:700;letter-spacing:2px">${r.matricula||'—'}</span></td>
+  if(rPage>=pages&&pages>0)rPage=pages-1;
+  $('rPI').textContent=`Pág ${rPage+1}/${pages||1} | ${total} denuncias`;
+  const ec={'Pendiente pago':'est-pend','Pagada':'est-pag','Impugnada':'est-rec','Prescrita':'est-imp'};
+  $('rBody').innerHTML=data.rows.map(r=>`
+    <tr>
+      <td style="color:var(--blue);font-weight:700">${r.id}</td>
+      <td style="font-size:8px;color:var(--text3)">${(r.expediente||'—').substring(0,14)}</td>
+      <td style="color:var(--blue);font-weight:700;letter-spacing:2px">${r.matricula||'—'}</td>
       <td style="color:var(--text2)">${r.dni||'—'}</td>
-      <td style="color:var(--orange);font-size:10px">${r.codigo_infraccion||'—'}</td>
-      <td title="${r.descripcion||''}" style="color:var(--text2)">${(r.descripcion||'—').substring(0,22)}</td>
+      <td style="color:var(--orange);font-size:9px">${r.codigo_infraccion||'—'}</td>
+      <td title="${r.descripcion||''}">${(r.descripcion||'—').substring(0,22)}</td>
       <td style="color:var(--orange);font-weight:700">${r.importe||0}€</td>
       <td style="color:${(r.puntos_retirados||0)>0?'var(--red)':'var(--text3)'}">${r.puntos_retirados||0}</td>
-      <td>${r.municipio||'—'}</td>
-      <td title="${r.via||''}">${(r.via||'—').substring(0,18)}</td>
-      <td style="color:var(--text2)">${r.fecha_hora||'—'}</td>
-      <td style="color:var(--text3)">${r.agente_tipo?r.agente_tipo.substring(0,10)+'…':'—'}</td>
-      <td><span class="est ${estClass[r.estado]||'est-pend'}">${r.estado||'—'}</span></td>
+      <td>${(r.municipio||'—').substring(0,10)}</td>
+      <td style="color:var(--text2);font-size:9px">${r.fecha_hora||'—'}</td>
+      <td style="color:var(--text3);font-size:9px">${(r.agente_num||'—').substring(0,10)}</td>
+      <td><span class="est ${ec[r.estado]||'est-pend'}">${r.estado||'—'}</span></td>
       <td>
-        <button class="scan-btn" style="font-size:9px;padding:2px 6px;height:22px" onclick="event.stopPropagation();cambiarEstadoDirecto(${r.id},'Pagada')">✅</button>
-        <button class="scan-btn orange" style="font-size:9px;padding:2px 6px;height:22px" onclick="event.stopPropagation();abrirMulta(${r.id})">✏️</button>
+        <button class="btn sm g" onclick="event.stopPropagation();chgEstDir(${r.id},'Pagada')" title="Marcar pagada">✅</button>
+        <button class="btn sm" onclick="event.stopPropagation();openMul(${r.id})" title="Editar">✏️</button>
+        <button class="btn sm y" onclick="event.stopPropagation();goBoleton(${r.id})" title="Boletín">🖨️</button>
       </td>
     </tr>`).join('')||'<tr><td colspan="13" class="loading">SIN REGISTROS</td></tr>';
 }
 
-async function abrirMulta(id){
-  currentMultaId=id;
-  const data=await fetch(`/api/policia/multas?q=${id}&page=0`).then(r=>r.json());
-  const r=data.rows[0]||{};
-  const fields=[
-    ['ID',r.id],['Matrícula',r.matricula||'—'],['DNI',r.dni||'—'],
-    ['Código',r.codigo_infraccion],['Descripción',r.descripcion||'—'],
-    ['Artículo',r.articulo||'—'],['Importe',(r.importe||0)+'€'],
+async function openMul(id){
+  curMulId=id;
+  const r=await fetch(`/api/policia/multa/${id}`).then(x=>x.json());
+  $('modTitle').textContent=`Denuncia #${r.id} — ${r.expediente||'—'}`;
+  const f=[
+    ['ID',r.id],['Expediente',r.expediente||'—'],['Matrícula',r.matricula||'—'],['DNI',r.dni||'—'],
+    ['Denunciado',r.nombre_denunciado||'—'],['Código',r.codigo_infraccion],['Descripción',r.descripcion||'—'],
+    ['Artículo',r.articulo||'—'],['Categoría',r.categoria||'—'],
+    ['Importe',`${r.importe||0}€`],['Importe -20%',`${r.importe_reducido||Math.round((r.importe||0)*0.8)}€`],
     ['Puntos retirados',r.puntos_retirados||0],
-    ['Municipio',r.municipio||'—'],['Vía',r.via||'—'],['Lugar',r.lugar||'—'],
-    ['Fecha/Hora',r.fecha_hora||'—'],
-    ['Agente tipo',r.agente_tipo||'—'],['Nº agente',r.agente_num||'—'],
-    ['Vel. detectada',r.velocidad_detectada?r.velocidad_detectada+'km/h':'—'],
-    ['Vel. límite',r.velocidad_limite?r.velocidad_limite+'km/h':'—'],
+    ['Municipio',r.municipio||'—'],['Vía',r.via||r.lugar||'—'],
+    ['Fecha/Hora',r.fecha_hora||'—'],['Agente',`${r.agente_tipo||''} ${r.agente_num||''}`],
+    ['Vel.detectada',r.velocidad_detectada?r.velocidad_detectada+'km/h':'—'],
+    ['Vel.límite',r.velocidad_limite||'—'],
+    ['Alcohol (aire)',r.tasa_alcohol_aire||'—'],['Alcohol (sangre)',r.tasa_alcohol_sangre||'—'],
+    ['Droga detectada',r.droga_tipo||'—'],['Resultado droga',r.droga_resultado||'—'],
     ['Observaciones',r.observaciones||'—'],['Estado',r.estado||'—'],
-    ['Creado por',r.creado_por||'—'],['Fecha registro',r.created_at||'—'],
+    ['Fecha registro',r.created_at||'—'],
   ];
-  document.getElementById('modalMultaGrid').innerHTML=
-    fields.map(([k,v])=>`<div class="data-cell"><div class="data-key">${k}</div><div class="data-val">${v}</div></div>`).join('');
-  document.getElementById('modalMulta').classList.add('open');
+  $('modGrid').innerHTML=f.map(([k,v])=>`<div class="dcell"><div class="dkey">${k}</div><div class="dval">${v}</div></div>`).join('');
+  $('modalMul').classList.add('open');
 }
 
-async function cambiarEstado(est){
-  if(!currentMultaId)return;
-  await cambiarEstadoDirecto(currentMultaId,est);
-  closeModal();
+async function chgEst(est){if(!curMulId)return;await chgEstDir(curMulId,est);$('modalMul').classList.remove('open');}
+async function chgEstDir(id,est){
+  try{
+    const r=await fetch(`/api/policia/multa/${id}/estado`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:est})}).then(x=>x.json());
+    if(r.ok){toast(`✓ Estado → ${est}`);loadReg();loadStats();}
+    else toast('⚠ Error','err');
+  }catch(e){toast('⚠ Error: '+e.message,'err');}
 }
-async function cambiarEstadoDirecto(id,est){
-  const r=await fetch(`/api/policia/multa/${id}/estado`,{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:est})
-  }).then(x=>x.json());
-  if(r.ok){toast(`✓ Estado → ${est}`);loadRegistro();loadStats();}
-  else toast('⚠ Error','err');
-}
+function bolDesdeModal(){if(!curMulId)return;$('bolId').value=curMulId;ST('boletin');genBoletin();}
+function goBoleton(id){$('bolId').value=id;ST('boletin');genBoletin();}
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  BOLETÍN
-// ════════════════════════════════════════
-async function generarBoletin(){
-  const id=document.getElementById('boletinId').value;
-  if(!id){return;}
-  const data=await fetch(`/api/policia/multas?q=${id}&page=0`).then(r=>r.json());
-  const r=data.rows[0];
-  if(!r){document.getElementById('boletinBox').innerHTML='<div class="error-box">⚠ Multa no encontrada</div>';return;}
-  // Buscar datos ciudadano
-  let nombre='—',prov='—',dir='—';
-  if(r.dni){
-    const num=parseInt(r.dni.slice(0,8));
-    const c=await fetch(`/api/resolver/dni/${num}`).then(x=>x.json());
-    nombre=`${c.nombre||''} ${c.apellido1||''} ${c.apellido2||''}`.trim();
-    prov=c.provincia_residencia||'—';
-    dir=c.direccion||'—';
-  }
-  const reduc=Math.round((r.importe||0)*0.8);
-  document.getElementById('boletinBox').innerHTML=`
-    <div class="boletin-preview">
-      <div class="boletin-header">
-        <div class="boletin-logo">🚔 DENUNCIA DE TRÁFICO</div>
-        <div class="boletin-sub">DIRECCIÓN GENERAL DE TRÁFICO — BASE DE DATOS FICTICIA EDUCATIVA</div>
-        <div style="font-size:10px;margin-top:4px">Expediente nº: DGT-${String(r.id).padStart(8,'0')} &nbsp;|&nbsp; Fecha emisión: ${new Date().toLocaleDateString('es-ES')}</div>
-      </div>
-      <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:#333">DATOS DEL DENUNCIADO</div>
-      <div class="boletin-grid">
-        <div class="boletin-field"><div class="boletin-fkey">Nombre completo</div><div class="boletin-fval">${nombre}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">DNI / NIF</div><div class="boletin-fval">${r.dni||'—'}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Provincia de residencia</div><div class="boletin-fval">${prov}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Dirección</div><div class="boletin-fval">${dir}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Matrícula vehículo</div><div class="boletin-fval" style="font-size:16px;font-weight:900;letter-spacing:3px;color:#00308F">${r.matricula||'—'}</div></div>
-      </div>
-      <div style="font-size:11px;font-weight:700;margin:10px 0 6px;color:#333">DATOS DE LA INFRACCIÓN</div>
-      <div class="boletin-grid">
-        <div class="boletin-field"><div class="boletin-fkey">Código infracción</div><div class="boletin-fval">${r.codigo_infraccion||'—'}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Artículo</div><div class="boletin-fval">${r.articulo||'—'}</div></div>
-        <div class="boletin-field" style="grid-column:1/-1"><div class="boletin-fkey">Descripción</div><div class="boletin-fval">${r.descripcion||'—'}</div></div>
-        ${r.velocidad_detectada?`<div class="boletin-field"><div class="boletin-fkey">Velocidad detectada</div><div class="boletin-fval">${r.velocidad_detectada} km/h</div></div>`:''}
-        ${r.velocidad_limite?`<div class="boletin-field"><div class="boletin-fkey">Límite de velocidad</div><div class="boletin-fval">${r.velocidad_limite} km/h</div></div>`:''}
-        <div class="boletin-field"><div class="boletin-fkey">Fecha y hora</div><div class="boletin-fval">${r.fecha_hora||'—'}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Municipio</div><div class="boletin-fval">${r.municipio||'—'}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Vía / Lugar</div><div class="boletin-fval">${r.via||r.lugar||'—'}</div></div>
-        <div class="boletin-field"><div class="boletin-fkey">Agente denunciante</div><div class="boletin-fval">${r.agente_tipo||'—'} ${r.agente_num?'nº '+r.agente_num:''}</div></div>
-      </div>
-      ${r.observaciones?`<div class="boletin-field" style="margin-top:6px"><div class="boletin-fkey">Observaciones</div><div class="boletin-fval">${r.observaciones}</div></div>`:''}
-      <div style="background:#f8f8f8;border:2px solid #333;border-radius:4px;padding:12px;margin:12px 0;text-align:center">
-        <div style="font-size:11px;font-weight:700;color:#333;margin-bottom:4px">IMPORTE DE LA SANCIÓN</div>
-        <div style="font-size:28px;font-weight:900;color:#c62828">${r.importe||0} €</div>
-        ${r.puntos_retirados>0?`<div style="font-size:13px;font-weight:700;color:#e65100;margin-top:4px">RETIRADA DE ${r.puntos_retirados} PUNTO(S) DE CARNET</div>`:''}
-        <div style="font-size:11px;color:#555;margin-top:8px;border-top:1px solid #ccc;padding-top:8px">
-          Reducción del 20% si paga en los <strong>20 días hábiles</strong> siguientes a la notificación:
-          <strong style="color:#2e7d32;font-size:15px"> ${reduc} €</strong>
-        </div>
-      </div>
-      <div class="boletin-footer">
-        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div>
-            <strong>FORMA DE PAGO:</strong> Sede electrónica DGT · dgt.es · Entidad bancaria colaboradora<br>
-            <strong>PLAZO ALEGACIONES:</strong> 20 días hábiles desde notificación
-          </div>
-          <div style="text-align:right">
-            Nº Expediente: <strong>DGT-${String(r.id).padStart(8,'0')}</strong><br>
-            Estado: <strong>${r.estado||'Pendiente pago'}</strong>
+// ══════════════════════════════════════════════
+async function genBoletin(){
+  const id=parseInt($('bolId').value||0);
+  if(!id){$('bol_box').innerHTML='<div class="ebox">⚠ Introduce el ID de la multa</div>';return;}
+  $('bol_box').innerHTML='<div class="loading">⬛ GENERANDO BOLETÍN...</div>';
+  try{
+    const r=await fetch(`/api/policia/multa/${id}`).then(x=>x.json());
+    if(r.error){$('bol_box').innerHTML=`<div class="ebox">⚠ ${r.error}</div>`;return;}
+    let nombre='—',prov='—',dir='—',tel='—';
+    if(r.dni){
+      const num=parseInt(r.dni.slice(0,8));
+      const c=await fetch(`/api/resolver/dni/${num}`).then(x=>x.json()).catch(()=>({}));
+      nombre=r.nombre_denunciado||`${c.nombre||''} ${c.apellido1||''} ${c.apellido2||''}`.trim()||'—';
+      prov=c.provincia_residencia||'—';dir=c.direccion||'—';tel=c.telefono||'—';
+    }
+    const reduc=r.importe_reducido||Math.round((r.importe||0)*0.8);
+    const numBol=`DGT-${String(r.id).padStart(8,'0')}`;
+    let secEsp='';
+    if(r.velocidad_detectada)secEsp+=`
+      <div class="bsec">DATOS VELOCIDAD</div>
+      <div class="bg3col">
+        <div class="bf"><div class="bfk">Detectada</div><div class="bfv" style="color:#c62828;font-size:16px">${r.velocidad_detectada} km/h</div></div>
+        <div class="bf"><div class="bfk">Límite</div><div class="bfv">${r.velocidad_limite||'—'} km/h</div></div>
+        <div class="bf"><div class="bfk">Exceso</div><div class="bfv" style="color:#c62828">${r.velocidad_detectada&&r.velocidad_limite?'+'+(parseInt(r.velocidad_detectada)-parseInt(r.velocidad_limite))+' km/h':'—'}</div></div>
+      </div>`;
+    if(r.tasa_alcohol_aire)secEsp+=`
+      <div class="bsec">PRUEBA ALCOHOLEMIA</div>
+      <div class="bg2col">
+        <div class="bf"><div class="bfk">Tasa en aire espirado</div><div class="bfv" style="color:#c62828;font-size:14px">${r.tasa_alcohol_aire} mg/l</div></div>
+        <div class="bf"><div class="bfk">Tasa en sangre</div><div class="bfv">${r.tasa_alcohol_sangre||'No analizada'}</div></div>
+        <div class="bf" style="grid-column:1/-1"><div class="bfk">Resultado</div><div class="bfv">${r.droga_resultado||'Positivo'}</div></div>
+      </div>`;
+    if(r.droga_tipo)secEsp+=`
+      <div class="bsec">DETECCIÓN DE DROGAS</div>
+      <div class="bg2col">
+        <div class="bf"><div class="bfk">Sustancia detectada</div><div class="bfv" style="color:#7c3aed;font-size:13px">${r.droga_tipo}</div></div>
+        <div class="bf"><div class="bfk">Resultado / Diagnóstico</div><div class="bfv">${r.droga_resultado||'Positivo'}</div></div>
+      </div>`;
+    $('bol_box').innerHTML=`
+      <div class="boletin">
+        <div class="bh">
+          <div><div class="bh-logo">🚔 BOLETÍN DE DENUNCIA</div>
+          <div class="bh-sub">DIRECCIÓN GENERAL DE TRÁFICO — FICTICIO EDUCATIVO</div></div>
+          <div style="font-size:10px;text-align:right">
+            <div style="font-weight:700;color:#00308F">${numBol}</div>
+            <div>Exp: <strong>${r.expediente||numBol}</strong></div>
+            <div>Emisión: <strong>${new Date().toLocaleDateString('es-ES')}</strong></div>
+            <div>Estado: <strong style="color:${r.estado==='Pagada'?'#2e7d32':'#c62828'}">${r.estado||'Pendiente pago'}</strong></div>
           </div>
         </div>
-        <div style="margin-top:10px;font-size:9px;color:#999;border-top:1px solid #ccc;padding-top:6px">
-          ⚠️ DOCUMENTO GENERADO CON FINES EXCLUSIVAMENTE EDUCATIVOS — BASE DE DATOS FICTICIA — NO TIENE VALIDEZ LEGAL
+        <div class="bsec">DENUNCIADO</div>
+        <div class="bg2col">
+          <div class="bf"><div class="bfk">Nombre completo</div><div class="bfv">${nombre}</div></div>
+          <div class="bf"><div class="bfk">DNI</div><div class="bfv">${r.dni||'—'}</div></div>
+          <div class="bf"><div class="bfk">Domicilio</div><div class="bfv">${dir}</div></div>
+          <div class="bf"><div class="bfk">Provincia</div><div class="bfv">${prov}</div></div>
+          <div class="bf"><div class="bfk">Teléfono</div><div class="bfv">${tel}</div></div>
+          <div class="bf"><div class="bfk">Matrícula</div><div class="bfv" style="font-size:18px;font-weight:900;color:#00308F;letter-spacing:4px">${r.matricula||'—'}</div></div>
         </div>
-      </div>
-    </div>`;
-  document.getElementById('printBtn').style.display='inline-block';
+        <div class="bsec">INFRACCIÓN</div>
+        <div class="bg2col">
+          <div class="bf"><div class="bfk">Código</div><div class="bfv">${r.codigo_infraccion||'—'}</div></div>
+          <div class="bf"><div class="bfk">Artículo</div><div class="bfv">${r.articulo||'—'}</div></div>
+          <div class="bf" style="grid-column:1/-1"><div class="bfk">Descripción</div><div class="bfv" style="font-size:13px">${r.descripcion||'—'}</div></div>
+          <div class="bf"><div class="bfk">Fecha y hora</div><div class="bfv">${r.fecha_hora||'—'}</div></div>
+          <div class="bf"><div class="bfk">Municipio</div><div class="bfv">${r.municipio||'—'}</div></div>
+          <div class="bf"><div class="bfk">Vía / Lugar</div><div class="bfv">${r.via||r.lugar||'—'}</div></div>
+          <div class="bf"><div class="bfk">Medios prueba</div><div class="bfv">${r.pruebas||'—'}</div></div>
+          <div class="bf"><div class="bfk">Agente</div><div class="bfv">${r.agente_tipo||''} ${r.agente_num||''} ${r.agente_nombre||''}</div></div>
+        </div>
+        ${secEsp}
+        <div class="b-importe">
+          <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:4px;letter-spacing:1px">IMPORTE DE LA SANCIÓN</div>
+          <div class="b-imp-n">${r.importe||0} €</div>
+          ${(r.puntos_retirados||0)>0?`<div class="b-imp-p">⚠ RETIRADA DE ${r.puntos_retirados} PUNTO(S) DEL PERMISO</div>`:''}
+          <div class="b-imp-r">-20% pronto pago (20 días hábiles): <strong>${reduc}€</strong></div>
+        </div>
+        <div class="b-pay">
+          <div style="font-size:10px;font-weight:700;color:#1b5e20;margin-bottom:3px">FORMAS DE PAGO</div>
+          <div style="font-size:10px;color:#1b5e20">✓ sede.dgt.gob.es &nbsp;·&nbsp; ✓ Entidades bancarias colaboradoras &nbsp;·&nbsp; Ref: <strong>${r.expediente||numBol}</strong></div>
+        </div>
+        <div style="background:#fff8e1;border:1px solid #f9a825;border-radius:3px;padding:8px;margin:8px 0;font-size:10px">
+          <strong>⚖ Derecho de alegaciones:</strong> 20 días hábiles desde notificación ante la Jefatura Provincial de Tráfico.
+        </div>
+        <div class="b-firmas">
+          <div class="b-firma"><div style="font-size:8px;font-weight:700;margin-bottom:3px">AGENTE DENUNCIANTE</div><div style="font-size:9px">${r.agente_tipo||''}<br>${r.agente_num||''} — ${r.agente_nombre||''}</div></div>
+          <div class="b-firma"><div style="font-size:8px;font-weight:700;margin-bottom:3px">FIRMA DEL DENUNCIADO</div><div style="font-size:9px">${nombre}<br>DNI: ${r.dni||'—'}</div></div>
+        </div>
+        <div class="b-footer">⚠️ FICTICIO — USO EDUCATIVO — SIN VALIDEZ LEGAL | ${numBol} | ${new Date().toLocaleDateString('es-ES')}</div>
+      </div>`;
+    $('btnPrint').style.display='inline-block';
+  }catch(e){$('bol_box').innerHTML=`<div class="ebox">⚠ Error: ${e.message}</div>`;}
 }
 
-async function previsualizar(){
-  const id=parseInt(document.getElementById('multa_res').textContent.match(/#(\d+)/)?.[1]||0);
-  if(!id){toast('⚠ Registra la multa primero','err');return;}
-  document.getElementById('boletinId').value=id;
-  switchTab('boletin');
-  generarBoletin();
+// ══════════════════════════════════════════════
+//  ATESTADO
+// ══════════════════════════════════════════════
+async function genAtestado(){
+  const q=$('at_q').value.trim().toUpperCase().replace(/\s/g,'');
+  if(!q){$('at_box').innerHTML='<div class="ebox">⚠ Introduce DNI o matrícula</div>';return;}
+  $('at_box').innerHTML='<div class="loading">⬛ GENERANDO ATESTADO...</div>';
+  try{
+    const r=await fetch(`/api/policia/verificar?q=${encodeURIComponent(q)}`).then(x=>x.json());
+    if(r.error){$('at_box').innerHTML=`<div class="ebox">⚠ ${r.error}</div>`;return;}
+    const ciu=r.ciudadano||{},mat=r.matricula||{};
+    const dni=ciu.dni||mat.dni||q;
+    const nombre=`${ciu.nombre||''} ${ciu.apellido1||''} ${ciu.apellido2||''}`.trim()||'No identificado';
+    // Multas del sujeto
+    const multas=r.multas_historial||[];
+    const alertas=r.alertas||[];
+    const ahora=new Date().toLocaleString('es-ES');
+    const numAt=`AT-${Date.now().toString().slice(-8)}`;
+    $('at_box').innerHTML=`
+      <div class="boletin">
+        <div class="bh">
+          <div><div class="bh-logo">⚖ ATESTADO POLICIAL</div><div class="bh-sub">CUERPO NACIONAL DE POLICÍA — FICTICIO EDUCATIVO</div></div>
+          <div style="font-size:10px;text-align:right">Nº: <strong>${numAt}</strong><br>Fecha: <strong>${ahora}</strong></div>
+        </div>
+        <div class="bsec">IDENTIFICACIÓN DEL SUJETO</div>
+        <div class="bg2col">
+          <div class="bf"><div class="bfk">DNI</div><div class="bfv" style="color:#c62828">${dni}</div></div>
+          <div class="bf"><div class="bfk">Nombre completo</div><div class="bfv">${nombre}</div></div>
+          ${ciu.fecha_nac?`<div class="bf"><div class="bfk">Fecha nac.</div><div class="bfv">${ciu.fecha_nac}</div></div>`:''}
+          ${ciu.provincia_residencia?`<div class="bf"><div class="bfk">Residencia</div><div class="bfv">${ciu.provincia_residencia}</div></div>`:''}
+          ${ciu.telefono?`<div class="bf"><div class="bfk">Teléfono</div><div class="bfv">${ciu.telefono}</div></div>`:''}
+          ${mat.matricula?`<div class="bf"><div class="bfk">Matrícula vehículo</div><div class="bfv" style="font-size:15px;font-weight:900;color:#00308F;letter-spacing:3px">${mat.matricula}</div></div>`:''}
+          ${mat.marca?`<div class="bf"><div class="bfk">Vehículo</div><div class="bfv">${mat.marca} ${mat.modelo} (${mat.año_fab})</div></div>`:''}
+          <div class="bf"><div class="bfk">Puntos carnet</div><div class="bfv" style="color:${(ciu.puntos_carnet||15)<=0?'#c62828':'#2e7d32'}">${ciu.puntos_carnet??15}/15</div></div>
+          <div class="bf"><div class="bfk">Antecedentes penales</div><div class="bfv" style="color:${ciu.antecedentes_penales==='Sí'?'#c62828':'#2e7d32'}">${ciu.antecedentes_penales||'No'}</div></div>
+        </div>
+        ${alertas.length?`
+          <div class="bsec" style="color:#c62828">⚠ ALERTAS POLICIALES ACTIVAS (${alertas.length})</div>
+          ${alertas.map(a=>`<div style="background:#fff0f0;border:1px solid #ffcccc;border-radius:3px;padding:8px;margin:4px 0;font-size:11px">
+            <strong style="color:#c62828">${a.tipo_alerta}</strong> — ${a.motivo||'—'}<br>
+            Emisor: ${a.emisor||'—'} | Exp: ${a.num_expediente||'—'} | Peligrosidad: <strong>${a.peligrosidad||'—'}</strong>
+          </div>`).join('')}`:''}
+        ${multas.length?`
+          <div class="bsec">HISTORIAL DE DENUNCIAS (${multas.length})</div>
+          <table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:4px">
+            <thead><tr style="background:#f0f0f0">
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">ID</th>
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">Código</th>
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">Descripción</th>
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">Importe</th>
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">Estado</th>
+              <th style="padding:4px 6px;text-align:left;border:1px solid #ccc">Fecha</th>
+            </tr></thead>
+            <tbody>${multas.map(m=>`<tr>
+              <td style="padding:3px 6px;border:1px solid #eee">#${m.id}</td>
+              <td style="padding:3px 6px;border:1px solid #eee;color:#e65100;font-weight:700">${m.codigo_infraccion||'—'}</td>
+              <td style="padding:3px 6px;border:1px solid #eee">${(m.descripcion||'—').substring(0,35)}</td>
+              <td style="padding:3px 6px;border:1px solid #eee;font-weight:700">${m.importe||0}€</td>
+              <td style="padding:3px 6px;border:1px solid #eee;color:${m.estado==='Pagada'?'#2e7d32':'#c62828'}">${m.estado||'—'}</td>
+              <td style="padding:3px 6px;border:1px solid #eee;font-size:9px">${m.fecha_hora||'—'}</td>
+            </tr>`).join('')}</tbody>
+          </table>`:'<div style="font-size:11px;color:#888;padding:8px">Sin denuncias previas registradas</div>'}
+        <div class="b-footer">⚠️ ATESTADO FICTICIO — USO EDUCATIVO — SIN VALIDEZ LEGAL | ${numAt}</div>
+      </div>`;
+    $('btnPrintAt').style.display='inline-block';
+  }catch(e){$('at_box').innerHTML=`<div class="ebox">⚠ Error: ${e.message}</div>`;}
 }
 
-
+// Init
+renderQueue();
 </script>
 </body>
 </html>
