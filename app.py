@@ -8,13 +8,17 @@
   Admin:    http://localhost:5000/admin  (usuario: admin / pass: admin123)
 """
 
-import sqlite3, random, string, json, os, hashlib
+import sqlite3, random, string, json, os, hashlib, shutil, traceback
 from datetime import date, datetime, timedelta
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for, g
 
 app = Flask(__name__)
 app.secret_key = "dgt_educativo_2024"
-DB_PATH = os.path.join(os.path.dirname(__file__), "dgt.db")
+
+# ── Ruta de la BD: misma carpeta que app.py, siempre persistente ──
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH  = os.path.join(BASE_DIR, "dgt.db")
+DB_BACKUP = os.path.join(BASE_DIR, "dgt_backup.db")
 
 # ──────────────────────────────────────────────
 #  UTILIDADES BASE DE DATOS
@@ -24,23 +28,55 @@ def get_db():
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA journal_mode=WAL")
+        g.db.execute("PRAGMA foreign_keys=ON")
+        g.db.execute("PRAGMA synchronous=NORMAL")
     return g.db
 
 @app.teardown_appcontext
 def close_db(e=None):
     db = g.pop("db", None)
-    if db: db.close()
+    if db:
+        db.commit()   # commit explícito al cerrar contexto
+        db.close()
 
 def query(sql, params=(), one=False):
-    cur = get_db().execute(sql, params)
-    r = cur.fetchone() if one else cur.fetchall()
-    return r
+    """SELECT — siempre seguro, nunca lanza excepciones al caller."""
+    try:
+        cur = get_db().execute(sql, params)
+        return cur.fetchone() if one else cur.fetchall()
+    except Exception as e:
+        app.logger.error(f"QUERY ERROR: {e}\nSQL: {sql}\nParams: {params}")
+        return None if one else []
 
 def execute(sql, params=()):
-    db = get_db()
-    cur = db.execute(sql, params)
-    db.commit()
-    return cur.lastrowid
+    """INSERT/UPDATE/DELETE — commit inmediato, devuelve lastrowid o -1 si falla."""
+    try:
+        db  = get_db()
+        cur = db.execute(sql, params)
+        db.commit()
+        return cur.lastrowid
+    except Exception as e:
+        app.logger.error(f"EXECUTE ERROR: {e}\nSQL: {sql}\nParams: {params}")
+        try:
+            get_db().rollback()
+        except Exception:
+            pass
+        return -1
+
+def execute_many(sql, rows):
+    """INSERT múltiple — un solo commit para todo el lote."""
+    try:
+        db = get_db()
+        db.executemany(sql, rows)
+        db.commit()
+        return True
+    except Exception as e:
+        app.logger.error(f"EXECUTE_MANY ERROR: {e}\nSQL: {sql}")
+        try:
+            get_db().rollback()
+        except Exception:
+            pass
+        return False
 
 # ──────────────────────────────────────────────
 #  GENERADORES FICTICIOS
@@ -1552,17 +1588,123 @@ def policia():
         tipos_multa=TIPOS_MULTA,
         categorias=cats)
 
+# ──────────────────────────────────────────────
+#  API: ESTADO Y DIAGNÓSTICO DE LA BASE DE DATOS
+# ──────────────────────────────────────────────
+@app.route("/api/db/estado")
+def api_db_estado():
+    """Devuelve el estado completo de la BD: tablas, filas, tamaño, integridad."""
+    try:
+        db = sqlite3.connect(DB_PATH)
+        db.row_factory = sqlite3.Row
+        tablas = {}
+        for t in db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall():
+            nombre = t["name"]
+            filas  = db.execute(f"SELECT COUNT(*) FROM {nombre}").fetchone()[0]
+            cols   = [r[1] for r in db.execute(f"PRAGMA table_info({nombre})").fetchall()]
+            tablas[nombre] = {"filas": filas, "columnas": len(cols), "campos": cols}
+        tam_bytes = os.path.getsize(DB_PATH)
+        integridad = db.execute("PRAGMA integrity_check").fetchone()[0]
+        db.close()
+        return jsonify({
+            "ok": True,
+            "db_path": DB_PATH,
+            "db_size_kb": round(tam_bytes / 1024, 1),
+            "db_size_mb": round(tam_bytes / 1024 / 1024, 2),
+            "integridad": integridad,
+            "tablas": tablas,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/api/db/backup", methods=["POST"])
+@admin_required
+def api_db_backup():
+    """Crea una copia de seguridad de la BD."""
+    try:
+        ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dst = os.path.join(BASE_DIR, f"dgt_backup_{ts}.db")
+        # Backup usando la API nativa de SQLite (seguro incluso con WAL)
+        src_conn = sqlite3.connect(DB_PATH)
+        dst_conn = sqlite3.connect(dst)
+        src_conn.backup(dst_conn)
+        dst_conn.close()
+        src_conn.close()
+        tam = os.path.getsize(dst)
+        audit("BACKUP", "sistema", "—", f"Backup creado: {dst}")
+        return jsonify({"ok": True, "archivo": dst, "size_kb": round(tam/1024,1)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/api/db/multas_todas")
+def api_multas_todas():
+    """Devuelve TODAS las multas con paginación alta para exportar/ver completo."""
+    page = max(0, int(request.args.get("page", 0)))
+    per  = min(500, int(request.args.get("per", 100)))
+    rows = [dict(r) for r in query(
+        f"SELECT * FROM multas_registro ORDER BY id DESC LIMIT {per} OFFSET {page*per}"
+    )]
+    total = (query("SELECT COUNT(*) as n FROM multas_registro", one=True) or {}).get("n", 0)
+    return jsonify({"rows": rows, "total": total, "page": page, "per": per})
+
+# ── API: exportar multas como JSON descargable ──
+@app.route("/api/db/exportar/multas")
+@admin_required
+def api_exportar_multas():
+    from flask import Response
+    rows = [dict(r) for r in query("SELECT * FROM multas_registro ORDER BY id")]
+    data = json.dumps({"exported_at": datetime.now().isoformat(),
+                       "total": len(rows), "multas": rows},
+                      ensure_ascii=False, indent=2)
+    return Response(data, mimetype="application/json",
+                    headers={"Content-Disposition": "attachment; filename=multas_export.json"})
+
+@app.route("/api/db/exportar/ciudadanos")
+@admin_required
+def api_exportar_ciudadanos():
+    from flask import Response
+    rows = [dict(r) for r in query("SELECT * FROM ciudadanos ORDER BY id")]
+    data = json.dumps({"exported_at": datetime.now().isoformat(),
+                       "total": len(rows), "ciudadanos": rows},
+                      ensure_ascii=False, indent=2)
+    return Response(data, mimetype="application/json",
+                    headers={"Content-Disposition": "attachment; filename=ciudadanos_export.json"})
+
+# ── PÁGINA: panel de diagnóstico de BD ──
+@app.route("/db-status")
+@admin_required
+def db_status_page():
+    return render_template("db_status.html", admin=session.get("admin"), db_path=DB_PATH)
+
+# ──────────────────────────────────────────────
+#  BEFORE REQUEST — garantiza tablas siempre
+# ──────────────────────────────────────────────
+_multas_table_checked = False
+
 @app.before_request
 def before_request():
-    ensure_multas_table()
+    global _multas_table_checked
+    if not _multas_table_checked:
+        ensure_multas_table()
+        _multas_table_checked = True
 
 if __name__ == "__main__":
-    print("="*52)
+    print("="*54)
     print("  SISTEMA DGT / INTERIOR - USO EDUCATIVO")
-    print("="*52)
+    print("="*54)
+    print(f"  BD: {DB_PATH}")
     init_db()
-    print(f"🌐 Servidor en http://localhost:5000")
-    print(f"🔐 Admin:  http://localhost:5000/admin")
-    print(f"   Usuario: admin  |  Contraseña: admin123")
-    print("="*52)
+    # Backup automático al arrancar si la BD tiene datos
+    try:
+        n = sqlite3.connect(DB_PATH).execute("SELECT COUNT(*) FROM multas_registro").fetchone()[0]
+        if n > 0:
+            shutil.copy2(DB_PATH, DB_BACKUP)
+            print(f"  ✅ Backup automático: dgt_backup.db ({n} multas guardadas)")
+    except Exception:
+        pass
+    print(f"  🌐 http://localhost:5000")
+    print(f"  🔐 Admin: /admin  —  admin / admin123")
+    print(f"  🗄️  DB Status: /db-status")
+    print("="*54)
     app.run(debug=True, port=5000)
