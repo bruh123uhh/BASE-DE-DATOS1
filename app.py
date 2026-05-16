@@ -1708,3 +1708,648 @@ if __name__ == "__main__":
     print(f"  🗄️  DB Status: /db-status")
     print("="*54)
     app.run(debug=True, port=5000)
+
+# ══════════════════════════════════════════════════════════════
+#  MÓDULO MÉDICO / HOSPITAL
+# ══════════════════════════════════════════════════════════════
+
+ESPECIALIDADES = [
+    "Medicina General","Cardiología","Neumología","Neurología","Oncología",
+    "Traumatología","Cirugía General","Pediatría","Ginecología","Urología",
+    "Dermatología","Oftalmología","Otorrinolaringología","Psiquiatría",
+    "Endocrinología","Reumatología","Digestivo","Nefrología","Hematología",
+    "Urgencias","UCI","Anestesiología","Radiología","Rehabilitación",
+]
+
+MEDICOS_FICTICIOS = [
+    {"id":1,"nombre":"Dr. Alejandro Martín Ruiz",       "especialidad":"Cardiología",       "numero_colegiado":"28-12345"},
+    {"id":2,"nombre":"Dra. Carmen López Fernández",      "especialidad":"Neurología",        "numero_colegiado":"28-23456"},
+    {"id":3,"nombre":"Dr. Javier Sánchez García",        "especialidad":"Traumatología",     "numero_colegiado":"08-34567"},
+    {"id":4,"nombre":"Dra. Ana Torres Moreno",           "especialidad":"Oncología",         "numero_colegiado":"28-45678"},
+    {"id":5,"nombre":"Dr. Miguel Rodríguez Pérez",       "especialidad":"Medicina General",  "numero_colegiado":"28-56789"},
+    {"id":6,"nombre":"Dra. Laura Gómez Díaz",            "especialidad":"Pediatría",         "numero_colegiado":"28-67890"},
+    {"id":7,"nombre":"Dr. Roberto Castro Vidal",         "especialidad":"Cirugía General",   "numero_colegiado":"46-78901"},
+    {"id":8,"nombre":"Dra. Isabel Navarro Blanco",       "especialidad":"Ginecología",       "numero_colegiado":"28-89012"},
+    {"id":9,"nombre":"Dr. Fernando Alonso Prieto",       "especialidad":"Urgencias",         "numero_colegiado":"28-90123"},
+    {"id":10,"nombre":"Dra. Sofía Ramírez Cruz",         "especialidad":"Psiquiatría",       "numero_colegiado":"28-01234"},
+    {"id":11,"nombre":"Dr. Carlos Iglesias Ramos",       "especialidad":"Neumología",        "numero_colegiado":"41-11111"},
+    {"id":12,"nombre":"Dra. Patricia Morales Vera",      "especialidad":"Endocrinología",    "numero_colegiado":"28-22222"},
+    {"id":13,"nombre":"Dr. Diego Flores Prado",          "especialidad":"Digestivo",         "numero_colegiado":"28-33333"},
+    {"id":14,"nombre":"Dra. Nuria Delgado Luna",         "especialidad":"Dermatología",      "numero_colegiado":"28-44444"},
+    {"id":15,"nombre":"Dr. Adrián Serrano Calvo",        "especialidad":"Oftalmología",      "numero_colegiado":"28-55555"},
+]
+
+MEDICAMENTOS_COMUNES = [
+    "Paracetamol 500mg","Paracetamol 1g","Ibuprofeno 400mg","Ibuprofeno 600mg",
+    "Amoxicilina 500mg","Amoxicilina 1g","Azitromicina 500mg","Ciprofloxacino 500mg",
+    "Omeprazol 20mg","Omeprazol 40mg","Pantoprazol 40mg","Ranitidina 150mg",
+    "Atorvastatina 20mg","Atorvastatina 40mg","Simvastatina 20mg","Rosuvastatina 10mg",
+    "Enalapril 10mg","Ramipril 5mg","Losartán 50mg","Amlodipino 5mg","Bisoprolol 5mg",
+    "Metformina 850mg","Metformina 1000mg","Insulina Lantus","Insulina Novorapid",
+    "Levotiroxina 50mcg","Levotiroxina 100mcg",
+    "Sertralina 50mg","Fluoxetina 20mg","Escitalopram 10mg","Alprazolam 0.5mg",
+    "Diazepam 5mg","Lorazepam 1mg","Zolpidem 10mg","Quetiapina 25mg",
+    "Salbutamol inhalador","Budesonida inhalador","Montelukast 10mg","Tiotropio inhalador",
+    "Metrotexato 10mg","Prednisona 5mg","Prednisona 30mg","Deflazacort 6mg",
+    "Morfina 10mg","Tramadol 50mg","Tramadol 100mg","Fentanilo parche 25mcg",
+    "Warfarina 5mg","Acenocumarol 1mg","Apixabán 5mg","Rivaroxabán 20mg",
+    "AAS 100mg","Clopidogrel 75mg","Ticagrelor 90mg",
+    "Furosemida 40mg","Espironolactona 25mg","Torasemida 10mg",
+    "Vitamina D3 1000UI","Vitamina B12","Ácido fólico 5mg","Hierro 80mg",
+    "Calcio + Vitamina D","Magnesio 400mg","Zinc 10mg",
+]
+
+ALERGIAS_COMUNES = [
+    "Penicilina","Amoxicilina","Sulfonamidas","Aspirina/AINEs","Ibuprofeno",
+    "Codeína","Morfina","Contraste yodado","Látex","Polen","Ácaros",
+    "Frutos secos","Marisco","Gluten (celiaquía)","Lactosa","Ninguna conocida",
+]
+
+GRUPOS_SANGUINEOS = ["A+","A-","B+","B-","AB+","AB-","O+","O-"]
+
+DIAGNOSTICOS_COMUNES = [
+    "Hipertensión arterial esencial","Diabetes mellitus tipo 2","Diabetes mellitus tipo 1",
+    "Hipotiroidismo","Hipertiroidismo","Asma bronquial","EPOC","Neumonía bacteriana",
+    "Insuficiencia cardíaca","Fibrilación auricular","Cardiopatía isquémica",
+    "Accidente cerebrovascular","Migraña crónica","Epilepsia",
+    "Depresión mayor","Trastorno de ansiedad generalizada","Trastorno bipolar",
+    "Artrosis lumbar","Osteoporosis","Artritis reumatoide","Fibromialgia",
+    "Gastritis crónica","Úlcera péptica","Enfermedad de Crohn","Colitis ulcerosa",
+    "Insuficiencia renal crónica","Cálculos renales","Infección urinaria recurrente",
+    "Anemia ferropénica","Leucemia","Linfoma de Hodgkin","Cáncer de pulmón",
+    "Cáncer de mama","Cáncer colorrectal","Cáncer de próstata","Melanoma",
+    "Fractura de cadera","Fractura vertebral","Hernia discal lumbar","Cervicalgia",
+    "Insuficiencia venosa crónica","Trombosis venosa profunda","Embolia pulmonar",
+    "Sinusitis crónica","Otitis media","Conjuntivitis alérgica",
+]
+
+TIPOS_CITA = [
+    "Consulta primera vez","Revisión periódica","Urgencia","Seguimiento tratamiento",
+    "Resultado de pruebas","Preoperatorio","Postoperatorio","Vacunación",
+    "Extracción de sangre","Ecografía","Radiografía","TAC","Resonancia magnética",
+    "Electrocardiograma","Espirometría","Colonoscopia","Gastroscopia",
+]
+
+SALAS = [
+    "Consulta 1","Consulta 2","Consulta 3","Consulta 4","Consulta 5",
+    "Urgencias A","Urgencias B","UCI Planta 2","Quirófano 1","Quirófano 2",
+    "Laboratorio","Radiología","Planta 3 Hab 301","Planta 4 Hab 412",
+]
+
+def ensure_hospital_tables():
+    """Crea y migra las tablas del módulo médico."""
+    db = sqlite3.connect(DB_PATH)
+    db.executescript("""
+    PRAGMA journal_mode=WAL;
+
+    CREATE TABLE IF NOT EXISTS pacientes (
+        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        nhc                 TEXT UNIQUE NOT NULL,  -- Número Historia Clínica
+        dni                 TEXT,
+        nombre              TEXT NOT NULL,
+        apellido1           TEXT,
+        apellido2           TEXT,
+        sexo                TEXT,
+        fecha_nac           TEXT,
+        telefono            TEXT,
+        telefono2           TEXT,
+        email               TEXT,
+        direccion           TEXT,
+        municipio           TEXT,
+        codigo_postal       TEXT,
+        provincia           TEXT,
+        grupo_sanguineo     TEXT,
+        alergias            TEXT,  -- JSON array
+        antecedentes_familiares TEXT,
+        enfermedades_cronicas   TEXT,  -- JSON array
+        medicacion_habitual     TEXT,  -- JSON array
+        fumador             TEXT DEFAULT 'No',
+        alcohol             TEXT DEFAULT 'No/Ocasional',
+        peso_kg             REAL,
+        altura_cm           INTEGER,
+        num_hijos           INTEGER DEFAULT 0,
+        profesion           TEXT,
+        mutua               TEXT DEFAULT 'Seguridad Social',
+        num_seguridad_social TEXT,
+        consentimiento_datos INTEGER DEFAULT 1,
+        notas_admin         TEXT,
+        created_at          TEXT DEFAULT (datetime('now')),
+        updated_at          TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS historiales (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        nhc             TEXT NOT NULL,
+        fecha           TEXT NOT NULL,
+        tipo            TEXT,  -- 'Consulta','Urgencia','Ingreso','Alta','Prueba'
+        especialidad    TEXT,
+        medico_id       INTEGER,
+        medico_nombre   TEXT,
+        sala            TEXT,
+        motivo_consulta TEXT,
+        anamnesis       TEXT,
+        exploracion     TEXT,
+        diagnostico     TEXT,
+        diagnostico_cie TEXT,  -- código CIE-10
+        tratamiento     TEXT,
+        observaciones   TEXT,
+        tension_sistolica   INTEGER,
+        tension_diastolica  INTEGER,
+        frecuencia_cardiaca INTEGER,
+        temperatura         REAL,
+        saturacion_o2       INTEGER,
+        glucosa             INTEGER,
+        peso_kg             REAL,
+        altura_cm           INTEGER,
+        created_at      TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (nhc) REFERENCES pacientes(nhc)
+    );
+
+    CREATE TABLE IF NOT EXISTS medicamentos_paciente (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        nhc             TEXT NOT NULL,
+        nombre_med      TEXT NOT NULL,
+        principio_activo TEXT,
+        dosis           TEXT,
+        frecuencia      TEXT,
+        via_admin       TEXT DEFAULT 'Oral',
+        fecha_inicio    TEXT,
+        fecha_fin       TEXT,
+        medico_prescriptor TEXT,
+        motivo          TEXT,
+        estado          TEXT DEFAULT 'Activo',  -- Activo/Suspendido/Finalizado
+        notas           TEXT,
+        created_at      TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (nhc) REFERENCES pacientes(nhc)
+    );
+
+    CREATE TABLE IF NOT EXISTS citas (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        nhc             TEXT NOT NULL,
+        fecha_hora      TEXT NOT NULL,
+        especialidad    TEXT,
+        medico_id       INTEGER,
+        medico_nombre   TEXT,
+        sala            TEXT,
+        tipo_cita       TEXT,
+        motivo          TEXT,
+        estado          TEXT DEFAULT 'Pendiente',  -- Pendiente/Confirmada/Realizada/Cancelada/No_presentado
+        duracion_min    INTEGER DEFAULT 20,
+        notas_previas   TEXT,
+        notas_posteriores TEXT,
+        recordatorio_enviado INTEGER DEFAULT 0,
+        created_at      TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (nhc) REFERENCES pacientes(nhc)
+    );
+
+    CREATE TABLE IF NOT EXISTS pruebas_diagnosticas (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        nhc             TEXT NOT NULL,
+        tipo_prueba     TEXT,  -- 'Analítica','Radiografía','ECG','TAC','RMN','Ecografía','Biopsia'
+        fecha_solicitud TEXT,
+        fecha_resultado TEXT,
+        solicitante     TEXT,
+        descripcion     TEXT,
+        resultado       TEXT,
+        valores_analitica TEXT,  -- JSON con valores hemograma/bioquímica
+        archivo_resultado TEXT,
+        estado          TEXT DEFAULT 'Solicitada',  -- Solicitada/Realizada/Entregada
+        notas           TEXT,
+        created_at      TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (nhc) REFERENCES pacientes(nhc)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pac_dni  ON pacientes(dni);
+    CREATE INDEX IF NOT EXISTS idx_pac_nhc  ON pacientes(nhc);
+    CREATE INDEX IF NOT EXISTS idx_his_nhc  ON historiales(nhc);
+    CREATE INDEX IF NOT EXISTS idx_med_nhc  ON medicamentos_paciente(nhc);
+    CREATE INDEX IF NOT EXISTS idx_cit_nhc  ON citas(nhc);
+    CREATE INDEX IF NOT EXISTS idx_cit_fh   ON citas(fecha_hora);
+    CREATE INDEX IF NOT EXISTS idx_pru_nhc  ON pruebas_diagnosticas(nhc);
+    """)
+    db.commit()
+
+    # Poblar con datos ficticios si está vacío
+    if db.execute("SELECT COUNT(*) FROM pacientes").fetchone()[0] == 0:
+        _generar_datos_hospital(db)
+    db.close()
+
+def _generar_datos_hospital(db):
+    """Genera 300 pacientes ficticios con historial, medicación y citas."""
+    import random as R
+    R.seed(99)
+    # Asegurar row_factory
+    db.row_factory = sqlite3.Row
+    print("⚕  Generando datos ficticios del hospital...")
+
+    # Reutilizar ciudadanos de la BD DGT
+    ciudadanos_raw = db.execute("SELECT * FROM ciudadanos LIMIT 300").fetchall()
+    # Convertir a dict para compatibilidad
+    ciudadanos = [dict(c) for c in ciudadanos_raw]
+
+    pacientes = []
+    for i, c in enumerate(ciudadanos):
+        nhc = f"NHC-{i+1:06d}"
+        edad = 0
+        try:
+            edad = (date(2025,6,1) - date.fromisoformat(c["fecha_nac"])).days // 365
+        except Exception:
+            edad = R.randint(20,80)
+
+        alergias = R.sample(ALERGIAS_COMUNES, R.randint(0,3))
+        enfermedades = R.sample(DIAGNOSTICOS_COMUNES, R.randint(0, 4 if edad > 50 else 2))
+        medicacion = R.sample(MEDICAMENTOS_COMUNES, len(enfermedades))
+
+        pacientes.append((
+            nhc, c["dni"], c["nombre"], c["apellido1"], c.get("apellido2",""),
+            c["sexo"], c["fecha_nac"],
+            c.get("telefono",""), c.get("telefono2",""), c.get("email",""),
+            c.get("direccion",""), c.get("municipio",""), c.get("codigo_postal",""),
+            c.get("provincia_residencia",""),
+            R.choice(GRUPOS_SANGUINEOS),
+            json.dumps(alergias, ensure_ascii=False),
+            R.choice(["Padre HTA","Madre diabetes","Sin antecedentes familiares relevantes",
+                      "Abuelo paterno cardiopatía","Madre cáncer de mama"]),
+            json.dumps(enfermedades, ensure_ascii=False),
+            json.dumps(medicacion, ensure_ascii=False),
+            R.choice(["No","Sí","Ex-fumador"]),
+            R.choice(["No/Ocasional","Moderado","Elevado"]),
+            round(R.uniform(50,120),1),
+            R.randint(150,195),
+            c.get("num_hijos",0),
+            c.get("profesion",""),
+            R.choice(["Seguridad Social","MUFACE","MUGEJU","Privado","Adeslas","Sanitas","Asisa"]),
+            f"SS-{R.randint(100000000,999999999)}",
+            1, None
+        ))
+
+    db.executemany("""INSERT OR IGNORE INTO pacientes
+        (nhc,dni,nombre,apellido1,apellido2,sexo,fecha_nac,telefono,telefono2,email,
+         direccion,municipio,codigo_postal,provincia,grupo_sanguineo,alergias,
+         antecedentes_familiares,enfermedades_cronicas,medicacion_habitual,
+         fumador,alcohol,peso_kg,altura_cm,num_hijos,profesion,mutua,
+         num_seguridad_social,consentimiento_datos,notas_admin)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        pacientes)
+    db.commit()
+
+    # Historiales clínicos (2-5 por paciente)
+    nhcs = [r[0] for r in db.execute("SELECT nhc FROM pacientes").fetchall()]
+    historiales, medicamentos, citas_list, pruebas = [], [], [], []
+
+    for nhc in nhcs:
+        n_vis = R.randint(2, 6)
+        for _ in range(n_vis):
+            med = R.choice(MEDICOS_FICTICIOS)
+            dias_atras = R.randint(1, 1095)
+            fvis = (date(2025,6,1) - timedelta(days=dias_atras)).isoformat()
+            diag = R.choice(DIAGNOSTICOS_COMUNES)
+            historiales.append((
+                nhc, fvis, R.choice(["Consulta","Urgencia","Revisión","Ingreso"]),
+                med["especialidad"], med["id"], med["nombre"],
+                R.choice(SALAS),
+                R.choice(["Dolor torácico","Control rutinario","Fiebre","Mareo","Revisión analítica",
+                          "Tos persistente","Dolor abdominal","Cefalea intensa","Control tensión"]),
+                "Paciente refiere síntomas desde hace varios días.",
+                "Exploración física sin hallazgos patológicos relevantes.",
+                diag, f"Z{R.randint(10,99)}.{R.randint(0,9)}",
+                f"Se pauta tratamiento con {R.choice(MEDICAMENTOS_COMUNES)}. Revisión en {R.randint(1,6)} meses.",
+                "Sin incidencias durante la consulta.",
+                R.randint(100,180), R.randint(60,100),
+                R.randint(55,110), round(R.uniform(36.0,38.5),1),
+                R.randint(92,100), R.randint(70,200),
+                round(R.uniform(50,120),1), R.randint(150,195),
+            ))
+
+        # Medicamentos activos (1-4)
+        for med_name in R.sample(MEDICAMENTOS_COMUNES, R.randint(1,4)):
+            fi = (date(2025,6,1) - timedelta(days=R.randint(1,365))).isoformat()
+            ff = None if R.random()>0.4 else (date(2025,6,1)+timedelta(days=R.randint(30,365))).isoformat()
+            med = R.choice(MEDICOS_FICTICIOS)
+            medicamentos.append((
+                nhc, med_name, med_name.split()[0],
+                R.choice(["1 comprimido","2 comprimidos","1/2 comprimido","1 ampolla","10 gotas"]),
+                R.choice(["Cada 8h","Cada 12h","Cada 24h","En ayunas","Con las comidas","Por la noche"]),
+                R.choice(["Oral","Intravenosa","Subcutánea","Inhalatoria","Tópica","Sublingual"]),
+                fi, ff, med["nombre"],
+                R.choice(DIAGNOSTICOS_COMUNES),
+                R.choice(["Activo","Activo","Activo","Suspendido","Finalizado"]),
+                None,
+            ))
+
+        # Citas (1-4 próximas o pasadas)
+        for _ in range(R.randint(1,4)):
+            dias = R.randint(-90, 120)
+            fc = datetime(2025,6,1) + timedelta(days=dias)
+            hora = f"{R.randint(8,19):02d}:{R.choice(['00','15','30','45'])}"
+            med = R.choice(MEDICOS_FICTICIOS)
+            pasada = dias < 0
+            citas_list.append((
+                nhc,
+                fc.strftime("%Y-%m-%d") + " " + hora,
+                med["especialidad"], med["id"], med["nombre"],
+                R.choice(SALAS), R.choice(TIPOS_CITA),
+                R.choice(["Control rutinario","Revisión analítica","Síntomas nuevos","Seguimiento"]),
+                R.choice(["Pendiente","Confirmada","Realizada","Cancelada"]) if not pasada else R.choice(["Realizada","Realizada","No_presentado"]),
+                R.randint(15,45), None, None, 0,
+            ))
+
+        # Pruebas (0-2)
+        for _ in range(R.randint(0,2)):
+            dias_s = R.randint(10, 400)
+            fs = (date(2025,6,1) - timedelta(days=dias_s)).isoformat()
+            fr = (date.fromisoformat(fs) + timedelta(days=R.randint(1,7))).isoformat()
+            tipo = R.choice(["Analítica","Radiografía","ECG","TAC","Ecografía","RMN"])
+            vals = json.dumps({
+                "Hemoglobina": f"{round(R.uniform(10,17),1)} g/dl",
+                "Leucocitos": f"{round(R.uniform(4,11),1)} x10³/μl",
+                "Glucosa": f"{R.randint(70,140)} mg/dl",
+                "Creatinina": f"{round(R.uniform(0.6,1.4),2)} mg/dl",
+                "Colesterol total": f"{R.randint(150,260)} mg/dl",
+                "Triglicéridos": f"{R.randint(60,300)} mg/dl",
+            }, ensure_ascii=False) if tipo == "Analítica" else None
+            pruebas.append((
+                nhc, tipo, fs, fr,
+                R.choice(MEDICOS_FICTICIOS)["nombre"],
+                f"Solicitud de {tipo} por síntomas clínicos.",
+                R.choice(["Sin hallazgos relevantes","Hallazgos compatibles con diagnóstico previo",
+                          "Se recomienda seguimiento","Pendiente revisión especialista"]),
+                vals, None,
+                R.choice(["Entregada","Entregada","Realizada","Solicitada"]),
+                None,
+            ))
+
+    db.executemany("""INSERT INTO historiales
+        (nhc,fecha,tipo,especialidad,medico_id,medico_nombre,sala,motivo_consulta,
+         anamnesis,exploracion,diagnostico,diagnostico_cie,tratamiento,observaciones,
+         tension_sistolica,tension_diastolica,frecuencia_cardiaca,temperatura,
+         saturacion_o2,glucosa,peso_kg,altura_cm)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", historiales)
+
+    db.executemany("""INSERT INTO medicamentos_paciente
+        (nhc,nombre_med,principio_activo,dosis,frecuencia,via_admin,fecha_inicio,
+         fecha_fin,medico_prescriptor,motivo,estado,notas)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", medicamentos)
+
+    db.executemany("""INSERT INTO citas
+        (nhc,fecha_hora,especialidad,medico_id,medico_nombre,sala,tipo_cita,
+         motivo,estado,duracion_min,notas_previas,notas_posteriores,recordatorio_enviado)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""", citas_list)
+
+    db.executemany("""INSERT INTO pruebas_diagnosticas
+        (nhc,tipo_prueba,fecha_solicitud,fecha_resultado,solicitante,descripcion,
+         resultado,valores_analitica,archivo_resultado,estado,notas)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)""", pruebas)
+
+    db.commit()
+    print(f"✅ Hospital: {len(nhcs)} pacientes, {len(historiales)} visitas, {len(medicamentos)} medicamentos, {len(citas_list)} citas")
+
+# ── PÁGINA HOSPITAL ──
+@app.route("/hospital")
+def hospital():
+    ensure_hospital_tables()
+    return render_template("hospital.html",
+        admin=session.get("admin"),
+        medicos=MEDICOS_FICTICIOS,
+        especialidades=ESPECIALIDADES,
+        medicamentos_lista=MEDICAMENTOS_COMUNES,
+        tipos_cita=TIPOS_CITA,
+        salas=SALAS,
+        grupos_sanguineos=GRUPOS_SANGUINEOS,
+        alergias_lista=ALERGIAS_COMUNES,
+    )
+
+# ── API PACIENTES ──
+@app.route("/api/hospital/pacientes")
+def api_pacientes():
+    q      = request.args.get("q","").strip()
+    esp    = request.args.get("especialidad","")
+    mutua  = request.args.get("mutua","")
+    page   = max(0, int(request.args.get("page",0)))
+    per    = int(request.args.get("per",20))
+    sql    = "SELECT * FROM pacientes WHERE 1=1"
+    params = []
+    if q:
+        sql += " AND (nhc LIKE ? OR dni LIKE ? OR nombre LIKE ? OR apellido1 LIKE ? OR telefono LIKE ? OR email LIKE ?)"
+        params += [f"%{q}%"]*6
+    if mutua:
+        sql += " AND mutua=?"; params.append(mutua)
+    total = get_db().execute(f"SELECT COUNT(*) FROM ({sql})", params).fetchone()[0]
+    sql  += f" ORDER BY id DESC LIMIT {per} OFFSET {page*per}"
+    rows  = [dict(r) for r in query(sql, params)]
+    # Añadir contadores
+    for row in rows:
+        nhc = row["nhc"]
+        row["num_citas"]       = (query("SELECT COUNT(*) as n FROM citas WHERE nhc=?", (nhc,), one=True) or {}).get("n",0)
+        row["num_medicamentos"]= (query("SELECT COUNT(*) as n FROM medicamentos_paciente WHERE nhc=? AND estado='Activo'", (nhc,), one=True) or {}).get("n",0)
+        row["num_visitas"]     = (query("SELECT COUNT(*) as n FROM historiales WHERE nhc=?", (nhc,), one=True) or {}).get("n",0)
+    return jsonify({"rows": rows, "total": total, "page": page, "per": per})
+
+@app.route("/api/hospital/paciente/<nhc>")
+def api_paciente_detalle(nhc):
+    p = query("SELECT * FROM pacientes WHERE nhc=?", (nhc,), one=True)
+    if not p: return jsonify({"error":"Paciente no encontrado"}), 404
+    historial   = [dict(r) for r in query("SELECT * FROM historiales WHERE nhc=? ORDER BY fecha DESC", (nhc,))]
+    medicamentos= [dict(r) for r in query("SELECT * FROM medicamentos_paciente WHERE nhc=? ORDER BY estado, fecha_inicio DESC", (nhc,))]
+    citas_pac   = [dict(r) for r in query("SELECT * FROM citas WHERE nhc=? ORDER BY fecha_hora DESC", (nhc,))]
+    pruebas     = [dict(r) for r in query("SELECT * FROM pruebas_diagnosticas WHERE nhc=? ORDER BY fecha_solicitud DESC", (nhc,))]
+    return jsonify({
+        "paciente": dict(p),
+        "historial": historial,
+        "medicamentos": medicamentos,
+        "citas": citas_pac,
+        "pruebas": pruebas,
+    })
+
+@app.route("/api/hospital/buscar_dni/<dni>")
+def api_hospital_buscar_dni(dni):
+    p = query("SELECT * FROM pacientes WHERE dni=?", (dni.upper(),), one=True)
+    if p: return jsonify({"encontrado": True, "paciente": dict(p)})
+    # Buscar en ciudadanos para pre-rellenar
+    c = query("SELECT * FROM ciudadanos WHERE dni=?", (dni.upper(),), one=True)
+    if c: return jsonify({"encontrado": False, "ciudadano": dict(c)})
+    return jsonify({"encontrado": False, "ciudadano": None})
+
+# ── API CREAR/EDITAR PACIENTE ──
+@app.route("/api/hospital/paciente/nuevo", methods=["POST"])
+def api_paciente_nuevo():
+    d = request.get_json(silent=True) or {}
+    # Generar NHC único
+    ultimo = query("SELECT nhc FROM pacientes ORDER BY id DESC LIMIT 1", one=True)
+    if ultimo:
+        num = int(ultimo["nhc"].split("-")[1]) + 1
+    else:
+        num = 1
+    nhc = f"NHC-{num:06d}"
+    lid = execute("""INSERT INTO pacientes
+        (nhc,dni,nombre,apellido1,apellido2,sexo,fecha_nac,telefono,telefono2,email,
+         direccion,municipio,codigo_postal,provincia,grupo_sanguineo,alergias,
+         antecedentes_familiares,enfermedades_cronicas,medicacion_habitual,
+         fumador,alcohol,peso_kg,altura_cm,mutua,num_seguridad_social,notas_admin)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (nhc, d.get("dni","").upper(), d.get("nombre",""), d.get("apellido1",""),
+         d.get("apellido2",""), d.get("sexo",""), d.get("fecha_nac",""),
+         d.get("telefono",""), d.get("telefono2",""), d.get("email",""),
+         d.get("direccion",""), d.get("municipio",""), d.get("codigo_postal",""),
+         d.get("provincia",""), d.get("grupo_sanguineo",""),
+         json.dumps(d.get("alergias",[]), ensure_ascii=False),
+         d.get("antecedentes_familiares",""),
+         json.dumps(d.get("enfermedades_cronicas",[]), ensure_ascii=False),
+         json.dumps(d.get("medicacion_habitual",[]), ensure_ascii=False),
+         d.get("fumador","No"), d.get("alcohol","No/Ocasional"),
+         d.get("peso_kg"), d.get("altura_cm"),
+         d.get("mutua","Seguridad Social"), d.get("num_seguridad_social",""),
+         d.get("notas_admin","")))
+    audit("CREAR", "pacientes", nhc, f"Nuevo paciente: {d.get('nombre')} {d.get('apellido1')}")
+    return jsonify({"ok": True, "nhc": nhc, "id": lid})
+
+@app.route("/api/hospital/paciente/<nhc>/editar", methods=["POST"])
+def api_paciente_editar(nhc):
+    d = request.get_json(silent=True) or {}
+    campos = ["nombre","apellido1","apellido2","sexo","fecha_nac","telefono","telefono2",
+              "email","direccion","municipio","codigo_postal","provincia","grupo_sanguineo",
+              "alergias","antecedentes_familiares","enfermedades_cronicas","medicacion_habitual",
+              "fumador","alcohol","peso_kg","altura_cm","mutua","num_seguridad_social","notas_admin"]
+    sets = ", ".join(f"{c}=?" for c in campos if c in d)
+    vals = [d[c] for c in campos if c in d]
+    if sets:
+        execute(f"UPDATE pacientes SET {sets}, updated_at=datetime('now') WHERE nhc=?", vals+[nhc])
+        audit("EDITAR","pacientes",nhc,f"Campos: {sets}")
+    return jsonify({"ok":True})
+
+# ── API HISTORIAL ──
+@app.route("/api/hospital/historial/nuevo", methods=["POST"])
+def api_historial_nuevo():
+    d = request.get_json(silent=True) or {}
+    nhc = d.get("nhc","")
+    if not nhc: return jsonify({"error":"Falta NHC"}), 400
+    lid = execute("""INSERT INTO historiales
+        (nhc,fecha,tipo,especialidad,medico_id,medico_nombre,sala,motivo_consulta,
+         anamnesis,exploracion,diagnostico,diagnostico_cie,tratamiento,observaciones,
+         tension_sistolica,tension_diastolica,frecuencia_cardiaca,temperatura,
+         saturacion_o2,glucosa,peso_kg,altura_cm)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (nhc, d.get("fecha", datetime.now().strftime("%Y-%m-%d")),
+         d.get("tipo","Consulta"), d.get("especialidad",""),
+         d.get("medico_id"), d.get("medico_nombre",""),
+         d.get("sala",""), d.get("motivo_consulta",""),
+         d.get("anamnesis",""), d.get("exploracion",""),
+         d.get("diagnostico",""), d.get("diagnostico_cie",""),
+         d.get("tratamiento",""), d.get("observaciones",""),
+         d.get("tension_sistolica"), d.get("tension_diastolica"),
+         d.get("frecuencia_cardiaca"), d.get("temperatura"),
+         d.get("saturacion_o2"), d.get("glucosa"),
+         d.get("peso_kg"), d.get("altura_cm")))
+    audit("CREAR","historiales",nhc,f"Nueva visita: {d.get('diagnostico','')}")
+    return jsonify({"ok":True,"id":lid})
+
+# ── API MEDICAMENTOS ──
+@app.route("/api/hospital/medicamento/nuevo", methods=["POST"])
+def api_medicamento_nuevo():
+    d = request.get_json(silent=True) or {}
+    nhc = d.get("nhc","")
+    if not nhc: return jsonify({"error":"Falta NHC"}), 400
+    lid = execute("""INSERT INTO medicamentos_paciente
+        (nhc,nombre_med,principio_activo,dosis,frecuencia,via_admin,
+         fecha_inicio,fecha_fin,medico_prescriptor,motivo,estado,notas)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (nhc, d.get("nombre_med",""), d.get("principio_activo",""),
+         d.get("dosis",""), d.get("frecuencia",""), d.get("via_admin","Oral"),
+         d.get("fecha_inicio", datetime.now().strftime("%Y-%m-%d")),
+         d.get("fecha_fin"), d.get("medico_prescriptor",""),
+         d.get("motivo",""), d.get("estado","Activo"), d.get("notas","")))
+    audit("CREAR","medicamentos_paciente",nhc,f"Medicamento: {d.get('nombre_med')}")
+    return jsonify({"ok":True,"id":lid})
+
+@app.route("/api/hospital/medicamento/<int:mid>/estado", methods=["POST"])
+def api_medicamento_estado(mid):
+    estado = (request.get_json(silent=True) or {}).get("estado","")
+    execute("UPDATE medicamentos_paciente SET estado=? WHERE id=?", (estado, mid))
+    return jsonify({"ok":True})
+
+# ── API CITAS ──
+@app.route("/api/hospital/citas")
+def api_citas():
+    fecha  = request.args.get("fecha","")
+    esp    = request.args.get("especialidad","")
+    estado = request.args.get("estado","")
+    page   = max(0, int(request.args.get("page",0)))
+    per    = int(request.args.get("per",20))
+    sql    = """SELECT c.*, p.nombre, p.apellido1, p.apellido2, p.telefono
+                FROM citas c LEFT JOIN pacientes p ON c.nhc=p.nhc WHERE 1=1"""
+    params = []
+    if fecha: sql += " AND c.fecha_hora LIKE ?"; params.append(f"{fecha}%")
+    if esp:   sql += " AND c.especialidad=?"; params.append(esp)
+    if estado:sql += " AND c.estado=?"; params.append(estado)
+    total = get_db().execute(f"SELECT COUNT(*) FROM ({sql})", params).fetchone()[0]
+    sql  += f" ORDER BY c.fecha_hora ASC LIMIT {per} OFFSET {page*per}"
+    rows  = [dict(r) for r in query(sql, params)]
+    return jsonify({"rows":rows,"total":total,"page":page,"per":per})
+
+@app.route("/api/hospital/cita/nueva", methods=["POST"])
+def api_cita_nueva():
+    d = request.get_json(silent=True) or {}
+    nhc = d.get("nhc","")
+    if not nhc: return jsonify({"error":"Falta NHC"}), 400
+    lid = execute("""INSERT INTO citas
+        (nhc,fecha_hora,especialidad,medico_id,medico_nombre,sala,tipo_cita,
+         motivo,estado,duracion_min,notas_previas)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+        (nhc, d.get("fecha_hora",""), d.get("especialidad",""),
+         d.get("medico_id"), d.get("medico_nombre",""),
+         d.get("sala",""), d.get("tipo_cita","Consulta primera vez"),
+         d.get("motivo",""), d.get("estado","Confirmada"),
+         int(d.get("duracion_min",20)), d.get("notas_previas","")))
+    audit("CREAR","citas",nhc,f"Cita: {d.get('fecha_hora')} {d.get('especialidad')}")
+    return jsonify({"ok":True,"id":lid})
+
+@app.route("/api/hospital/cita/<int:cid>/estado", methods=["POST"])
+def api_cita_estado(cid):
+    d = request.get_json(silent=True) or {}
+    estado = d.get("estado","")
+    notas  = d.get("notas_posteriores","")
+    execute("UPDATE citas SET estado=?, notas_posteriores=? WHERE id=?", (estado, notas, cid))
+    return jsonify({"ok":True})
+
+@app.route("/api/hospital/cita/<int:cid>/cancelar", methods=["POST"])
+def api_cita_cancelar(cid):
+    execute("UPDATE citas SET estado='Cancelada' WHERE id=?", (cid,))
+    return jsonify({"ok":True})
+
+# ── API PRUEBAS ──
+@app.route("/api/hospital/prueba/nueva", methods=["POST"])
+def api_prueba_nueva():
+    d = request.get_json(silent=True) or {}
+    nhc = d.get("nhc","")
+    if not nhc: return jsonify({"error":"Falta NHC"}), 400
+    lid = execute("""INSERT INTO pruebas_diagnosticas
+        (nhc,tipo_prueba,fecha_solicitud,fecha_resultado,solicitante,
+         descripcion,resultado,valores_analitica,estado,notas)
+        VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (nhc, d.get("tipo_prueba",""), d.get("fecha_solicitud",datetime.now().strftime("%Y-%m-%d")),
+         d.get("fecha_resultado"), d.get("solicitante",""),
+         d.get("descripcion",""), d.get("resultado",""),
+         d.get("valores_analitica"), d.get("estado","Solicitada"), d.get("notas","")))
+    return jsonify({"ok":True,"id":lid})
+
+# ── API STATS HOSPITAL ──
+@app.route("/api/hospital/stats")
+def api_hospital_stats():
+    def n(sql): return (get_db().execute(sql).fetchone()[0] or 0)
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return jsonify({
+        "pacientes_total":  n("SELECT COUNT(*) FROM pacientes"),
+        "citas_hoy":        n(f"SELECT COUNT(*) FROM citas WHERE fecha_hora LIKE '{hoy}%'"),
+        "citas_pendientes": n("SELECT COUNT(*) FROM citas WHERE estado IN ('Pendiente','Confirmada') AND fecha_hora >= datetime('now')"),
+        "medicamentos_activos": n("SELECT COUNT(*) FROM medicamentos_paciente WHERE estado='Activo'"),
+        "pruebas_pendientes":   n("SELECT COUNT(*) FROM pruebas_diagnosticas WHERE estado='Solicitada'"),
+        "ingresos_hoy":     n(f"SELECT COUNT(*) FROM historiales WHERE tipo='Ingreso' AND fecha='{hoy}'"),
+        "urgencias_hoy":    n(f"SELECT COUNT(*) FROM historiales WHERE tipo='Urgencia' AND fecha='{hoy}'"),
+        "por_mutua":        dict(r for r in get_db().execute("SELECT mutua, COUNT(*) FROM pacientes GROUP BY mutua ORDER BY 2 DESC").fetchall()),
+        "por_especialidad_citas": dict(r for r in get_db().execute("SELECT especialidad, COUNT(*) FROM citas WHERE estado IN ('Pendiente','Confirmada') GROUP BY especialidad ORDER BY 2 DESC LIMIT 10").fetchall()),
+        "proximas_citas": [dict(r) for r in query("""
+            SELECT c.*, p.nombre, p.apellido1 FROM citas c
+            LEFT JOIN pacientes p ON c.nhc=p.nhc
+            WHERE c.estado IN ('Pendiente','Confirmada') AND c.fecha_hora >= datetime('now')
+            ORDER BY c.fecha_hora ASC LIMIT 10""")],
+    })
