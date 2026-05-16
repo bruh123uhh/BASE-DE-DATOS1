@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistema Hospitalario — Hospital Educativo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#f8fafc;--bg4:#e8f0fe;
+  --border:#d1d9e6;--border2:#c4cfe0;
+  --text:#1a2332;--text2:#4a5568;--text3:#8899aa;
+  --blue:#1a73e8;--blue2:#1557b0;--blue3:#e8f0fe;
+  --green:#1e8449;--green2:#d4edda;--green3:#0f5132;
+  --red:#c0392b;--red2:#f8d7da;--red3:#842029;
+  --orange:#e67e22;--orange2:#fef3cd;--orange3:#664d03;
+  --purple:#7b2d8b;--purple2:#f3e5f5;
+  --teal:#0097a7;--teal2:#e0f7fa;
+  --white:#ffffff;--shadow:0 2px 8px rgba(0,0,0,.1);
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;font-size:13px;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--blue);color:#fff;padding:0 20px;height:56px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hospital-logo{display:flex;align-items:center;gap:10px}
+.hospital-logo .cross{font-size:22px}
+.hospital-name{font-size:15px;font-weight:700;letter-spacing:.5px}
+.hospital-sub{font-size:10px;opacity:.75;letter-spacing:.3px}
+.topnav{display:flex;gap:4px;margin-left:20px}
+.topnav a{color:rgba(255,255,255,.85);padding:5px 12px;border-radius:6px;font-size:11px;
+  text-decoration:none;transition:.15s;font-weight:500}
+.topnav a:hover{background:rgba(255,255,255,.2);color:#fff}
+.topnav a.other{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}
+.ml-auto{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tb-stat{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:600;
+  background:rgba(255,255,255,.2);color:#fff;white-space:nowrap}
+.tb-stat.alert{background:#c0392b;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* LAYOUT */
+.wrap{max-width:1600px;margin:0 auto;padding:16px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;
+  text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.blue::before{background:var(--blue)}.sc.green::before{background:var(--green)}
+.sc.red::before{background:var(--red)}.sc.orange::before{background:var(--orange)}
+.sc.purple::before{background:var(--purple)}.sc.teal::before{background:var(--teal)}
+.scn{font-size:26px;font-weight:700}
+.scn.blue{color:var(--blue)}.scn.green{color:var(--green)}.scn.red{color:var(--red)}
+.scn.orange{color:var(--orange)}.scn.purple{color:var(--purple)}.scn.teal{color:var(--teal)}
+.scl{font-size:10px;color:var(--text3);margin-top:3px;font-weight:500}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:10px 18px;font-size:12px;cursor:pointer;color:var(--text2);
+  border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;
+  font-weight:500;white-space:nowrap;border-radius:6px 6px 0 0}
+.tab:hover{background:var(--bg3);color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);background:var(--blue3)}
+
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.panel-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* BOTONES */
+.btn{background:var(--blue);color:#fff;border:none;padding:8px 18px;border-radius:7px;
+  cursor:pointer;font-size:12px;font-weight:600;transition:.15s;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--blue2)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.green{background:var(--green)}.btn.green:hover{background:var(--green3)}
+.btn.red{background:var(--red)}.btn.red:hover{background:var(--red3)}
+.btn.orange{background:var(--orange)}.btn.orange:hover{background:#c0661a}
+.btn.purple{background:var(--purple)}.btn.purple:hover{background:#5c1f69}
+.btn.teal{background:var(--teal)}.btn.teal:hover{background:#00838f}
+.btn.outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}.btn.outline:hover{background:var(--blue3)}
+.btn.sm{padding:4px 10px;font-size:10px}
+.btn.xs{padding:2px 7px;font-size:9px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+/* BUSCADOR */
+.search-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.search-bar input,.search-bar select{border:1.5px solid var(--border);background:var(--bg2);
+  color:var(--text);padding:8px 12px;border-radius:7px;font-size:12px;height:36px;transition:.15s}
+.search-bar input{flex:1;min-width:200px}
+.search-bar input:focus,.search-bar select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
+
+/* TABLA */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{background:var(--bg3);padding:9px 10px;text-align:left;font-weight:600;font-size:11px;
+  color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;letter-spacing:.2px}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--blue3)}
+.pag{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--text2)}
+.pag .pi{flex:1;text-align:center;font-weight:500}
+.pag button{background:var(--bg2);border:1px solid var(--border);color:var(--text2);
+  padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px}
+.pag button:hover{border-color:var(--blue);color:var(--blue)}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.ctrl input,.ctrl select{border:1.5px solid var(--border);background:var(--bg2);color:var(--text);
+  padding:5px 10px;height:32px;border-radius:6px;font-size:11px}
+.ctrl input{flex:1;min-width:150px}
+.ctrl input:focus,.ctrl select:focus{outline:none;border-color:var(--blue)}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600}
+.badge.green{background:var(--green2);color:var(--green3)}
+.badge.red{background:var(--red2);color:var(--red3)}
+.badge.orange{background:var(--orange2);color:var(--orange3)}
+.badge.blue{background:var(--blue3);color:var(--blue2)}
+.badge.purple{background:var(--purple2);color:var(--purple)}
+.badge.teal{background:var(--teal2);color:var(--teal)}
+.badge.gray{background:#f0f0f0;color:#666}
+
+/* FICHAS */
+.ficha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:10px}
+.ficha-card{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px}
+.fc-key{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.fc-val{font-size:12px;color:var(--text);font-weight:600;margin-top:2px;overflow-wrap:anywhere}
+.fc-val.blue{color:var(--blue)}.fc-val.green{color:var(--green)}.fc-val.red{color:var(--red)}.fc-val.orange{color:var(--orange)}
+.ficha-sep{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--text2);
+  border-top:1px solid var(--border);padding-top:8px;margin-top:4px;
+  display:flex;align-items:center;gap:6px}
+
+/* HISTORIAL TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:2px}
+.tl-dot.consulta{background:var(--blue3);color:var(--blue)}
+.tl-dot.urgencia{background:var(--red2);color:var(--red)}
+.tl-dot.ingreso{background:var(--orange2);color:var(--orange)}
+.tl-dot.revisión{background:var(--green2);color:var(--green)}
+.tl-content{flex:1}
+.tl-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tl-fecha{font-size:11px;color:var(--text3);font-weight:600}
+.tl-tipo{font-size:11px;font-weight:700}
+.tl-medico{font-size:11px;color:var(--text2)}
+.tl-diag{font-size:13px;font-weight:700;color:var(--text);margin:4px 0}
+.tl-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.tl-vitales{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.vital{background:var(--bg3);border:1px solid var(--border);border-radius:5px;
+  padding:3px 8px;font-size:10px;font-weight:600}
+.vital.warning{background:var(--orange2);border-color:var(--orange);color:var(--orange3)}
+.vital.danger{background:var(--red2);border-color:var(--red);color:var(--red3)}
+
+/* MEDICAMENTOS */
+.med-item{display:flex;gap:12px;align-items:flex-start;padding:10px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.med-icon{width:38px;height:38px;border-radius:8px;background:var(--green2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.med-icon.suspendido{background:#f0f0f0}
+.med-info{flex:1}
+.med-nombre{font-size:13px;font-weight:700;color:var(--text)}
+.med-dosis{font-size:11px;color:var(--text2);margin-top:2px}
+.med-meta{font-size:10px;color:var(--text3);margin-top:3px}
+.med-actions{display:flex;gap:5px;align-items:center}
+
+/* CITAS */
+.cita-card{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;
+  padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;
+  cursor:pointer;transition:.15s}
+.cita-card:hover{border-color:var(--blue);background:var(--blue3)}
+.cita-card.pasada{opacity:.65}
+.cita-hora{text-align:center}
+.cita-hora .h{font-size:16px;font-weight:700;color:var(--blue)}
+.cita-hora .d{font-size:10px;color:var(--text3)}
+.cita-info .nombre{font-size:13px;font-weight:700;color:var(--text)}
+.cita-info .esp{font-size:11px;color:var(--text2);margin-top:2px}
+.cita-info .sala{font-size:10px;color:var(--text3)}
+
+/* FORMULARIOS */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--border);background:var(--bg2);
+  color:var(--text);padding:8px 10px;border-radius:7px;font-size:12px;transition:.15s;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+.fg textarea{resize:vertical;min-height:70px}
+.fg.span2{grid-column:span 2}.fg.span3{grid-column:span 3}
+.form-section{font-size:12px;font-weight:700;color:var(--blue);grid-column:1/-1;
+  border-bottom:1.5px solid var(--blue3);padding-bottom:6px;margin-bottom:2px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+  align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:12px;padding:24px;max-width:900px;width:100%;
+  max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px;
+  display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text2);border-radius:7px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:600}
+.modal-close:hover{background:var(--red2);color:var(--red);border-color:var(--red)}
+
+/* PACIENTE HEADER */
+.pac-header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue2) 100%);
+  border-radius:10px;padding:20px;color:#fff;margin-bottom:16px;display:flex;gap:16px;align-items:center}
+.pac-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.pac-info h2{font-size:18px;font-weight:700}
+.pac-info p{font-size:12px;opacity:.85;margin-top:3px}
+.pac-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pac-badge{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);
+  padding:2px 10px;border-radius:99px;font-size:10px;font-weight:600}
+.pac-badge.alert{background:rgba(255,80,80,.5);border-color:rgba(255,80,80,.7)}
+
+/* ALERTA ALERGIA */
+.alergia-alert{background:var(--red2);border:1.5px solid var(--red);border-radius:8px;
+  padding:10px 14px;font-size:12px;font-weight:600;color:var(--red3);
+  display:flex;align-items:center;gap:8px;margin-bottom:12px}
+
+/* VITALES WIDGET */
+.vitales-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.vt{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.vt-icon{font-size:18px;margin-bottom:4px}
+.vt-val{font-size:18px;font-weight:700;color:var(--text)}
+.vt-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.vt.warning .vt-val{color:var(--orange)}.vt.danger .vt-val{color:var(--red)}
+
+/* TABS DENTRO DE FICHA */
+.inner-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.itab{padding:6px 14px;font-size:11px;cursor:pointer;border-radius:99px;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-weight:500;transition:.15s}
+.itab:hover{border-color:var(--blue);color:var(--blue)}
+.itab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* LOADING */
+.loading{text-align:center;padding:30px;color:var(--text3);font-size:13px}
+.empty{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+.empty .ei{font-size:32px;margin-bottom:8px}
+.ebox{background:var(--red2);border:1px solid var(--red);border-radius:7px;
+  padding:10px 14px;color:var(--red3);font-size:12px;margin-top:8px}
+.sbox{background:var(--green2);border:1px solid var(--green);border-radius:7px;
+  padding:10px 14px;color:var(--green3);font-size:12px;margin-top:8px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;
+  border-radius:8px;padding:12px 20px;font-size:12px;font-weight:600;z-index:9999;
+  transform:translateY(100px);opacity:0;transition:.3s;max-width:380px;box-shadow:var(--shadow)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--green)}.toast.err{background:var(--red)}.toast.warn{background:var(--orange)}
+
+/* NHC BADGE */
+.nhc{display:inline-block;background:var(--blue3);color:var(--blue);border:1px solid var(--blue);
+  border-radius:5px;padding:1px 8px;font-size:10px;font-weight:700;letter-spacing:.5px}
+
+/* TIMELINE MINI */
+.mini-stat{display:inline-flex;align-items:center;gap:4px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600}
+
+@media print{.topbar,.tabs,.search-bar,.btn-row,.pag,.no-print{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="hospital-logo">
+    <span class="cross">🏥</span>
+    <div>
+      <div class="hospital-name">HOSPITAL UNIVERSITARIO CENTRAL</div>
+      <div class="hospital-sub">SISTEMA DE GESTIÓN HOSPITALARIA — FICTICIO EDUCATIVO</div>
+    </div>
+  </div>
+  <nav class="topnav">
+    <a href="/">🏠 DGT</a>
+    <a href="/policia">🚔 Policía</a>
+    <a href="/buscador">🔍 Buscador</a>
+    {% if admin %}<a href="/admin" class="other">🔧 Admin</a><a href="/logout">Salir</a>
+    {% else %}<a href="/login" class="other">🔐 Login</a>{% endif %}
+  </nav>
+  <div class="ml-auto">
+    <span class="tb-stat" id="tb_pac">👤 —</span>
+    <span class="tb-stat" id="tb_citas">📅 —</span>
+    <span class="tb-stat alert" id="tb_urg">🚨 —</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="sc blue"><div class="scn blue" id="s_pac">—</div><div class="scl">Pacientes</div></div>
+    <div class="sc green"><div class="scn green" id="s_cit">—</div><div class="scl">Citas pendientes</div></div>
+    <div class="sc teal"><div class="scn teal" id="s_hoy">—</div><div class="scl">Citas hoy</div></div>
+    <div class="sc orange"><div class="scn orange" id="s_med">—</div><div class="scl">Medicamentos activos</div></div>
+    <div class="sc purple"><div class="scn purple" id="s_pru">—</div><div class="scl">Pruebas pendientes</div></div>
+    <div class="sc red"><div class="scn red" id="s_urg">—</div><div class="scl">Urgencias hoy</div></div>
+  </div>
+
+  <!-- TABS PRINCIPALES -->
+  <div class="tabs">
+    <div class="tab active" onclick="ST('inicio')">🏠 Inicio</div>
+    <div class="tab" onclick="ST('pacientes')">👤 Pacientes</div>
+    <div class="tab" onclick="ST('nuevo_pac')">➕ Nuevo Paciente</div>
+    <div class="tab" onclick="ST('agenda')">📅 Agenda / Citas</div>
+    <div class="tab" onclick="ST('nueva_cita')">📋 Nueva Cita</div>
+    <div class="tab" onclick="ST('buscar_dni')">🔍 Buscar por DNI</div>
+  </div>
+
+  <!-- ══════════════ INICIO ══════════════ -->
+  <div id="tab-inicio">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Próximas citas -->
+      <div class="panel">
+        <div class="panel-title">📅 Próximas citas del día</div>
+        <div id="proximas_citas"><div class="loading">Cargando...</div></div>
+      </div>
+      <!-- Últimos pacientes -->
+      <div class="panel">
+        <div class="panel-title">👤 Últimos pacientes registrados</div>
+        <div id="ultimos_pacientes"><div class="loading">Cargando...</div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <!-- Accesos rápidos -->
+      <div class="panel">
+        <div class="panel-title">⚡ Acceso rápido</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn teal" onclick="ST('buscar_dni')" style="justify-content:center;padding:14px">
+            🔍<br><span style="font-size:10px;margin-top:4px;display:block">Buscar por DNI</span>
+          </button>
+          <button class="btn green" onclick="ST('nuevo_pac')" style="justify-content:center;padding:14px">
+            ➕<br><span style="font-size:10px;margin-top:4px;display:block">Nuevo paciente</span>
+          </button>
+          <button class="btn blue" onclick="ST('agenda')" style="justify-content:center;padding:14px">
+            📅<br><span style="font-size:10px;margin-top:4px;display:block">Ver agenda</span>
+          </button>
+          <button class="btn orange" onclick="ST('nueva_cita')" style="justify-content:center;padding:14px">
+            📋<br><span style="font-size:10px;margin-top:4px;display:block">Nueva cita</span>
+          </button>
+        </div>
+      </div>
+      <!-- Citas por especialidad -->
+      <div class="panel">
+        <div class="panel-title">📊 Citas por especialidad</div>
+        <div id="esp_chart" style="display:flex;flex-direction:column;gap:5px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PACIENTES ══════════════ -->
+  <div id="tab-pacientes" style="display:none">
+    <div class="panel">
+      <div class="panel-title">👤 Lista de pacientes</div>
+      <div class="search-bar">
+        <input id="pQ" placeholder="🔍 Buscar por nombre, DNI, NHC, teléfono, email..." oninput="deb(loadPac,300)()">
+        <select id="pMutua" onchange="loadPac()">
+          <option value="">Todas las mutuas</option>
+          <option>Seguridad Social</option><option>MUFACE</option><option>Adeslas</option>
+          <option>Sanitas</option><option>Asisa</option><option>Privado</option>
+        </select>
+        <button class="btn sm" onclick="loadPac()">🔄</button>
+        <button class="btn sm green" onclick="ST('nuevo_pac')">➕ Nuevo</button>
+      </div>
+      <div id="pac_detail"></div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th style="width:90px">NHC</th>
+          <th style="width:75px">DNI</th>
+          <th style="width:160px">Nombre completo</th>
+          <th style="width:55px">Edad</th>
+          <th style="width:35px">Sexo</th>
+          <th style="width:80px">Grupo sang.</th>
+          <th style="width:100px">Teléfono</th>
+          <th style="width:70px">Mutua</th>
+          <th style="width:80px">Alergias</th>
+          <th style="width:45px">Visits.</th>
+          <th style="width:45px">Meds.</th>
+          <th style="width:45px">Citas</th>
+          <th style="width:55px">Acciones</th>
+        </tr></thead>
+        <tbody id="pBody"><tr><td colspan="13" class="loading">Cargando...</td></tr></tbody>
+      </table></div>
+      <div class="pag">
+        <button onclick="pPage--;loadPac()">← Ant.</button>
+        <div class="pi" id="pPI"></div>
+        <button onclick="pPage++;loadPac()">Sig. →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ NUEVO PACIENTE ══════════════ -->
+  <div id="tab-nuevo_pac" style="display:none">
+    <div class="panel">
+      <div class="panel-title">➕ Registrar nuevo paciente</div>
+      <!-- Buscar por DNI primero -->
+      <div style="background:var(--blue3);border:1px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px">
+          💡 Si el paciente ya existe en la BD del sistema, sus datos se precargarán automáticamente
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="nuevo_dni_buscar" placeholder="Introduce DNI para precargar datos"
+                 style="flex:1;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px"
+                 oninput="this.value=this.value.toUpperCase()">
+          <button class="btn teal" onclick="precargarDNI()">🔍 Buscar DNI</button>
+        </div>
+        <div id="dni_buscar_res" style="margin-top:6px;font-size:11px"></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-section">👤 DATOS PERSONALES</div>
+        <div class="fg"><label>DNI / NIF</label><input type="text" id="np_dni" placeholder="12345678Z" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label>Nombre *</label><input type="text" id="np_nombre" placeholder="María"></div>
+        <div class="fg"><label>1er Apellido *</label><input type="text" id="np_ap1" placeholder="García"></div>
+        <div class="fg"><label>2º Apellido</label><input type="text" id="np_ap2" placeholder="López"></div>
+        <div class="fg"><label>Sexo</label>
+          <select id="np_sexo"><option>Mujer</option><option>Hombre</option><option>No especificado</option></select></div>
+        <div class="fg"><label>Fecha nacimiento</label><input type="date" id="np_fnac"></div>
+        <div class="fg"><label>Teléfono principal</label><input type="tel" id="np_tel" placeholder="+34 600 000 000"></div>
+        <div class="fg"><label>Teléfono 2</label><input type="tel" id="np_tel2" placeholder="Opcional"></div>
+        <div class="fg"><label>Email</label><input type="email" id="np_email" placeholder="correo@email.com"></div>
+        <div class="fg"><label>Dirección</label><input type="text" id="np_dir" placeholder="Calle, número, piso"></div>
+        <div class="fg"><label>Municipio</label><input type="text" id="np_mun" placeholder="Ciudad"></div>
+        <div class="fg"><label>Código postal</label><input type="text" id="np_cp" placeholder="28001"></div>
+        <div class="fg"><label>Provincia</label><input type="text" id="np_prov" placeholder="Madrid"></div>
+
+        <div class="form-section">🩺 DATOS CLÍNICOS</div>
+        <div class="fg"><label>Grupo sanguíneo</label>
+          <select id="np_gs">
+            {% for g in grupos_sanguineos %}<option>{{g}}</option>{% endfor %}
+          </select></div>
+        <div class="fg"><label>Peso (kg)</label><input type="number" id="np_peso" placeholder="70" min="1" max="300" step="0.1"></div>
+        <div class="fg"><label>Altura (cm)</label><input type="number" id="np_altura" placeholder="170" min="50" max="250"></div>
+        <div class="fg"><label>Fumador</label>
+          <select id="np_fum"><option>No</option><option>Sí</option><option>Ex-fumador</option></select></div>
+        <div class="fg"><label>Alcohol</label>
+          <select id="np_alc"><option>No/Ocasional</option><option>Moderado</option><option>Elevado</option></select></div>
+        <div class="fg"><label>Alergias conocidas</label>
+          <input type="text" id="np_alergias" placeholder="ej: Penicilina, AINEs (separadas por comas)"></div>
+        <div class="fg"><label>Antecedentes familiares</label>
+          <input type="text" id="np_antfam" placeholder="ej: Padre HTA, Madre diabetes"></div>
+        <div class="fg span2"><label>Enfermedades crónicas</label>
+          <input type="text" id="np_cronicas" placeholder="ej: HTA, Diabetes tipo 2 (separadas por comas)"></div>
+
+        <div class="form-section">🏥 DATOS ADMINISTRATIVOS</div>
+        <div class="fg"><label>Mutua / Cobertura</label>
+          <select id="np_mutua">
+            <option>Seguridad Social</option><option>MUFACE</option><option>MUGEJU</option>
+            <option>Adeslas</option><option>Sanitas</option><option>Asisa</option><option>Privado</option>
+          </select></div>
+        <div class="fg"><label>Nº Seguridad Social</label><input type="text" id="np_nss" placeholder="SS-000000000"></div>
+        <div class="fg span2"><label>Notas administrativas</label>
+          <input type="text" id="np_notas" placeholder="Observaciones internas"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn green" onclick="crearPaciente()">💾 Registrar paciente</button>
+        <button class="btn outline" onclick="limpiarFormPac()">🗑 Limpiar</button>
+        <span id="np_res" style="font-size:12px;color:var(--green);font-weight:600"></span>
+      </div>
+      <div id="np_err"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ AGENDA ══════════════ -->
+  <div id="tab-agenda" style="display:none">
+    <div class="panel">
+      <div class="panel-title">📅 Agenda de citas</div>
+      <div class="ctrl">
+        <input type="date" id="aFecha" onchange="loadCitas()">
+        <select id="aEsp" onchange="loadCitas()">
+          <option value="">Todas las especialidades</option>
+          {% for e in especialidades %}<option>{{e}}</option>{% endfor %}
+        </select>
+        <select id="aEst" onchange="loadCitas()">
+          <option value="">Todos los estados</option>
+          <option>Pendiente</option><option>Confirmada</option>
+          <option>Realizada</option><option>Cancelada</option><option>No_presentado</option>
+        </select>
+        <button class="btn sm" onclick="loadCitas()">🔄</button>
+        <button class="btn sm green" onclick="ST('nueva_cita')">➕ Nueva cita</button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th style="width:100px">Fecha/Hora</th>
+          <th style="width:90px">NHC</th>
+          <th style="width:150px">Paciente</th>
+          <th style="width:100px">Especialidad</th>
+          <th style="width:130px">Médico</th>
+          <th style="width:80px">Sala</th>
+          <th style="width:90px">Tipo</th>
+          <th style="width:120px">Motivo</th>
+          <th style="width:35px">Min</th>
+          <th style="width:75px">Estado</th>
+          <th style="width:90px">Acciones</th>
+        </tr></thead>
+        <tbody id="aBody"><tr><td colspan="11" class="loading">Cargando...</td></tr></tbody>
+      </table></div>
+      <div class="pag">
+        <button onclick="aPage--;loadCitas()">← Ant.</button>
+        <div class="pi" id="aPI"></div>
+        <button onclick="aPage++;loadCitas()">Sig. →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ NUEVA CITA ══════════════ -->
+  <div id="tab-nueva_cita" style="display:none">
+    <div class="panel">
+      <div class="panel-title">📋 Registrar nueva cita</div>
+      <!-- Buscar paciente -->
+      <div style="background:var(--blue3);border:1px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px">Buscar paciente por NHC o DNI</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="nc_buscar" placeholder="NHC-000001 o DNI 12345678Z"
+                 style="flex:1;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px"
+                 oninput="this.value=this.value.toUpperCase()">
+          <button class="btn teal" onclick="buscarPacCita()">🔍 Buscar</button>
+        </div>
+        <div id="nc_pac_info" style="margin-top:8px;font-size:11px"></div>
+      </div>
+
+      <div class="form-grid">
+        <div class="fg"><label>NHC del paciente *</label>
+          <input type="text" id="nc_nhc" placeholder="NHC-000001" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label>Especialidad *</label>
+          <select id="nc_esp">
+            {% for e in especialidades %}<option>{{e}}</option>{% endfor %}
+          </select></div>
+        <div class="fg"><label>Médico</label>
+          <select id="nc_medico">
+            {% for m in medicos %}<option value="{{m.id}}" data-nombre="{{m.nombre}}">{{m.nombre}} — {{m.especialidad}}</option>{% endfor %}
+          </select></div>
+        <div class="fg"><label>Fecha y hora *</label>
+          <input type="datetime-local" id="nc_fecha"></div>
+        <div class="fg"><label>Duración (minutos)</label>
+          <input type="number" id="nc_dur" value="20" min="5" max="120" step="5"></div>
+        <div class="fg"><label>Sala / Consulta</label>
+          <select id="nc_sala">
+            {% for s in salas %}<option>{{s}}</option>{% endfor %}
+          </select></div>
+        <div class="fg"><label>Tipo de cita</label>
+          <select id="nc_tipo">
+            {% for t in tipos_cita %}<option>{{t}}</option>{% endfor %}
+          </select></div>
+        <div class="fg"><label>Estado</label>
+          <select id="nc_estado">
+            <option>Confirmada</option><option>Pendiente</option>
+          </select></div>
+        <div class="fg span2"><label>Motivo / Observaciones previas</label>
+          <input type="text" id="nc_motivo" placeholder="Motivo de la cita"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn green" onclick="crearCita()">💾 Guardar cita</button>
+        <span id="nc_res" style="font-size:12px;color:var(--green);font-weight:600"></span>
+      </div>
+      <div id="nc_err"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ BUSCAR DNI ══════════════ -->
+  <div id="tab-buscar_dni" style="display:none">
+    <div class="panel">
+      <div class="panel-title">🔍 Buscar paciente por DNI</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input type="text" id="bdQ" placeholder="Introduce el DNI (ej: 12345678Z)"
+               style="flex:1;border:1.5px solid var(--border);border-radius:7px;padding:10px 14px;font-size:14px;font-weight:700;letter-spacing:2px"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter')buscarDNI()">
+        <button class="btn" onclick="buscarDNI()" style="padding:10px 24px;font-size:13px">🔍 BUSCAR</button>
+      </div>
+      <div id="bd_result"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: FICHA COMPLETA PACIENTE -->
+<div class="overlay" id="modalPac">
+  <div class="modal" style="max-width:1100px">
+    <button class="modal-close" onclick="closeModal('modalPac')">✕ Cerrar</button>
+    <div id="modalPacContent"><div class="loading">Cargando ficha...</div></div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVA CONSULTA/VISITA -->
+<div class="overlay" id="modalVisita">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalVisita')">✕ Cerrar</button>
+    <div class="modal-title">🩺 Registrar nueva visita / consulta</div>
+    <input type="hidden" id="v_nhc">
+    <div class="form-grid">
+      <div class="fg"><label>Tipo *</label>
+        <select id="v_tipo"><option>Consulta</option><option>Urgencia</option><option>Revisión</option><option>Ingreso</option><option>Alta</option></select></div>
+      <div class="fg"><label>Especialidad</label>
+        <select id="v_esp">{% for e in especialidades %}<option>{{e}}</option>{% endfor %}</select></div>
+      <div class="fg"><label>Médico</label>
+        <select id="v_med">{% for m in medicos %}<option value="{{m.id}}" data-nombre="{{m.nombre}}">{{m.nombre}}</option>{% endfor %}</select></div>
+      <div class="fg"><label>Sala</label>
+        <select id="v_sala">{% for s in salas %}<option>{{s}}</option>{% endfor %}</select></div>
+      <div class="fg"><label>Fecha</label><input type="date" id="v_fecha"></div>
+      <div class="fg"><label>Motivo de consulta *</label>
+        <input type="text" id="v_motivo" placeholder="Dolor torácico, revisión..."></div>
+      <div class="form-section">📋 ANAMNESIS Y EXPLORACIÓN</div>
+      <div class="fg span2"><label>Anamnesis (descripción del paciente)</label>
+        <textarea id="v_anamnesis" rows="2" placeholder="Paciente refiere..."></textarea></div>
+      <div class="fg span2"><label>Exploración física</label>
+        <textarea id="v_exploracion" rows="2" placeholder="A la exploración..."></textarea></div>
+      <div class="fg span2"><label>Diagnóstico *</label>
+        <input type="text" id="v_diag" list="diag_list" placeholder="Diagnóstico principal">
+        <datalist id="diag_list">{% for d in ['Hipertensión arterial','Diabetes mellitus tipo 2','Asma bronquial','EPOC','Insuficiencia cardíaca','Migraña','Depresión mayor','Artrosis lumbar','Gastritis crónica','Anemia ferropénica'] %}<option value="{{d}}">{% endfor %}</datalist>
+      </div>
+      <div class="fg"><label>Código CIE-10</label><input type="text" id="v_cie" placeholder="ej: I10.0"></div>
+      <div class="fg span2"><label>Tratamiento / Plan terapéutico</label>
+        <textarea id="v_trat" rows="2" placeholder="Se pauta tratamiento con..."></textarea></div>
+      <div class="fg span2"><label>Observaciones</label>
+        <textarea id="v_obs" rows="2" placeholder="Observaciones adicionales..."></textarea></div>
+      <div class="form-section">❤️ CONSTANTES VITALES</div>
+      <div class="fg"><label>TA Sistólica (mmHg)</label><input type="number" id="v_tas" placeholder="120" min="50" max="250"></div>
+      <div class="fg"><label>TA Diastólica (mmHg)</label><input type="number" id="v_tad" placeholder="80" min="30" max="150"></div>
+      <div class="fg"><label>FC (lat/min)</label><input type="number" id="v_fc" placeholder="70" min="20" max="250"></div>
+      <div class="fg"><label>Temperatura (°C)</label><input type="number" id="v_temp" placeholder="36.5" min="30" max="43" step="0.1"></div>
+      <div class="fg"><label>SatO2 (%)</label><input type="number" id="v_sato2" placeholder="98" min="50" max="100"></div>
+      <div class="fg"><label>Glucosa (mg/dl)</label><input type="number" id="v_gluc" placeholder="90" min="30" max="600"></div>
+      <div class="fg"><label>Peso (kg)</label><input type="number" id="v_peso" placeholder="70" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn green" onclick="guardarVisita()">💾 Guardar visita</button>
+      <span id="v_res" style="font-size:12px;color:var(--green);font-weight:600"></span>
+    </div>
+    <div id="v_err"></div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO MEDICAMENTO -->
+<div class="overlay" id="modalMed">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalMed')">✕ Cerrar</button>
+    <div class="modal-title">💊 Añadir medicamento</div>
+    <input type="hidden" id="med_nhc">
+    <div class="form-grid">
+      <div class="fg span2"><label>Medicamento *</label>
+        <input type="text" id="med_nombre" list="med_list" placeholder="Nombre del medicamento">
+        <datalist id="med_list">{% for m in medicamentos_lista %}<option value="{{m}}">{% endfor %}</datalist>
+      </div>
+      <div class="fg"><label>Principio activo</label><input type="text" id="med_pa" placeholder="Ej: Atorvastatina"></div>
+      <div class="fg"><label>Dosis *</label><input type="text" id="med_dosis" placeholder="ej: 1 comprimido"></div>
+      <div class="fg"><label>Frecuencia *</label>
+        <select id="med_freq">
+          <option>Cada 8h</option><option>Cada 12h</option><option>Cada 24h</option>
+          <option>En ayunas</option><option>Con las comidas</option><option>Por la noche</option>
+          <option>Cada 48h</option><option>Semanal</option><option>A demanda</option>
+        </select></div>
+      <div class="fg"><label>Vía de administración</label>
+        <select id="med_via">
+          <option>Oral</option><option>Intravenosa</option><option>Subcutánea</option>
+          <option>Inhalatoria</option><option>Tópica</option><option>Sublingual</option><option>Rectal</option>
+        </select></div>
+      <div class="fg"><label>Fecha inicio</label><input type="date" id="med_fi"></div>
+      <div class="fg"><label>Fecha fin (si aplica)</label><input type="date" id="med_ff"></div>
+      <div class="fg"><label>Médico prescriptor</label>
+        <select id="med_med">{% for m in medicos %}<option>{{m.nombre}}</option>{% endfor %}</select></div>
+      <div class="fg span2"><label>Motivo / Indicación</label>
+        <input type="text" id="med_motivo" placeholder="Indicación clínica"></div>
+      <div class="fg span2"><label>Notas / Instrucciones especiales</label>
+        <input type="text" id="med_notas" placeholder="ej: Tomar con abundante agua, no con lácteos..."></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn green" onclick="guardarMedicamento()">💊 Añadir medicamento</button>
+      <span id="med_res" style="font-size:12px;color:var(--green);font-weight:600"></span>
+    </div>
+    <div id="med_err"></div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVA PRUEBA -->
+<div class="overlay" id="modalPrueba">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalPrueba')">✕ Cerrar</button>
+    <div class="modal-title">🔬 Solicitar prueba diagnóstica</div>
+    <input type="hidden" id="pru_nhc">
+    <div class="form-grid">
+      <div class="fg"><label>Tipo de prueba *</label>
+        <select id="pru_tipo">
+          <option>Analítica</option><option>Radiografía</option><option>Ecografía</option>
+          <option>TAC</option><option>RMN</option><option>ECG</option>
+          <option>Espirometría</option><option>Colonoscopia</option><option>Gastroscopia</option>
+          <option>Biopsia</option><option>Densitometría</option><option>Mamografía</option>
+        </select></div>
+      <div class="fg"><label>Fecha solicitud</label><input type="date" id="pru_fs"></div>
+      <div class="fg"><label>Médico solicitante</label>
+        <select id="pru_med">{% for m in medicos %}<option>{{m.nombre}}</option>{% endfor %}</select></div>
+      <div class="fg"><label>Fecha resultado (si disponible)</label><input type="date" id="pru_fr"></div>
+      <div class="fg span2"><label>Descripción / Motivo solicitud</label>
+        <textarea id="pru_desc" rows="2" placeholder="Motivo de la solicitud..."></textarea></div>
+      <div class="fg span2"><label>Resultado (si ya disponible)</label>
+        <textarea id="pru_res_txt" rows="2" placeholder="Resultado de la prueba..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn purple" onclick="guardarPrueba()">🔬 Solicitar prueba</button>
+      <span id="pru_res" style="font-size:12px;color:var(--green);font-weight:600"></span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  ESTADO GLOBAL
+// ═══════════════════════════════════════════
+let pPage=0, aPage=0;
+const $ = id => document.getElementById(id);
+function deb(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+function toast(msg,type='ok'){
+  const t=$('toast');t.textContent=msg;
+  t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',4000);
+}
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+function ST(tab){
+  ['inicio','pacientes','nuevo_pac','agenda','nueva_cita','buscar_dni'].forEach(t=>{
+    const el=$('tab-'+t);if(el)el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['inicio','pacientes','nuevo_pac','agenda','nueva_cita','buscar_dni'][i]===tab);
+  });
+  if(tab==='inicio')   loadInicio();
+  if(tab==='pacientes')loadPac();
+  if(tab==='agenda')   loadCitas();
+  if(tab==='nueva_cita'){
+    const now=new Date();$('nc_fecha').value=now.toISOString().slice(0,16);
+  }
+}
+
+function closeModal(id){$(id).classList.remove('open');}
+
+// ═══════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════
+async function loadStats(){
+  try{
+    const s=await fetch('/api/hospital/stats').then(r=>r.json());
+    const S=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
+    S('s_pac',  s.pacientes_total||0);
+    S('s_cit',  s.citas_pendientes||0);
+    S('s_hoy',  s.citas_hoy||0);
+    S('s_med',  s.medicamentos_activos||0);
+    S('s_pru',  s.pruebas_pendientes||0);
+    S('s_urg',  s.urgencias_hoy||0);
+    S('tb_pac', `👤 ${s.pacientes_total||0} pac.`);
+    S('tb_citas',`📅 ${s.citas_pendientes||0} pendientes`);
+    S('tb_urg', `🚨 ${s.urgencias_hoy||0} urgencias`);
+    // Gráfica especialidades
+    const chart=$('esp_chart');
+    if(chart&&s.por_especialidad_citas){
+      const entries=Object.entries(s.por_especialidad_citas).slice(0,8);
+      const max=Math.max(...entries.map(e=>e[1]),1);
+      chart.innerHTML=entries.map(([k,v],i)=>`
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px">
+          <span style="min-width:130px;color:var(--text2);text-align:right;font-size:10px">${k}</span>
+          <div style="flex:1;height:16px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid var(--border)">
+            <div style="height:100%;background:var(--blue);width:${Math.round(v/max*100)}%;border-radius:4px;transition:.5s"></div>
+          </div>
+          <span style="min-width:24px;font-weight:700;color:var(--blue)">${v}</span>
+        </div>`).join('');
+    }
+  }catch(e){console.warn(e);}
+}
+loadStats();
+setInterval(loadStats,30000);
+
+// ═══════════════════════════════════════════
+//  INICIO
+// ═══════════════════════════════════════════
+async function loadInicio(){
+  // Próximas citas
+  const s=await fetch('/api/hospital/stats').then(r=>r.json());
+  const citas=s.proximas_citas||[];
+  const estBadge=est=>{
+    const m={'Confirmada':'green','Pendiente':'orange','Realizada':'teal','Cancelada':'red','No_presentado':'gray'};
+    return `<span class="badge ${m[est]||'gray'}">${est}</span>`;
+  };
+  $('proximas_citas').innerHTML=citas.length?citas.map(c=>`
+    <div class="cita-card ${new Date(c.fecha_hora)<new Date()?'pasada':''}">
+      <div class="cita-hora">
+        <div class="h">${c.fecha_hora?.slice(11,16)||'—'}</div>
+        <div class="d">${c.fecha_hora?.slice(0,10)||'—'}</div>
+      </div>
+      <div class="cita-info">
+        <div class="nombre">${c.nombre||'—'} ${c.apellido1||''}</div>
+        <div class="esp">📋 ${c.especialidad||'—'} · ${c.medico_nombre||'—'}</div>
+        <div class="sala">🚪 ${c.sala||'—'} · ${c.tipo_cita||'—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${estBadge(c.estado)}
+        <button class="btn xs teal" onclick="abrirFicha('${c.nhc}')">Ver ficha</button>
+      </div>
+    </div>`).join('')
+  :'<div class="empty"><div class="ei">📅</div>No hay citas próximas</div>';
+
+  // Últimos pacientes
+  const pd=await fetch('/api/hospital/pacientes?per=6').then(r=>r.json());
+  $('ultimos_pacientes').innerHTML=(pd.rows||[]).map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--bg3);
+      border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer"
+      onclick="abrirFicha('${p.nhc}')">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--blue3);
+        display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">
+        ${p.sexo==='Mujer'?'👩':'👨'}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700">${p.nombre} ${p.apellido1}</div>
+        <div style="font-size:10px;color:var(--text3)">${p.nhc} · ${p.mutua||'—'}</div>
+      </div>
+      <div style="text-align:right">
+        <span class="mini-stat">💊 ${p.num_medicamentos}</span>
+        <span class="mini-stat" style="margin-left:4px">📅 ${p.num_citas}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  PACIENTES
+// ═══════════════════════════════════════════
+async function loadPac(){
+  const q=$('pQ')?.value||'',mutua=$('pMutua')?.value||'';
+  if(pPage<0)pPage=0;
+  const d=await fetch(`/api/hospital/pacientes?q=${encodeURIComponent(q)}&mutua=${encodeURIComponent(mutua)}&page=${pPage}`).then(r=>r.json());
+  const total=d.total,pages=Math.ceil(total/20);
+  if(pPage>=pages&&pages>0)pPage=pages-1;
+  $('pPI').textContent=`Pág ${pPage+1}/${pages||1} | ${total} pacientes`;
+
+  const mutBadge=m=>{
+    const mc={'Seguridad Social':'blue','MUFACE':'purple','Adeslas':'green','Sanitas':'teal','Privado':'orange'};
+    return `<span class="badge ${mc[m]||'gray'}" style="font-size:9px">${m||'—'}</span>`;
+  };
+
+  $('pBody').innerHTML=(d.rows||[]).map(p=>{
+    const edad=p.fecha_nac?Math.floor((new Date('2025-06-01')-new Date(p.fecha_nac))/31557600000):'—';
+    let alg=[];try{alg=JSON.parse(p.alergias||'[]');}catch(e){}
+    const tieneAlg=alg.length&&!alg.includes('Ninguna conocida');
+    return`<tr>
+      <td><span class="nhc">${p.nhc}</span></td>
+      <td style="font-size:10px;color:var(--text2)">${p.dni||'—'}</td>
+      <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="abrirFicha('${p.nhc}')">${p.nombre} ${p.apellido1} ${p.apellido2||''}</td>
+      <td>${edad}</td>
+      <td>${p.sexo==='Mujer'?'♀':'♂'}</td>
+      <td><span class="badge ${p.grupo_sanguineo?.includes('-')?'red':'blue'}" style="font-size:10px">${p.grupo_sanguineo||'—'}</span></td>
+      <td style="font-size:11px">${p.telefono||'—'}</td>
+      <td>${mutBadge(p.mutua)}</td>
+      <td>${tieneAlg?`<span style="color:var(--red);font-weight:700;font-size:10px">⚠ ${alg.slice(0,2).join(', ')}</span>`:'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
+      <td style="text-align:center;font-weight:700;color:var(--teal)">${p.num_visitas||0}</td>
+      <td style="text-align:center;font-weight:700;color:var(--green)">${p.num_medicamentos||0}</td>
+      <td style="text-align:center;font-weight:700;color:var(--blue)">${p.num_citas||0}</td>
+      <td>
+        <button class="btn xs teal" onclick="abrirFicha('${p.nhc}')">Ver</button>
+      </td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="13" class="empty" style="padding:20px">Sin pacientes</td></tr>';
+}
+
+// ═══════════════════════════════════════════
+//  FICHA COMPLETA PACIENTE
+// ═══════════════════════════════════════════
+async function abrirFicha(nhc){
+  $('modalPac').classList.add('open');
+  $('modalPacContent').innerHTML='<div class="loading">Cargando ficha...</div>';
+  const d=await fetch(`/api/hospital/paciente/${nhc}`).then(r=>r.json());
+  if(d.error){$('modalPacContent').innerHTML=`<div class="ebox">${d.error}</div>`;return;}
+  const p=d.paciente;
+  const edad=p.fecha_nac?Math.floor((new Date('2025-06-01')-new Date(p.fecha_nac))/31557600000):'—';
+  let alg=[],enf=[],meds_hab=[];
+  try{alg=JSON.parse(p.alergias||'[]');}catch(e){}
+  try{enf=JSON.parse(p.enfermedades_cronicas||'[]');}catch(e){}
+  try{meds_hab=JSON.parse(p.medicacion_habitual||'[]');}catch(e){}
+  const tieneAlg=alg.length&&!alg.includes('Ninguna conocida');
+
+  // Historial - última visita constantes
+  const lastH=d.historial?.[0];
+
+  $('modalPacContent').innerHTML=`
+    <!-- HEADER PACIENTE -->
+    <div class="pac-header">
+      <div class="pac-avatar">${p.sexo==='Mujer'?'👩':'👨'}</div>
+      <div class="pac-info" style="flex:1">
+        <h2>${p.nombre} ${p.apellido1} ${p.apellido2||''}</h2>
+        <p>${p.nhc} · DNI: ${p.dni||'—'} · ${edad} años · ${p.sexo||'—'} · Grupo: ${p.grupo_sanguineo||'—'}</p>
+        <div class="pac-badges">
+          <span class="pac-badge">${p.mutua||'SS'}</span>
+          <span class="pac-badge">${p.municipio||p.provincia||'—'}</span>
+          ${tieneAlg?`<span class="pac-badge alert">⚠ ALERGIA: ${alg.slice(0,2).join(', ')}</span>`:''}
+          ${enf.length?enf.slice(0,2).map(e=>`<span class="pac-badge">${e}</span>`).join(''):''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:140px">
+        <button class="btn sm green" onclick="abrirModalVisita('${nhc}')">➕ Nueva visita</button>
+        <button class="btn sm orange" onclick="abrirModalMed('${nhc}')">💊 Añadir med.</button>
+        <button class="btn sm purple" onclick="abrirModalPrueba('${nhc}')">🔬 Solicitar prueba</button>
+        <button class="btn sm teal" onclick="nuevaCitaPac('${nhc}')">📅 Nueva cita</button>
+      </div>
+    </div>
+
+    ${tieneAlg?`<div class="alergia-alert">⚠️ ALERGIAS CONOCIDAS: ${alg.join(' · ')}</div>`:''}
+
+    <!-- VITALES (última visita) -->
+    ${lastH?`
+    <div class="vitales-grid">
+      ${vitCard('❤️','TA','${lastH.tension_sistolica||"—"}/${lastH.tension_diastolica||"—"} mmHg',lastH.tension_sistolica>140?'danger':'')}
+      ${vitCard('💓','FC','${lastH.frecuencia_cardiaca||"—"} lat/min',lastH.frecuencia_cardiaca>100||lastH.frecuencia_cardiaca<50?'warning':'')}
+      ${vitCard('🌡️','Temp.','${lastH.temperatura||"—"} °C',lastH.temperatura>37.5?'warning':'')}
+      ${vitCard('🩸','SatO2','${lastH.saturacion_o2||"—"} %',lastH.saturacion_o2<95?'danger':'')}
+      ${vitCard('🍬','Glucosa','${lastH.glucosa||"—"} mg/dl',lastH.glucosa>200?'danger':lastH.glucosa>140?'warning':'')}
+      ${vitCard('⚖️','Peso','${lastH.peso_kg||p.peso_kg||"—"} kg','')}
+    </div>`:''}
+
+    <!-- DATOS BÁSICOS -->
+    <div class="ficha-grid">
+      <div class="ficha-sep">📋 DATOS PERSONALES</div>
+      ${fc('Teléfono',p.telefono||'—')}${fc('Email',p.email||'—')}
+      ${fc('Dirección',p.direccion||'—')}${fc('C.Postal',p.codigo_postal||'—')}
+      ${fc('Provincia',p.provincia||'—')}${fc('Mutua',p.mutua||'—')}
+      ${fc('Nº SS',p.num_seguridad_social||'—')}${fc('Fumador',p.fumador||'No')}
+      ${fc('Alcohol',p.alcohol||'—')}${fc('Ant.Familiares',p.antecedentes_familiares||'—')}
+      <div class="ficha-sep">🏥 ENFERMEDADES CRÓNICAS</div>
+      ${enf.length?enf.map(e=>`<div class="ficha-card"><div class="fc-val orange">${e}</div></div>`).join(''):'<div class="ficha-card" style="color:var(--text3)">Ninguna registrada</div>'}
+      <div class="ficha-sep">💊 MEDICACIÓN HABITUAL</div>
+      ${meds_hab.length?meds_hab.map(m=>`<div class="ficha-card"><div class="fc-val green">${m}</div></div>`).join(''):'<div class="ficha-card" style="color:var(--text3)">Ninguna registrada</div>'}
+    </div>
+
+    <!-- TABS INTERNOS -->
+    <div class="inner-tabs" style="margin-top:16px">
+      <div class="itab active" onclick="innerTab('hist','${nhc}')">🕐 Historial (${d.historial.length})</div>
+      <div class="itab" onclick="innerTab('meds','${nhc}')">💊 Medicamentos (${d.medicamentos.length})</div>
+      <div class="itab" onclick="innerTab('citas','${nhc}')">📅 Citas (${d.citas.length})</div>
+      <div class="itab" onclick="innerTab('pruebas','${nhc}')">🔬 Pruebas (${d.pruebas.length})</div>
+    </div>
+    <div id="inner_content">${renderHistorial(d.historial)}</div>
+  `;
+
+  // Guardar datos para uso posterior
+  window._currentPacData = d;
+}
+
+function vitCard(icon,label,val,cls){
+  return `<div class="vt ${cls}"><div class="vt-icon">${icon}</div><div class="vt-val">${val}</div><div class="vt-label">${label}</div></div>`;
+}
+function fc(key,val,cls=''){
+  return `<div class="ficha-card"><div class="fc-key">${key}</div><div class="fc-val ${cls}">${val}</div></div>`;
+}
+
+function innerTab(tab,nhc){
+  document.querySelectorAll('.itab').forEach((el,i)=>{
+    el.classList.toggle('active',['hist','meds','citas','pruebas'][i]===tab);
+  });
+  const d=window._currentPacData;
+  if(!d)return;
+  const ic=$('inner_content');
+  if(tab==='hist')   ic.innerHTML=renderHistorial(d.historial);
+  if(tab==='meds')   ic.innerHTML=renderMedicamentos(d.medicamentos,nhc);
+  if(tab==='citas')  ic.innerHTML=renderCitasPac(d.citas);
+  if(tab==='pruebas')ic.innerHTML=renderPruebas(d.pruebas);
+}
+
+function renderHistorial(hist){
+  if(!hist||!hist.length)return'<div class="empty"><div class="ei">🕐</div>Sin visitas registradas</div>';
+  const icons={'Consulta':'🩺','Urgencia':'🚨','Ingreso':'🏥','Revisión':'✅','Alta':'🚪'};
+  return`<div class="timeline">${hist.map(h=>`
+    <div class="tl-item">
+      <div class="tl-dot ${(h.tipo||'').toLowerCase()}">${icons[h.tipo]||'📋'}</div>
+      <div class="tl-content">
+        <div class="tl-header">
+          <span class="tl-fecha">📅 ${h.fecha||'—'}</span>
+          <span class="tl-tipo" style="color:var(--blue)">${h.tipo||'—'}</span>
+          <span class="badge ${h.tipo==='Urgencia'?'red':h.tipo==='Ingreso'?'orange':'blue'}" style="font-size:9px">${h.especialidad||'—'}</span>
+          <span class="tl-medico">👨‍⚕️ ${h.medico_nombre||'—'}</span>
+          <span style="font-size:10px;color:var(--text3)">🚪 ${h.sala||'—'}</span>
+        </div>
+        <div class="tl-diag">🔍 ${h.diagnostico||'Sin diagnóstico'} <span style="font-size:10px;color:var(--text3)">${h.diagnostico_cie||''}</span></div>
+        ${h.motivo_consulta?`<div class="tl-desc"><strong>Motivo:</strong> ${h.motivo_consulta}</div>`:''}
+        ${h.tratamiento?`<div class="tl-desc" style="margin-top:3px"><strong>Tratamiento:</strong> ${h.tratamiento}</div>`:''}
+        ${h.observaciones?`<div class="tl-desc" style="margin-top:3px;color:var(--text3)">${h.observaciones}</div>`:''}
+        <div class="tl-vitales">
+          ${h.tension_sistolica?`<span class="vital ${h.tension_sistolica>140?'warning':''}">❤️ TA: ${h.tension_sistolica}/${h.tension_diastolica} mmHg</span>`:''}
+          ${h.frecuencia_cardiaca?`<span class="vital">💓 FC: ${h.frecuencia_cardiaca} lpm</span>`:''}
+          ${h.temperatura?`<span class="vital ${h.temperatura>37.5?'warning':''}">🌡️ ${h.temperatura}°C</span>`:''}
+          ${h.saturacion_o2?`<span class="vital ${h.saturacion_o2<95?'danger':''}">🩸 SatO2: ${h.saturacion_o2}%</span>`:''}
+          ${h.glucosa?`<span class="vital ${h.glucosa>200?'danger':''}">🍬 Glucosa: ${h.glucosa} mg/dl</span>`:''}
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderMedicamentos(meds,nhc){
+  if(!meds||!meds.length)return'<div class="empty"><div class="ei">💊</div>Sin medicamentos registrados</div>';
+  return`<div>
+    <button class="btn sm orange" onclick="abrirModalMed('${nhc}')" style="margin-bottom:10px">➕ Añadir medicamento</button>
+    ${meds.map(m=>`
+    <div class="med-item">
+      <div class="med-icon ${m.estado!=='Activo'?'suspendido':''}">💊</div>
+      <div class="med-info">
+        <div class="med-nombre">${m.nombre_med}</div>
+        <div class="med-dosis">💉 ${m.dosis||'—'} · ${m.frecuencia||'—'} · Vía: ${m.via_admin||'Oral'}</div>
+        <div class="med-meta">
+          👨‍⚕️ ${m.medico_prescriptor||'—'} · 📅 Inicio: ${m.fecha_inicio||'—'}
+          ${m.fecha_fin?` · Fin: ${m.fecha_fin}`:''}
+          ${m.motivo?` · Indicación: ${m.motivo}`:''}
+        </div>
+        ${m.notas?`<div class="med-meta" style="color:var(--orange)">ℹ️ ${m.notas}</div>`:''}
+      </div>
+      <div class="med-actions">
+        <span class="badge ${m.estado==='Activo'?'green':m.estado==='Suspendido'?'orange':'gray'}">${m.estado}</span>
+        ${m.estado==='Activo'?`
+          <button class="btn xs orange" onclick="cambiarEstMed(${m.id},'Suspendido')">Suspender</button>
+          <button class="btn xs red"    onclick="cambiarEstMed(${m.id},'Finalizado')">Finalizar</button>
+        `:m.estado==='Suspendido'?`
+          <button class="btn xs green" onclick="cambiarEstMed(${m.id},'Activo')">Reactivar</button>
+        `:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderCitasPac(citas){
+  if(!citas||!citas.length)return'<div class="empty"><div class="ei">📅</div>Sin citas registradas</div>';
+  const estBadge=est=>{
+    const m={'Confirmada':'green','Pendiente':'orange','Realizada':'teal','Cancelada':'red','No_presentado':'gray'};
+    return `<span class="badge ${m[est]||'gray'}">${est}</span>`;
+  };
+  return`<div>
+    ${citas.map(c=>`
+    <div class="cita-card ${new Date(c.fecha_hora)<new Date()&&c.estado!=='Confirmada'&&c.estado!=='Pendiente'?'pasada':''}">
+      <div class="cita-hora">
+        <div class="h">${c.fecha_hora?.slice(11,16)||'—'}</div>
+        <div class="d">${c.fecha_hora?.slice(0,10)||'—'}</div>
+      </div>
+      <div class="cita-info">
+        <div class="nombre">📋 ${c.tipo_cita||'Consulta'}</div>
+        <div class="esp">🏥 ${c.especialidad||'—'} · ${c.medico_nombre||'—'}</div>
+        <div class="sala">🚪 ${c.sala||'—'} · ${c.duracion_min||20} min</div>
+        ${c.motivo?`<div class="sala">💬 ${c.motivo}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${estBadge(c.estado)}
+        ${c.estado==='Pendiente'||c.estado==='Confirmada'?`<button class="btn xs red" onclick="cancelarCita(${c.id})">Cancelar</button>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderPruebas(pruebas){
+  if(!pruebas||!pruebas.length)return'<div class="empty"><div class="ei">🔬</div>Sin pruebas diagnósticas</div>';
+  const icons={'Analítica':'🧪','Radiografía':'🦴','ECG':'❤️','TAC':'🧠','RMN':'🔮','Ecografía':'🔊','Biopsia':'🔬'};
+  return`<div style="display:flex;flex-direction:column;gap:8px">
+    ${pruebas.map(p=>`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:20px">${icons[p.tipo_prueba]||'🔬'}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700">${p.tipo_prueba||'—'}</div>
+          <div style="font-size:11px;color:var(--text2)">Solicitante: ${p.solicitante||'—'} · Solicitada: ${p.fecha_solicitud||'—'}</div>
+          ${p.descripcion?`<div style="font-size:11px;color:var(--text2)">${p.descripcion}</div>`:''}
+        </div>
+        <span class="badge ${p.estado==='Entregada'?'green':p.estado==='Realizada'?'teal':p.estado==='Solicitada'?'orange':'gray'}">${p.estado}</span>
+      </div>
+      ${p.resultado?`<div style="margin-top:8px;background:var(--bg2);border-radius:6px;padding:8px;font-size:11px;color:var(--text)"><strong>Resultado:</strong> ${p.resultado}</div>`:''}
+      ${p.valores_analitica?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">
+        ${Object.entries(JSON.parse(p.valores_analitica)).map(([k,v])=>`<span class="mini-stat">🔹 ${k}: <strong>${v}</strong></span>`).join('')}
+      </div>`:''}
+    </div>`).join('')}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  NUEVO PACIENTE
+// ═══════════════════════════════════════════
+async function precargarDNI(){
+  const dni=$('nuevo_dni_buscar').value.trim();
+  if(!dni){return;}
+  const r=await fetch(`/api/hospital/buscar_dni/${dni}`).then(x=>x.json());
+  if(r.encontrado){
+    $('dni_buscar_res').innerHTML=`<span style="color:var(--orange);font-weight:600">⚠️ Ya existe como paciente: <strong>${r.paciente.nombre} ${r.paciente.apellido1}</strong> (${r.paciente.nhc}) <button class="btn xs teal" onclick="abrirFicha('${r.paciente.nhc}')">Ver ficha</button></span>`;
+    return;
+  }
+  if(r.ciudadano){
+    const c=r.ciudadano;
+    $('np_dni').value=c.dni||'';$('np_nombre').value=c.nombre||'';
+    $('np_ap1').value=c.apellido1||'';$('np_ap2').value=c.apellido2||'';
+    $('np_sexo').value=c.sexo||'Mujer';$('np_fnac').value=c.fecha_nac||'';
+    $('np_tel').value=c.telefono||'';$('np_email').value=c.email||'';
+    $('np_dir').value=c.direccion||'';$('np_mun').value=c.municipio||'';
+    $('np_cp').value=c.codigo_postal||'';$('np_prov').value=c.provincia_residencia||'';
+    $('dni_buscar_res').innerHTML=`<span style="color:var(--green);font-weight:600">✓ Datos precargados desde el sistema DGT para ${c.nombre} ${c.apellido1}</span>`;
+  } else {
+    $('np_dni').value=dni;
+    $('dni_buscar_res').innerHTML=`<span style="color:var(--text3)">DNI no encontrado en el sistema. Rellena los datos manualmente.</span>`;
+  }
+}
+
+async function crearPaciente(){
+  const nombre=$('np_nombre').value.trim();
+  const ap1=$('np_ap1').value.trim();
+  if(!nombre||!ap1){toast('⚠ Nombre y primer apellido son obligatorios','err');return;}
+  const alg=$('np_alergias').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const enf=$('np_cronicas').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const data={
+    dni:$('np_dni').value.trim(),nombre,apellido1:ap1,apellido2:$('np_ap2').value,
+    sexo:$('np_sexo').value,fecha_nac:$('np_fnac').value,
+    telefono:$('np_tel').value,telefono2:$('np_tel2').value,
+    email:$('np_email').value,direccion:$('np_dir').value,
+    municipio:$('np_mun').value,codigo_postal:$('np_cp').value,
+    provincia:$('np_prov').value,grupo_sanguineo:$('np_gs').value,
+    alergias:alg,enfermedades_cronicas:enf,
+    fumador:$('np_fum').value,alcohol:$('np_alc').value,
+    peso_kg:parseFloat($('np_peso').value)||null,
+    altura_cm:parseInt($('np_altura').value)||null,
+    antecedentes_familiares:$('np_antfam').value,
+    mutua:$('np_mutua').value,num_seguridad_social:$('np_nss').value,
+    notas_admin:$('np_notas').value,
+  };
+  try{
+    const r=await fetch('/api/hospital/paciente/nuevo',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
+    }).then(x=>x.json());
+    if(r.ok){
+      toast(`✅ Paciente registrado: ${r.nhc}`);
+      $('np_res').textContent=`✓ Registrado con NHC: ${r.nhc}`;
+      $('np_err').innerHTML=`<div class="sbox">✅ Paciente registrado correctamente con NHC: <strong>${r.nhc}</strong>
+        <button class="btn xs teal" onclick="abrirFicha('${r.nhc}')" style="margin-left:10px">Ver ficha</button></div>`;
+      loadStats();
+    }else throw new Error(JSON.stringify(r));
+  }catch(e){
+    $('np_err').innerHTML=`<div class="ebox">⚠ Error: ${e.message}</div>`;
+    toast('⚠ Error al registrar','err');
+  }
+}
+
+function limpiarFormPac(){
+  ['np_dni','np_nombre','np_ap1','np_ap2','np_fnac','np_tel','np_tel2','np_email',
+   'np_dir','np_mun','np_cp','np_prov','np_alergias','np_antfam','np_cronicas',
+   'np_peso','np_altura','np_nss','np_notas'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  $('np_res').textContent='';$('np_err').innerHTML='';
+}
+
+// ═══════════════════════════════════════════
+//  CITAS
+// ═══════════════════════════════════════════
+async function loadCitas(){
+  const fecha=$('aFecha')?.value||'',esp=$('aEsp')?.value||'',est=$('aEst')?.value||'';
+  if(aPage<0)aPage=0;
+  const d=await fetch(`/api/hospital/citas?fecha=${fecha}&especialidad=${encodeURIComponent(esp)}&estado=${encodeURIComponent(est)}&page=${aPage}`).then(r=>r.json());
+  const total=d.total,pages=Math.ceil(total/20);
+  $('aPI').textContent=`Pág ${aPage+1}/${pages||1} | ${total} citas`;
+  const ec={'Confirmada':'green','Pendiente':'orange','Realizada':'teal','Cancelada':'red','No_presentado':'gray'};
+  $('aBody').innerHTML=(d.rows||[]).map(c=>`
+    <tr>
+      <td style="font-weight:600;color:var(--blue)">${c.fecha_hora?.slice(0,16)||'—'}</td>
+      <td><span class="nhc">${c.nhc}</span></td>
+      <td style="font-weight:600;cursor:pointer;color:var(--blue)" onclick="abrirFicha('${c.nhc}')">${c.nombre||'—'} ${c.apellido1||''}</td>
+      <td style="font-size:11px">${c.especialidad||'—'}</td>
+      <td title="${c.medico_nombre||''}" style="font-size:10px;color:var(--text2)">${(c.medico_nombre||'—').substring(0,20)}</td>
+      <td style="font-size:10px">${c.sala||'—'}</td>
+      <td style="font-size:10px">${c.tipo_cita||'—'}</td>
+      <td title="${c.motivo||''}" style="font-size:10px;color:var(--text2)">${(c.motivo||'—').substring(0,18)}</td>
+      <td style="text-align:center">${c.duracion_min||20}</td>
+      <td><span class="badge ${ec[c.estado]||'gray'}" style="font-size:9px">${c.estado||'—'}</span></td>
+      <td>
+        ${c.estado==='Pendiente'||c.estado==='Confirmada'?`
+          <button class="btn xs green" onclick="cambiarEstCita(${c.id},'Realizada')">✓ Realizada</button>
+          <button class="btn xs red" onclick="cancelarCita(${c.id})">✕</button>
+        `:c.estado==='Realizada'?`<button class="btn xs teal" onclick="abrirFicha('${c.nhc}')">Ver</button>`:''}
+      </td>
+    </tr>`).join('')||'<tr><td colspan="11" class="empty" style="padding:20px">Sin citas</td></tr>';
+}
+
+async function crearCita(){
+  const nhc=$('nc_nhc').value.trim();
+  if(!nhc){toast('⚠ Introduce el NHC del paciente','err');return;}
+  const sel=$('nc_medico');const medNombre=sel.options[sel.selectedIndex]?.dataset?.nombre||sel.options[sel.selectedIndex]?.text||'';
+  const data={
+    nhc,especialidad:$('nc_esp').value,medico_id:parseInt($('nc_medico').value),
+    medico_nombre:medNombre.split(' — ')[0],
+    sala:$('nc_sala').value,tipo_cita:$('nc_tipo').value,
+    fecha_hora:$('nc_fecha').value,duracion_min:parseInt($('nc_dur').value)||20,
+    motivo:$('nc_motivo').value,estado:$('nc_estado').value,
+  };
+  if(!data.fecha_hora){toast('⚠ Introduce fecha y hora','err');return;}
+  try{
+    const r=await fetch('/api/hospital/cita/nueva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+    if(r.ok){
+      toast(`✅ Cita registrada #${r.id}`);
+      $('nc_res').textContent=`✓ Cita #${r.id} creada`;
+      $('nc_err').innerHTML=`<div class="sbox">✅ Cita registrada correctamente</div>`;
+      loadStats();
+    }else throw new Error(JSON.stringify(r));
+  }catch(e){
+    $('nc_err').innerHTML=`<div class="ebox">⚠ ${e.message}</div>`;
+    toast('⚠ Error','err');
+  }
+}
+
+async function cancelarCita(id){
+  if(!confirm('¿Cancelar esta cita?'))return;
+  const r=await fetch(`/api/hospital/cita/${id}/cancelar`,{method:'POST'}).then(x=>x.json());
+  if(r.ok){toast('Cita cancelada','warn');loadCitas();}
+}
+
+async function cambiarEstCita(id,est){
+  const r=await fetch(`/api/hospital/cita/${id}/estado`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:est})}).then(x=>x.json());
+  if(r.ok){toast(`✓ Estado → ${est}`);loadCitas();}
+}
+
+function nuevaCitaPac(nhc){
+  $('nc_nhc').value=nhc;
+  closeModal('modalPac');
+  ST('nueva_cita');
+}
+
+async function buscarPacCita(){
+  const q=$('nc_buscar').value.trim();
+  if(!q)return;
+  let url='';
+  if(q.startsWith('NHC-')){url=`/api/hospital/paciente/${q}`;}
+  else{url=`/api/hospital/buscar_dni/${q}`;}
+  const d=await fetch(url).then(x=>x.json());
+  const p=d.paciente||d;
+  if(p&&p.nhc){
+    $('nc_nhc').value=p.nhc;
+    $('nc_pac_info').innerHTML=`<span style="color:var(--green);font-weight:600">✓ ${p.nombre} ${p.apellido1} (${p.nhc})</span>`;
+  }else{
+    $('nc_pac_info').innerHTML=`<span style="color:var(--red)">⚠ Paciente no encontrado</span>`;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  BUSCAR POR DNI
+// ═══════════════════════════════════════════
+async function buscarDNI(){
+  const q=$('bdQ').value.trim();
+  if(!q)return;
+  $('bd_result').innerHTML='<div class="loading">Buscando...</div>';
+  const r=await fetch(`/api/hospital/buscar_dni/${q}`).then(x=>x.json());
+  if(r.encontrado){
+    const p=r.paciente;
+    $('bd_result').innerHTML=`
+      <div style="background:var(--green2);border:1.5px solid var(--green);border-radius:10px;padding:16px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <span style="font-size:32px">${p.sexo==='Mujer'?'👩':'👨'}</span>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${p.nombre} ${p.apellido1} ${p.apellido2||''}</div>
+            <div style="font-size:13px;color:var(--text2)"><span class="nhc">${p.nhc}</span> · DNI: ${p.dni||q} · Mutua: ${p.mutua||'—'}</div>
+          </div>
+          <button class="btn teal" onclick="abrirFicha('${p.nhc}')" style="margin-left:auto">📋 Ver ficha completa</button>
+        </div>
+      </div>`;
+  } else if(r.ciudadano){
+    const c=r.ciudadano;
+    $('bd_result').innerHTML=`
+      <div style="background:var(--orange2);border:1.5px solid var(--orange);border-radius:10px;padding:16px">
+        <div style="font-size:14px;font-weight:700;color:var(--orange3)">⚠️ DNI encontrado en el sistema DGT pero NO registrado como paciente</div>
+        <div style="font-size:13px;margin-top:8px"><strong>${c.nombre} ${c.apellido1} ${c.apellido2||''}</strong> · ${c.provincia_residencia||'—'}</div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn green" onclick="precDNIAlta('${c.dni}')">➕ Registrar como paciente</button>
+        </div>
+      </div>`;
+  } else {
+    $('bd_result').innerHTML=`
+      <div class="ebox">
+        <div style="font-size:14px;font-weight:700">DNI no encontrado en ningún sistema</div>
+        <div style="margin-top:8px"><button class="btn sm green" onclick="ST('nuevo_pac')">➕ Registrar nuevo paciente manualmente</button></div>
+      </div>`;
+  }
+}
+
+function precDNIAlta(dni){
+  $('nuevo_dni_buscar').value=dni;
+  ST('nuevo_pac');
+  precargarDNI();
+}
+
+// ═══════════════════════════════════════════
+//  MODALES: VISITA / MEDICAMENTO / PRUEBA
+// ═══════════════════════════════════════════
+function abrirModalVisita(nhc){
+  $('v_nhc').value=nhc;
+  $('v_fecha').value=new Date().toISOString().slice(0,10);
+  $('v_res').textContent='';$('v_err').innerHTML='';
+  $('modalVisita').classList.add('open');
+}
+
+async function guardarVisita(){
+  const nhc=$('v_nhc').value;
+  const motivo=$('v_motivo').value.trim();
+  const diag=$('v_diag').value.trim();
+  if(!motivo||!diag){toast('⚠ Motivo y diagnóstico son obligatorios','err');return;}
+  const sel=$('v_med');const medNombre=sel.options[sel.selectedIndex]?.text?.split(' — ')?.[0]||'';
+  const data={
+    nhc,tipo:$('v_tipo').value,especialidad:$('v_esp').value,
+    medico_id:parseInt($('v_med').value),medico_nombre:medNombre,
+    sala:$('v_sala').value,fecha:$('v_fecha').value,
+    motivo_consulta:motivo,anamnesis:$('v_anamnesis').value,
+    exploracion:$('v_exploracion').value,diagnostico:diag,
+    diagnostico_cie:$('v_cie').value,tratamiento:$('v_trat').value,
+    observaciones:$('v_obs').value,
+    tension_sistolica:parseInt($('v_tas').value)||null,
+    tension_diastolica:parseInt($('v_tad').value)||null,
+    frecuencia_cardiaca:parseInt($('v_fc').value)||null,
+    temperatura:parseFloat($('v_temp').value)||null,
+    saturacion_o2:parseInt($('v_sato2').value)||null,
+    glucosa:parseInt($('v_gluc').value)||null,
+    peso_kg:parseFloat($('v_peso').value)||null,
+  };
+  try{
+    const r=await fetch('/api/hospital/historial/nuevo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+    if(r.ok){
+      toast('✅ Visita registrada');$('v_res').textContent='✓ Guardado';
+      closeModal('modalVisita');
+      // Recargar ficha
+      await abrirFicha(nhc);
+      loadStats();
+    }else throw new Error(JSON.stringify(r));
+  }catch(e){$('v_err').innerHTML=`<div class="ebox">⚠ ${e.message}</div>`;toast('⚠ Error','err');}
+}
+
+function abrirModalMed(nhc){
+  $('med_nhc').value=nhc;
+  $('med_fi').value=new Date().toISOString().slice(0,10);
+  $('med_res').textContent='';$('med_err').innerHTML='';
+  $('modalMed').classList.add('open');
+}
+
+async function guardarMedicamento(){
+  const nhc=$('med_nhc').value;
+  const nombre=$('med_nombre').value.trim();
+  if(!nombre){toast('⚠ Introduce el nombre del medicamento','err');return;}
+  const data={
+    nhc,nombre_med:nombre,principio_activo:$('med_pa').value,
+    dosis:$('med_dosis').value,frecuencia:$('med_freq').value,
+    via_admin:$('med_via').value,fecha_inicio:$('med_fi').value,
+    fecha_fin:$('med_ff').value||null,
+    medico_prescriptor:$('med_med').options[$('med_med').selectedIndex]?.text?.split(' — ')?.[0]||'',
+    motivo:$('med_motivo').value,estado:'Activo',notas:$('med_notas').value,
+  };
+  try{
+    const r=await fetch('/api/hospital/medicamento/nuevo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+    if(r.ok){
+      toast(`✅ Medicamento añadido: ${nombre}`);$('med_res').textContent='✓ Guardado';
+      closeModal('modalMed');await abrirFicha(nhc);loadStats();
+    }else throw new Error(JSON.stringify(r));
+  }catch(e){$('med_err').innerHTML=`<div class="ebox">⚠ ${e.message}</div>`;toast('⚠ Error','err');}
+}
+
+async function cambiarEstMed(id,est){
+  const r=await fetch(`/api/hospital/medicamento/${id}/estado`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({estado:est})}).then(x=>x.json());
+  if(r.ok){
+    toast(`✓ Medicamento → ${est}`,'warn');
+    if(window._currentPacData){await abrirFicha(window._currentPacData.paciente.nhc);}
+  }
+}
+
+function abrirModalPrueba(nhc){
+  $('pru_nhc').value=nhc;
+  $('pru_fs').value=new Date().toISOString().slice(0,10);
+  $('pru_res').textContent='';
+  $('modalPrueba').classList.add('open');
+}
+
+async function guardarPrueba(){
+  const nhc=$('pru_nhc').value;
+  const data={
+    nhc,tipo_prueba:$('pru_tipo').value,fecha_solicitud:$('pru_fs').value,
+    fecha_resultado:$('pru_fr').value||null,
+    solicitante:$('pru_med').options[$('pru_med').selectedIndex]?.text?.split(' — ')?.[0]||'',
+    descripcion:$('pru_desc').value,resultado:$('pru_res_txt').value,
+    estado:$('pru_fr').value?'Entregada':'Solicitada',
+  };
+  try{
+    const r=await fetch('/api/hospital/prueba/nueva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(x=>x.json());
+    if(r.ok){
+      toast('✅ Prueba solicitada');$('pru_res').textContent='✓ Guardado';
+      closeModal('modalPrueba');await abrirFicha(nhc);
+    }else throw new Error(JSON.stringify(r));
+  }catch(e){toast('⚠ Error: '+e.message,'err');}
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+// Fecha de hoy en agenda
+const hoy=new Date().toISOString().slice(0,10);
+if($('aFecha'))$('aFecha').value=hoy;
+loadInicio();
+</script>
+</body>
+</html>
